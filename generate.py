@@ -56,7 +56,7 @@ def prepare_scene(data, filename) :
 #with open('Template.json',"r",encoding="utf-8") as template:
 #    data = json.load(template)
 
-name = "Dimanche 10 janvier 2021"
+name = "Dimanche 17 janvier 2021"
 Mycollect=Scene_Collection(name)
 
 prepare_cantique(Mycollect,"Frappez dans vos mains")
@@ -65,8 +65,3 @@ prepare_cantique(Mycollect,"Si vous saviez quel Sauveur")
 
 with open(name+".json", 'w') as outfile:
         json.dump(Mycollect.to_json(), outfile)
-
-#data = prepare_scene(data,filename = "a_toi_la_gloire.txt")
-#data = prepare_scene(data,filename = "confie.txt")
-#data = prepare_scene(data,filename = "tu_me_veux.txt")
-
