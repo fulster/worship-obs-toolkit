@@ -7,7 +7,11 @@ from obs_json_resources import Scene
 name = "Dimanche 17 janvier 2021 YESSSS"
 
 collection = Scene_Collection(name)
+
+# Add scenes from ./txt directory (not ordered right now)
 collection.generate_scenes_from_dir('./txt')
+
+# Add scenes in that order
 # collection.add_scene('./txt/21-07 Qu’aujourd’hui toute la terre.txt')
 # collection.add_scene('./txt/Psaume 36 O Seigneur, ta fidélité.txt')
 # collection.add_scene('./txt/(spontané) 36-12 O notre Dieu, nous te prions.txt')
