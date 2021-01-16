@@ -1,0 +1,90 @@
+{
+            "balance": 0.5,
+            "deinterlace_field_order": 0,
+            "deinterlace_mode": 0,
+            "enabled": true,
+            "filters": [
+                {
+                    "balance": 0.5,
+                    "deinterlace_field_order": 0,
+                    "deinterlace_mode": 0,
+                    "enabled": true,
+                    "flags": 0,
+                    "hotkeys": {},
+                    "id": "scroll_filter",
+                    "mixers": 0,
+                    "monitoring_type": 0,
+                    "muted": false,
+                    "name": "Défilement",
+                    "prev_ver": 436273152,
+                    "private_settings": {},
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "settings": {
+                        "limit_cx": false,
+                        "loop": false,
+                        "speed_y": 20.0
+                    },
+                    "sync": 0,
+                    "versioned_id": "scroll_filter",
+                    "volume": 1.0
+                },
+                {
+                    "balance": 0.5,
+                    "deinterlace_field_order": 0,
+                    "deinterlace_mode": 0,
+                    "enabled": true,
+                    "flags": 0,
+                    "hotkeys": {},
+                    "id": "gpu_delay",
+                    "mixers": 0,
+                    "monitoring_type": 0,
+                    "muted": false,
+                    "name": "Délai de rendu",
+                    "prev_ver": 436273152,
+                    "private_settings": {},
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "settings": {
+                        "delay_ms": 300
+                    },
+                    "sync": 0,
+                    "versioned_id": "gpu_delay",
+                    "volume": 1.0
+                }
+            ],
+            "flags": 0,
+            "hotkeys": {},
+            "id": "text_gdiplus",
+            "mixers": 0,
+            "monitoring_type": 0,
+            "muted": false,
+            "name": "$$name$$",
+            "prev_ver": 436273152,
+            "private_settings": {},
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "settings": {
+                "align": "center",
+                "bk_opacity": 45,
+				"extents": true,
+                "extents_cx": 1920,
+                "extents_cy": 10000,
+                "font": {
+                    "face": "Calibri",
+                    "flags": 0,
+                    "size": 96,
+                    "style": "Regular"
+                },
+                "text": "$$text$$"
+            },
+            "sync": 0,
+            "versioned_id": "text_gdiplus_v2",
+            "volume": 1.0
+        }

@@ -1,0 +1,1496 @@
+{
+	"AuxAudioDevice1": {
+		"balance": 0.5,
+		"deinterlace_field_order": 0,
+		"deinterlace_mode": 0,
+		"enabled": true,
+		"flags": 0,
+		"hotkeys": {
+			"libobs.mute": [],
+			"libobs.push-to-mute": [],
+			"libobs.push-to-talk": [],
+			"libobs.unmute": []
+		},
+		"id": "wasapi_input_capture",
+		"mixers": 255,
+		"monitoring_type": 2,
+		"muted": true,
+		"name": "Mic/Aux",
+		"prev_ver": 436273152,
+		"private_settings": {},
+		"push-to-mute": false,
+		"push-to-mute-delay": 0,
+		"push-to-talk": false,
+		"push-to-talk-delay": 0,
+		"settings": {
+			"device_id": "{0.0.1.00000000}.{e9c1df97-0868-4159-befa-97c7a940dda0}"
+		},
+		"sync": 0,
+		"versioned_id": "wasapi_input_capture",
+		"volume": 0.5394383072853088
+	},
+	"current_program_scene": "Base : temple",
+	"current_scene": "Base : temple",
+	"current_transition": "Fondu",
+	"groups": [],
+	"modules": {
+		"auto-scene-switcher": {
+			"active": false,
+			"interval": 300,
+			"non_matching_scene": "",
+			"switch_if_not_matching": false,
+			"switches": []
+		},
+		"captions": {
+			"enabled": false,
+			"lang_id": 1036,
+			"provider": "mssapi",
+			"source": ""
+		},
+		"decklink_captions": {
+			"source": ""
+		},
+		"output-timer": {
+			"autoStartRecordTimer": false,
+			"autoStartStreamTimer": false,
+			"pauseRecordTimer": true,
+			"recordTimerHours": 0,
+			"recordTimerMinutes": 0,
+			"recordTimerSeconds": 30,
+			"streamTimerHours": 0,
+			"streamTimerMinutes": 0,
+			"streamTimerSeconds": 30
+		},
+		"scripts-tool": []
+	},
+	"name": "Template",
+	"preview_locked": false,
+	"quick_transitions": [
+		{
+			"duration": 300,
+			"fade_to_black": false,
+			"hotkeys": [],
+			"id": 3,
+			"name": "Coupure"
+		},
+		{
+			"duration": 300,
+			"fade_to_black": false,
+			"hotkeys": [],
+			"id": 4,
+			"name": "Fondu"
+		},
+		{
+			"duration": 300,
+			"fade_to_black": true,
+			"hotkeys": [],
+			"id": 5,
+			"name": "Fondu"
+		}
+	],
+	"saved_projectors": [],
+	"scaling_enabled": false,
+	"scaling_level": 0,
+	"scaling_off_x": 0.0,
+	"scaling_off_y": 0.0,
+	"scene_order": [
+		{
+			"name": "Base : temple"
+		}
+	],
+	"sources": [
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {
+				"OBSBasic.SelectScene": []
+			},
+			"id": "scene",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": "true",
+			"name": "Base : temple",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"custom_size": false,
+				"id_counter": 0,
+				"items": [
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1920.0,
+							"y": 1080.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 1,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 1,
+						"locked": false,
+						"name": "iOS Camera",
+						"pos": {
+							"x": 0.0,
+							"y": 0.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					}
+				]
+			},
+			"sync": 0,
+			"versioned_id": "scene",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {
+				"OBSBasic.SelectScene": []
+			},
+			"id": "scene",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "Test : ajout texte",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"custom_size": false,
+				"id_counter": 0,
+				"items": [
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1920.0,
+							"y": 1080.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 1,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 1,
+						"locked": false,
+						"name": "iOS Camera",
+						"pos": {
+							"x": 0.0,
+							"y": 0.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "Paroles exemple",
+						"pos": {
+							"x": 800.0,
+							"y": 0.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					}
+				]
+			},
+			"sync": 0,
+			"versioned_id": "scene",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"filters": [
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "gain_filter",
+					"mixers": 255,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Gain",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"db": 4.9
+					},
+					"sync": 0,
+					"versioned_id": "gain_filter",
+					"volume": 1.0
+				}
+			],
+			"flags": 0,
+			"hotkeys": {
+				"libobs.mute": [],
+				"libobs.push-to-mute": [],
+				"libobs.push-to-talk": [],
+				"libobs.unmute": []
+			},
+			"id": "ios-camera-source",
+			"mixers": 255,
+			"monitoring_type": 0,
+			"muted": true,
+			"name": "iOS Camera",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"setting_device_uuid": "00008020-00063C401E52002E"
+			},
+			"sync": 0,
+			"versioned_id": "ios-camera-source",
+			"volume": 0.7115913033485413
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"filters": [
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "scroll_filter",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Défilement",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"limit_cx": false,
+						"loop": false,
+						"speed_y": 20.0
+					},
+					"sync": 0,
+					"versioned_id": "scroll_filter",
+					"volume": 1.0
+				},
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "gpu_delay",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Délai de rendu",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"delay_ms": 300
+					},
+					"sync": 0,
+					"versioned_id": "gpu_delay",
+					"volume": 1.0
+				}
+			],
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "Paroles exemple",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"bk_opacity": 35,
+				"extents": true,
+				"extents_cx": 1120,
+				"extents_cy": 10000,
+				"font": {
+					"face": "Calibri",
+					"flags": 0,
+					"size": 80,
+					"style": "Regular"
+				},
+				"text": "\n\n\n\n\n\n\n\n\n\nAube nouvelle\nDans notre nuit\nPour sauver son peuple\nDieu va venir\nJoie pour les pauvres\nFête aujourd'hui\nIl faut préparer la route au Seigneur\nIl faut préparer la route au Seigneur\n\nBonne nouvelle\nCris et chansons\nPour sauver son peuple\nDieu va venir\nVoix qui s'élève dans nos déserts\nIl faut préparer la route au Seigneur\nIl faut préparer la route au Seigneur\n\nTerre nouvelle\nMonde nouveau\nPour sauver son peuple\nDieu va venir\nPaix sur la terre\nCiel parmi nous\nIl faut préparer la route au Seigneur\nIl faut préparer la route au Seigneur"
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "tu_me_veux.txt: titre",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"bk_color": 4278190080,
+				"bk_opacity": 45,
+				"extents": true,
+				"extents_cx": 1920,
+				"extents_cy": 250,
+				"chatlog": false,
+				"font": {
+					"face": "Calibri",
+					"flags": 1,
+					"size": 120,
+					"style": "Bold"
+				},
+				"gradient": false,
+				"opacity": 100,
+				"outline": false,
+				"outline_color": 4278190132,
+				"text": " 44/07 (1,2,3)\n Tu me veux à ton service\n",
+				"transform": 3,
+				"vertical": false
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"filters": [
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "scroll_filter",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Défilement",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"limit_cx": false,
+						"loop": false,
+						"speed_y": 20.0
+					},
+					"sync": 0,
+					"versioned_id": "scroll_filter",
+					"volume": 1.0
+				},
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "gpu_delay",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Délai de rendu",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"delay_ms": 300
+					},
+					"sync": 0,
+					"versioned_id": "gpu_delay",
+					"volume": 1.0
+				}
+			],
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "tu_me_veux.txt: paroles",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"align": "center",
+				"bk_opacity": 45,
+				"extents": true,
+				"extents_cx": 1920,
+				"extents_cy": 10000,
+				"font": {
+					"face": "Calibri",
+					"flags": 0,
+					"size": 96,
+					"style": "Regular"
+				},
+				"text": "\n\n\n\n\n 1. Tu me veux à ton service,\n Moi qui sans toi ne suis rien.\n Qu’à toute heure s’accomplisse\n Ton désir et non le mien!\n Ce que j’ai, tu le possèdes,\n Mais tu veux le recevoir:\n Conduis nous, toi qui nous aides\n A mettre en toi notre espoir!\n\n 2. Le plus grand parmi les hommes,\n Tu l’as dit, Maître très doux,\n Sur cette terre où nous sommes,\n C’est le serviteur de tous.\n Tu fis mieux que de le dire\n Quand, pour nous, tu vins t’offrir.\n Confonds ce cœur qui n’aspire\n Qu’à se faire encore servir!\n\n 3. Jésus, si ta main me guide,\n Je marcherai par la foi;\n Tout chemin sera limpide,\n Tout travail sera pour toi.\n Je suis prêt pour la bataille,\n Sa douleur et son effort.\n Je vais où tu veux que j’aille,\n Dans la vie et dans la mort.\n"
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {
+				"OBSBasic.SelectScene": []
+			},
+			"id": "scene",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "scene : tu_me_veux.txt",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"custom_size": false,
+				"id_counter": 0,
+				"items": [
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1920.0,
+							"y": 1080.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 1,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 1,
+						"locked": false,
+						"name": "iOS Camera",
+						"pos": {
+							"x": 0.0,
+							"y": 0.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					}
+				]
+			},
+			"sync": 0,
+			"versioned_id": "scene",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "tu_me_veux.txt: titre",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"bk_color": 4278190080,
+				"bk_opacity": 45,
+				"extents": true,
+				"extents_cx": 1920,
+				"extents_cy": 250,
+				"chatlog": false,
+				"font": {
+					"face": "Calibri",
+					"flags": 1,
+					"size": 120,
+					"style": "Bold"
+				},
+				"gradient": false,
+				"opacity": 100,
+				"outline": false,
+				"outline_color": 4278190132,
+				"text": " 44/07 (1,2,3)\n Tu me veux à ton service\n",
+				"transform": 3,
+				"vertical": false
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"filters": [
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "scroll_filter",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Défilement",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"limit_cx": false,
+						"loop": false,
+						"speed_y": 20.0
+					},
+					"sync": 0,
+					"versioned_id": "scroll_filter",
+					"volume": 1.0
+				},
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "gpu_delay",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Délai de rendu",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"delay_ms": 300
+					},
+					"sync": 0,
+					"versioned_id": "gpu_delay",
+					"volume": 1.0
+				}
+			],
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "tu_me_veux.txt: paroles",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"align": "center",
+				"bk_opacity": 45,
+				"extents": true,
+				"extents_cx": 1920,
+				"extents_cy": 10000,
+				"font": {
+					"face": "Calibri",
+					"flags": 0,
+					"size": 96,
+					"style": "Regular"
+				},
+				"text": "\n\n\n\n\n 1. Tu me veux à ton service,\n Moi qui sans toi ne suis rien.\n Qu’à toute heure s’accomplisse\n Ton désir et non le mien!\n Ce que j’ai, tu le possèdes,\n Mais tu veux le recevoir:\n Conduis nous, toi qui nous aides\n A mettre en toi notre espoir!\n\n 2. Le plus grand parmi les hommes,\n Tu l’as dit, Maître très doux,\n Sur cette terre où nous sommes,\n C’est le serviteur de tous.\n Tu fis mieux que de le dire\n Quand, pour nous, tu vins t’offrir.\n Confonds ce cœur qui n’aspire\n Qu’à se faire encore servir!\n\n 3. Jésus, si ta main me guide,\n Je marcherai par la foi;\n Tout chemin sera limpide,\n Tout travail sera pour toi.\n Je suis prêt pour la bataille,\n Sa douleur et son effort.\n Je vais où tu veux que j’aille,\n Dans la vie et dans la mort.\n"
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {
+				"OBSBasic.SelectScene": []
+			},
+			"id": "scene",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "scene : tu_me_veux.txt",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"custom_size": false,
+				"id_counter": 0,
+				"items": [
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1920.0,
+							"y": 1080.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 1,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 1,
+						"locked": false,
+						"name": "iOS Camera",
+						"pos": {
+							"x": 0.0,
+							"y": 0.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					}
+				]
+			},
+			"sync": 0,
+			"versioned_id": "scene",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "tu_me_veux.txt: titre",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"bk_color": 4278190080,
+				"bk_opacity": 45,
+				"extents": true,
+				"extents_cx": 1920,
+				"extents_cy": 250,
+				"chatlog": false,
+				"font": {
+					"face": "Calibri",
+					"flags": 1,
+					"size": 120,
+					"style": "Bold"
+				},
+				"gradient": false,
+				"opacity": 100,
+				"outline": false,
+				"outline_color": 4278190132,
+				"text": " 44/07 (1,2,3)\n Tu me veux à ton service\n",
+				"transform": 3,
+				"vertical": false
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"filters": [
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "scroll_filter",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Défilement",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"limit_cx": false,
+						"loop": false,
+						"speed_y": 20.0
+					},
+					"sync": 0,
+					"versioned_id": "scroll_filter",
+					"volume": 1.0
+				},
+				{
+					"balance": 0.5,
+					"deinterlace_field_order": 0,
+					"deinterlace_mode": 0,
+					"enabled": true,
+					"flags": 0,
+					"hotkeys": {},
+					"id": "gpu_delay",
+					"mixers": 0,
+					"monitoring_type": 0,
+					"muted": false,
+					"name": "Délai de rendu",
+					"prev_ver": 436273152,
+					"private_settings": {},
+					"push-to-mute": false,
+					"push-to-mute-delay": 0,
+					"push-to-talk": false,
+					"push-to-talk-delay": 0,
+					"settings": {
+						"delay_ms": 300
+					},
+					"sync": 0,
+					"versioned_id": "gpu_delay",
+					"volume": 1.0
+				}
+			],
+			"flags": 0,
+			"hotkeys": {},
+			"id": "text_gdiplus",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "tu_me_veux.txt: paroles",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"align": "center",
+				"bk_opacity": 45,
+				"extents": true,
+				"extents_cx": 1920,
+				"extents_cy": 10000,
+				"font": {
+					"face": "Calibri",
+					"flags": 0,
+					"size": 96,
+					"style": "Regular"
+				},
+				"text": "\n\n\n\n\n 1. Tu me veux à ton service,\n Moi qui sans toi ne suis rien.\n Qu’à toute heure s’accomplisse\n Ton désir et non le mien!\n Ce que j’ai, tu le possèdes,\n Mais tu veux le recevoir:\n Conduis nous, toi qui nous aides\n A mettre en toi notre espoir!\n\n 2. Le plus grand parmi les hommes,\n Tu l’as dit, Maître très doux,\n Sur cette terre où nous sommes,\n C’est le serviteur de tous.\n Tu fis mieux que de le dire\n Quand, pour nous, tu vins t’offrir.\n Confonds ce cœur qui n’aspire\n Qu’à se faire encore servir!\n\n 3. Jésus, si ta main me guide,\n Je marcherai par la foi;\n Tout chemin sera limpide,\n Tout travail sera pour toi.\n Je suis prêt pour la bataille,\n Sa douleur et son effort.\n Je vais où tu veux que j’aille,\n Dans la vie et dans la mort.\n"
+			},
+			"sync": 0,
+			"versioned_id": "text_gdiplus_v2",
+			"volume": 1.0
+		},
+		{
+			"balance": 0.5,
+			"deinterlace_field_order": 0,
+			"deinterlace_mode": 0,
+			"enabled": true,
+			"flags": 0,
+			"hotkeys": {
+				"OBSBasic.SelectScene": []
+			},
+			"id": "scene",
+			"mixers": 0,
+			"monitoring_type": 0,
+			"muted": false,
+			"name": "scene : tu_me_veux.txt",
+			"prev_ver": 436273152,
+			"private_settings": {},
+			"push-to-mute": false,
+			"push-to-mute-delay": 0,
+			"push-to-talk": false,
+			"push-to-talk-delay": 0,
+			"settings": {
+				"custom_size": false,
+				"id_counter": 0,
+				"items": [
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1920.0,
+							"y": 1080.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 1,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 1,
+						"locked": false,
+						"name": "iOS Camera",
+						"pos": {
+							"x": 0.0,
+							"y": 0.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 5,
+						"locked": false,
+						"name": "tu_me_veux.txt: paroles",
+						"pos": {
+							"x": 0.0,
+							"y": 250.0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					},
+					{
+						"align": 5,
+						"bounds": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"bounds_align": 0,
+						"bounds_type": 0,
+						"crop_bottom": 0,
+						"crop_left": 0,
+						"crop_right": 0,
+						"crop_top": 0,
+						"group_item_backup": false,
+						"id": 2,
+						"locked": false,
+						"name": "tu_me_veux.txt: titre",
+						"pos": {
+							"x": 0,
+							"y": 0
+						},
+						"private_settings": {},
+						"rot": 0.0,
+						"scale": {
+							"x": 1.0,
+							"y": 1.0
+						},
+						"scale_filter": "disable",
+						"visible": true
+					}
+				]
+			},
+			"sync": 0,
+			"versioned_id": "scene",
+			"volume": 1.0
+		}
+	],
+	"transition_duration": 300,
+	"transitions": []
+}
