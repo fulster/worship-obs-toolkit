@@ -1,7 +1,7 @@
 import json
 from obs_json_resources import Scene_Collection
 
-name = "Dimanche 17 janvier 2021 YESSSS"
+name = "Dimanche 24 janvier 2021"
 
 collection = Scene_Collection(name)
 

@@ -1,7 +1,6 @@
 import os
 import json
 
-
 class Obs_basic :
     def __init__(self,name) :
         class_name = self.__class__.__name__
@@ -12,33 +11,6 @@ class Obs_basic :
         self.core["name"]=name
     def to_json(self):
         return self.core
-
-
-# class Src_cantique_paroles :
-#     def __init__(self,name) :
-#         with open('cantique_paroles.json',"r",encoding="utf-8") as template:
-#             self.core = json.load(template)
-#         #load cantique from external file
-#         with open(file,"r",encoding="utf-8") as cantique :
-#             ''.join([next(cantique) for x in range(2)])
-#             data = '\n\n\n\n'+cantique.read()
-#             self.core["settings"]["text"]=data
-#         self.core["name"]=name+" : paroles"
-
-#     def to_json(self):
-#         return self.core        
-
-
-
-# class Itm_cantique_paroles :
-#     def __init__(self,name) :
-#         with open('cantique_paroles_item.json',"r",encoding="utf-8") as template:
-#             self.core = json.load(template)
-#         #load cantique from external file
-#         self.core["name"]=name+" : paroles"
-
-#     def to_json(self):
-#         return self.core
 
 class Cantique_lyrics_item(Obs_basic) :
     def __init__(self,name) :
