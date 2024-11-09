@@ -1,29 +1,29 @@
 {
-                        "align": 5,
-                        "bounds": {
-                            "x": 1.0,
-                            "y": 1.0
-                        },
-                        "bounds_align": 0,
-                        "bounds_type": 0,
-                        "crop_bottom": 0,
-                        "crop_left": 0,
-                        "crop_right": 0,
-                        "crop_top": 0,
-                        "group_item_backup": false,
-                        "id": 5,
-                        "locked": false,
-                        "name": "Paroles exemple",
-                        "pos": {
-                            "x": 0.0,
-                            "y": 180.0
-                        },
-                        "private_settings": {},
-                        "rot": 0.0,
-                        "scale": {
-                            "x": 1.0,
-                            "y": 1.0
-                        },
-                        "scale_filter": "disable",
-                        "visible": true
-                }
+    "align": 5,
+    "bounds": {
+        "x": 1.5,
+        "y": 1.5
+    },
+    "bounds_align": 0,
+    "bounds_type": 0,
+    "crop_bottom": 0,
+    "crop_left": 0,
+    "crop_right": 0,
+    "crop_top": 0,
+    "group_item_backup": false,
+    "id": 5,
+    "locked": false,
+    "name": "Paroles exemple",
+    "pos": {
+        "x": 0.0,
+        "y": 257.0
+    },
+    "private_settings": {},
+    "rot": 0.0,
+    "scale": {
+        "x": 1.0,
+        "y": 1.0
+    },
+    "scale_filter": "disable",
+    "visible": true
+}

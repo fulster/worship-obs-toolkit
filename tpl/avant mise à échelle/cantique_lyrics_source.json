@@ -75,12 +75,12 @@
 				"bk_color": 0,
                 "bk_opacity": 73,
 				"extents": true,
-                "extents_cx": 1920,
+                "extents_cx": 1280,
                 "extents_cy": 10000,
                 "font": {
                     "face": "Calibri",
                     "flags": 0,
-                    "size": 72,
+                    "size": 52,
                     "style": "Regular"
                 },
                 "text": "$$text$$"

@@ -5,6 +5,7 @@ from obs_json_resources import Tmp_scene
 import unicodedata
 import re
 import subprocess
+import sys
 
 
 def slugify(value, allow_unicode=False):
@@ -23,12 +24,17 @@ def slugify(value, allow_unicode=False):
     value = re.sub(r'[^\w\s-]', '', value.lower())
     return re.sub(r'[-\s]+', '-', value).strip('-_')
 
+if len(sys.argv) < 2:
+    print("Usage: script.py <name>")
+    sys.exit(1)
 
-name = "L'amour divin"
+# Concatenate all arguments to form the title
+name = ' '.join(sys.argv[1:])
+
 fname = slugify(name)
 
-img_accueil = 'word-light-cloud-sky-white-sunlight-688628-pxhere.com.jpg'
-img_envoi = 'tree-nature-forest-horizon-light-cloud-637606-pxhere.com.jpg'
+img_accueil = 'hand-wood-alone-food-pebble-speech-418403-pxhere.com.jpg'
+img_envoi = 'landscape-tree-nature-forest-grass-light-1096573-pxhere.com.jpg'
 
 img_path = f'C:/Cultes/img/'
 

@@ -20,13 +20,13 @@
                 "bk_color": 0,
                 "bk_opacity": 73,
                 "extents": true,
-                "extents_cx": 1920,
-                "extents_cy": 256,
+                "extents_cx": 1280,
+                "extents_cy": 180,
                 "chatlog": false,        
                 "font": {
                     "face": "Calibri",
                     "flags": 1,
-                    "size": 96,
+                    "size": 72,
                     "style": "Bold"
                 },
                 "gradient": false,

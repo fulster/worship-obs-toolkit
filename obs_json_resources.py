@@ -1,3 +1,4 @@
+import glob
 import os
 import json
 
@@ -125,6 +126,7 @@ class Scene_Collection(Obs_basic) :
         self.scenes.append(Scene(file,self))
     def generate_scenes_from_dir(self, dir) :
         filelist = os.listdir(os.path.abspath(dir)) # returns list
+        filelist.sort(reverse=True)
         for file in filelist:
             self.add_scene(os.path.abspath(dir+"/"+file))
             #  prepare_cantique(scene,os.path.abspath(dir+"/"+file))
