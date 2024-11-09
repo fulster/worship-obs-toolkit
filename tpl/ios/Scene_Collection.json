@@ -106,54 +106,12 @@
             "enabled": true,
             "flags": 0,
             "hotkeys": {
-                "libobs.mute": [],
-                "libobs.push-to-mute": [],
-                "libobs.push-to-talk": [],
-                "libobs.unmute": []
-            },
-            "id": "dshow_input",
-            "mixers": 255,
-            "monitoring_type": 0,
-            "muted": true,
-            "name": "swissonic",
-            "prev_ver": 436273152,
-            "private_settings": {},
-            "push-to-mute": false,
-            "push-to-mute-delay": 0,
-            "push-to-talk": false,
-            "push-to-talk-delay": 0,
-            "settings": {
-                "active": true,
-                "color_range": "partial",
-                "color_space": "709",
-                "deactivate_when_not_showing": false,
-                "frame_interval": 333333,
-                "last_resolution": "1920x1080",
-                "last_video_device_id": "FHD Camera:\\\\?\\usb#22vid_1bcf&pid_28c4&mi_00#227&1da11eb4&0&0000#22{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global",
-                "res_type": 1,
-                "resolution": "1920x1080",
-                "video_device_id": "FHD Camera:\\\\?\\usb#22vid_1bcf&pid_28c4&mi_00#227&1da11eb4&0&0000#22{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global",
-                "video_format": 400
-            },
-            "sync": 0,
-            "versioned_id": "dshow_input",
-            "volume": 1.0
-        },
-        {
-            "balance": 0.5,
-            "deinterlace_field_order": 0,
-            "deinterlace_mode": 0,
-            "enabled": true,
-            "flags": 0,
-            "hotkeys": {
-                "OBSBasic.SelectScene": [],
-                "libobs.hide_scene_item.swissonic": [],
-                "libobs.show_scene_item.swissonic": []
+                "OBSBasic.SelectScene": []
             },
             "id": "scene",
             "mixers": 0,
             "monitoring_type": 0,
-            "muted": false,
+            "muted": "true",
             "name": "Base : temple",
             "prev_ver": 436273152,
             "private_settings": {},
@@ -163,27 +121,27 @@
             "push-to-talk-delay": 0,
             "settings": {
                 "custom_size": false,
-                "id_counter": 2,
+                "id_counter": 0,
                 "items": [
-                    {
+				{
                         "align": 5,
                         "bounds": {
-                            "x": 1441.0,
-                            "y": 794.0
+                            "x": 1920.0,
+                            "y": 1080.0
                         },
                         "bounds_align": 0,
-                        "bounds_type": 2,
+                        "bounds_type": 1,
                         "crop_bottom": 0,
                         "crop_left": 0,
                         "crop_right": 0,
                         "crop_top": 0,
                         "group_item_backup": false,
-                        "id": 2,
+                        "id": 1,
                         "locked": false,
-                        "name": "swissonic",
+                        "name": "iOS Camera",
                         "pos": {
-                            "x": -119.0,
-                            "y": -45.0
+                            "x": 0.0,
+                            "y": 0.0
                         },
                         "private_settings": {},
                         "rot": 0.0,
@@ -194,12 +152,69 @@
                         "scale_filter": "disable",
                         "visible": true
                     }
-                ]
+				]
             },
             "sync": 0,
             "versioned_id": "scene",
             "volume": 1.0
-        }	
+        },
+		{
+            "balance": 0.5,
+            "deinterlace_field_order": 0,
+            "deinterlace_mode": 0,
+            "enabled": true,
+            "filters": [
+                {
+                    "balance": 0.5,
+                    "deinterlace_field_order": 0,
+                    "deinterlace_mode": 0,
+                    "enabled": true,
+                    "flags": 0,
+                    "hotkeys": {},
+                    "id": "gain_filter",
+                    "mixers": 255,
+                    "monitoring_type": 0,
+                    "muted": false,
+                    "name": "Gain",
+                    "prev_ver": 436273152,
+                    "private_settings": {},
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "settings": {
+                        "db": 4.9000000000000004
+                    },
+                    "sync": 0,
+                    "versioned_id": "gain_filter",
+                    "volume": 1.0
+                }
+            ],
+            "flags": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "libobs.unmute": []
+            },
+            "id": "ios-camera-source",
+            "mixers": 255,
+            "monitoring_type": 0,
+            "muted": true,
+            "name": "iOS Camera",
+            "prev_ver": 436273152,
+            "private_settings": {},
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "settings": {
+                "setting_device_uuid": "00008020-00063C401E52002E"
+            },
+            "sync": 0,
+            "versioned_id": "ios-camera-source",
+            "volume": 0.71159130334854126
+        }		
 	],
     "transition_duration": 300,
     "transitions": []

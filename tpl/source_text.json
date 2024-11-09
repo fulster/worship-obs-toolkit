@@ -9,7 +9,7 @@
             "mixers": 0,
             "monitoring_type": 0,
             "muted": false,
-            "name": "Aube Nouvelle",
+            "name": "Texte (GDI+)",
             "prev_ver": 436273152,
             "private_settings": {},
             "push-to-mute": false,
@@ -17,25 +17,13 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "settings": {
-                "bk_color": 0,
-                "bk_opacity": 73,
-                "extents": true,
-                "extents_cx": 1280,
-                "extents_cy": 180,
-                "chatlog": false,        
                 "font": {
-                    "face": "Calibri",
-                    "flags": 1,
-                    "size": 72,
-                    "style": "Bold"
+                    "face": "Freestyle Script",
+                    "flags": 0,
+                    "size": 256,
+                    "style": "Normal"
                 },
-                "gradient": false,
-                "opacity": 100,
-                "outline": false,
-                "outline_color": 4278190132,
-                "text": "31-14\nAube Nouvelle\n1,2,3",
-                "transform": 0,
-                "vertical": false
+                "text": "Dimanche 7 février\nBienvenue à tous !"
             },
             "sync": 0,
             "versioned_id": "text_gdiplus_v2",

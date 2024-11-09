@@ -35,6 +35,30 @@ class Cantique_title_source(Obs_basic) :
         super().__init__(self.name)
         self.core["settings"]["text"]=content
 
+class Source_image(Obs_basic) :
+    def __init__(self,name,file) :
+        self.name=name
+        self.file = os.path.abspath(file)
+        super().__init__(self.name)
+        self.core["settings"]["file"]=self.file
+
+class Source_text(Obs_basic) :
+    def __init__(self,name,content) :
+        self.name=name
+        super().__init__(self.name)
+        self.core["settings"]["text"]=content
+
+class Item_image(Obs_basic) :
+    def __init__(self,name) :
+        self.name=name
+        super().__init__(self.name)
+
+class Item_text(Obs_basic) :
+    def __init__(self,name) :
+        self.name=name
+        super().__init__(self.name)
+
+
 
 # a reprendre sur une classe plus précise
 class Scene(Obs_basic) :
@@ -61,6 +85,31 @@ class Scene(Obs_basic) :
 
         #the scene itself
         sc.add_source(self.to_json())
+
+    def add_item(self,item) :
+        self.core["settings"]["items"].append(item)
+
+class Tmp_scene(Obs_basic) :
+    def __init__(self, name,sc):
+        self.name = name
+        self.sc = sc
+        super().__init__(self.name)
+
+    def add_image(self,name,file) :
+        image_source = Source_image(name,file)
+        image_item = Item_image(name)
+        self.sc.add_source(image_source.to_json())
+        self.add_item(image_item.to_json())
+
+    def add_text(self,name,content) :
+        text_source = Source_text(name,content)
+        text_item = Item_text(name)
+        self.sc.add_source(text_source.to_json())
+        self.add_item(text_item.to_json())
+        
+        #the scene itself
+    def register(self) :
+        self.sc.add_source(self.to_json())
 
     def add_item(self,item) :
         self.core["settings"]["items"].append(item)

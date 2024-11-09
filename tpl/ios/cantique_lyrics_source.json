@@ -72,8 +72,7 @@
             "push-to-talk-delay": 0,
             "settings": {
                 "align": "center",
-				"bk_color": 0,
-                "bk_opacity": 73,
+                "bk_opacity": 45,
 				"extents": true,
                 "extents_cx": 1280,
                 "extents_cy": 10000,

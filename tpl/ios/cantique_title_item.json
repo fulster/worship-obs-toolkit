@@ -11,12 +11,12 @@
                         "crop_right": 0,
                         "crop_top": 0,
                         "group_item_backup": false,
-                        "id": 5,
+                        "id": 2,
                         "locked": false,
-                        "name": "Paroles exemple",
+                        "name": "Aube Nouvelle",
                         "pos": {
-                            "x": 0.0,
-                            "y": 180.0
+                            "x": 0,
+                            "y": 0
                         },
                         "private_settings": {},
                         "rot": 0.0,
@@ -26,4 +26,4 @@
                         },
                         "scale_filter": "disable",
                         "visible": true
-                }
+                    }

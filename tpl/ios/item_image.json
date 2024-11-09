@@ -1,22 +1,22 @@
 {
                         "align": 5,
                         "bounds": {
-                            "x": 1.0,
-                            "y": 1.0
+                            "x": 1280.0,
+                            "y": 720.0
                         },
                         "bounds_align": 0,
-                        "bounds_type": 0,
+                        "bounds_type": 1,
                         "crop_bottom": 0,
                         "crop_left": 0,
                         "crop_right": 0,
                         "crop_top": 0,
                         "group_item_backup": false,
-                        "id": 5,
+                        "id": 1,
                         "locked": false,
-                        "name": "Paroles exemple",
+                        "name": "Image 2",
                         "pos": {
                             "x": 0.0,
-                            "y": 180.0
+                            "y": 0.0
                         },
                         "private_settings": {},
                         "rot": 0.0,
@@ -26,4 +26,4 @@
                         },
                         "scale_filter": "disable",
                         "visible": true
-                }
+                    }
