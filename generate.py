@@ -6,7 +6,7 @@ import unicodedata
 import re
 import subprocess
 import sys
-
+import os
 
 def slugify(value, allow_unicode=False):
     """
@@ -24,51 +24,46 @@ def slugify(value, allow_unicode=False):
     value = re.sub(r'[^\w\s-]', '', value.lower())
     return re.sub(r'[-\s]+', '-', value).strip('-_')
 
+# Charger la configuration
+with open('config.json', 'r', encoding='utf-8') as config_file:
+    config = json.load(config_file)
+
 if len(sys.argv) < 2:
     print("Usage: script.py <name>")
     sys.exit(1)
 
 # Concatenate all arguments to form the title
 name = ' '.join(sys.argv[1:])
-
 fname = slugify(name)
 
-img_accueil = 'hand-wood-alone-food-pebble-speech-418403-pxhere.com.jpg'
-img_envoi = 'landscape-tree-nature-forest-grass-light-1096573-pxhere.com.jpg'
-
-img_path = f'C:/Cultes/img/'
-
+# Chemins complets pour la lecture des images
+img_accueil = os.path.join(config['paths']['images'], config['images']['accueil'])
+img_envoi = os.path.join(config['paths']['images'], config['images']['envoi'])
 
 collection = Scene_Collection(name)
 
-
-# Add scenes from ./txt directory (not ordered right now)
-collection.generate_scenes_from_dir('./txt')
+# Add scenes from txt directory (not ordered right now)
+collection.generate_scenes_from_dir(config['paths']['txt'])
 
 # Add intro scene
-Accueil = Tmp_scene('Accueil',collection)
-Accueil.add_image('fond1',img_path+img_accueil)
-Accueil.add_text('bienvenue',f'{name}\nBienvenue à tous !')
+Accueil = Tmp_scene('Accueil', collection)
+Accueil.add_image('fond1', img_accueil)
+Accueil.add_text('bienvenue', f'{name}\nBienvenue à tous !')
 Accueil.register()
 
 # Add outro scene
-Envoi = Tmp_scene('Envoi',collection)
-Envoi.add_image('fond2',img_path+img_envoi)
-Envoi.add_text('aurevoir','Bon dimanche à tous !')
+Envoi = Tmp_scene('Envoi', collection)
+Envoi.add_image('fond2', img_envoi)
+Envoi.add_text('aurevoir', 'Bon dimanche à tous !')
 Envoi.register()
 
-# Add scenes in that order
-# collection.add_scene('./txt/21-07 Qu’aujourd’hui toute la terre.txt')
-# collection.add_scene('./txt/Psaume 36 O Seigneur, ta fidélité.txt')
+# Create output zip file
+output_zip = os.path.join(config['paths']['output'], f'{fname}.zip')
+with ZipFile(output_zip, 'w') as myzip:
+    # Écrire les images avec leurs chemins complets
+    myzip.write(img_accueil, os.path.basename(img_accueil))
+    myzip.write(img_envoi, os.path.basename(img_envoi))
+    myzip.writestr(f'{fname}.json', json.dumps(collection.to_json()))
 
-tmp = json.dumps(collection.to_json())
-
-with ZipFile(f'C:/Users/Etienne/Documents/Cultes/{fname}.zip', 'w') as myzip:
-    myzip.write(f'img/{img_accueil}')
-    myzip.write(f'img/{img_envoi}')
-    myzip.writestr(f'{fname}.json',tmp)
-
-subprocess.Popen(r'explorer /open,"C:\Users\Etienne\Documents\Cultes\"')
-
-# with open(f'C:/Users/Etienne/Documents/Cultes/{name}.json', 'w') as outfile:
-#         json.dump(collection.to_json(), outfile)
+# Open the output directory
+subprocess.Popen(f'explorer /open,"{config["paths"]["output"]}"')

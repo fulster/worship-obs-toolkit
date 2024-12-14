@@ -1,0 +1,11 @@
+{
+    "paths": {
+        "images": "E:/Perso/Paroisse/Cultes/img",
+        "output": "E:/Perso/Paroisse/Cultes",
+        "txt": "./txt"
+    },
+    "images": {
+        "accueil": "fulster_calm_sky_4f6da81d-56a1-4cad-a0ee-cf2d661d001a.webp",
+        "envoi": "fulster_calm_sky_09c8afed-7f40-4948-9a7c-4b61cc87c657.webp"
+    }
+}
