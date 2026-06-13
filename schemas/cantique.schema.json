@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "cantique.schema.json",
+  "title": "Cantique",
+  "description": "Format source structuré d'un cantique (voir docs/decisions/D-001-format-source-structure-paroles.md). Un fichier YAML par cantique sous stock/cantiques/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["numero", "titre", "couplets"],
+  "properties": {
+    "numero": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifiant. Cantique 'NN-NN' (ex. '12-07'), psaume 'Ps 0NN' (ex. 'Ps 008'), suffixe lettre accepté (ex. 'Ps 034A'). String pour préserver les zéros de tête et les lettres."
+    },
+    "titre": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Titre du cantique, sans le préfixe numéro."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Sous-titre / provenance (ex. 'Psaume 34', \"d'après les psaumes 9, 59 et 90\"). Clé absente = aucune source."
+    },
+    "refrain": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Texte du refrain, stocké UNE seule fois. L'insertion entre les couplets à la projection est faite par la couche de présentation, pas par le stockage. Clé absente = pas de refrain."
+    },
+    "couplets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Couplets dans l'ordre de chant. Liste 1-based : le couplet N visé par un sélecteur (ex. '12-13 : 1,R,3') est couplets[N-1] ; 'R' désigne le refrain. Un cantique non découpable automatiquement est stocké en un couplet unique (cf. rapport du convertisseur)."
+    },
+    "credits": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Auteur / éditeur / copyright (ex. 'Noël Colombier (*1932) — © Air Libre, SECLI 09/002'). Clé absente = aucun crédit."
+    }
+  }
+}

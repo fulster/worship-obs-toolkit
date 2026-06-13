@@ -11,10 +11,11 @@ Issus des *Conséquences* de [D-001](../decisions/D-001-format-source-structure-
 Ordre indicatif : le schéma fonde le reste ; le sélecteur de couplets
 (priorité opérateur) dépend du schéma et de la lecture.
 
-- [ ] **Schéma YAML d'un cantique** (`D-001`) — définir les champs
-  (`numero`, `titre`, `source`, `credits`, `refrain`, `couplets`),
-  la gestion du multi-ligne et l'indexation des couplets, sur 2-3
-  exemples réels (dont 12-13).
+- [x] **Schéma YAML d'un cantique** (`D-001`) — fait. Spec
+  [`docs/format-cantique.md`](../format-cantique.md), schéma de
+  validation [`schemas/cantique.schema.json`](../../schemas/cantique.schema.json),
+  3 fixtures de référence sous `stock/cantiques/` (12-13, Ps 008, 13-03)
+  validées contre le schéma.
 - [ ] **Convertisseur brut → YAML** (`D-001`) — script
   `stock/txt/à nettoyer` → format propre : normalise `\r\r\n → \r\n`,
   détecte titre / couplets `^N.` / refrain / crédits. Produit un
