@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 .venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
 
 # Configuration locale (contient la clé API Unsplash)
 config.json
@@ -15,3 +20,7 @@ chants.txt
 # Éditeurs
 .vscode/
 .idea/
+
+# OS
+.DS_Store
+Thumbs.db
