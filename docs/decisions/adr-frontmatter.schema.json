@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "adr-frontmatter.schema.json",
+  "title": "ADR frontmatter",
+  "description": "Frontmatter YAML d'un Decision Record D-NNN-<kebab-titre>.md. Valider après conversion YAML -> JSON (les dates YAML natives doivent être sérialisées en chaînes ISO).",
+  "type": "object",
+  "required": ["id", "title", "status", "type", "date"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "#/$defs/adrId",
+      "description": "Identifiant primaire, invariant à perpétuité. Jamais renuméroter."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Titre lisible humain. Révisable sans casser les références préfixées D-NNN."
+    },
+    "status": {
+      "enum": ["draft", "accepted", "amended", "superseded", "deprecated"],
+      "description": "Statut courant. Passe à amended/superseded au même commit que l'ADR qui amende/supersede."
+    },
+    "type": {
+      "enum": ["cadrage", "closure", "amendement"],
+      "description": "cadrage = décision à axes ; closure = verdict empirique ; amendement = modification ciblée d'un ADR antérieur."
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optionnel. Localisation dans le roadmap/jalons du projet, si le projet en a un."
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Date d'acte original (ISO 8601). Jamais révisée."
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/adrId" },
+      "uniqueItems": true,
+      "description": "IDs des ADR remplacés intégralement par celui-ci."
+    },
+    "amended_by": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/adrId" },
+      "uniqueItems": true,
+      "description": "IDs des amendements reçus. Mis à jour atomiquement au commit de chaque amendement."
+    },
+    "amends": {
+      "$ref": "#/$defs/adrId",
+      "description": "ADR amendé. Requis si type=amendement, interdit sinon."
+    },
+    "verdict": {
+      "enum": ["ACCEPTED", "REJECTED", "ACCEPTED-WITH-CAVEAT", "INCONCLUSIVE"],
+      "description": "Verdict empirique. Requis si type=closure, interdit sinon. Les nuances vont dans le corps de l'ADR."
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Cross-références : IDs d'ADR (D-NNN) ou chemins/handles d'autres docs du repo."
+    },
+    "patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/kebabHandle" },
+      "uniqueItems": true,
+      "description": "Handles kebab-case des patterns réutilisables inscrits par cet ADR."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "closure" } },
+        "required": ["type"]
+      },
+      "then": { "required": ["verdict"] },
+      "else": { "not": { "required": ["verdict"] } }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "amendement" } },
+        "required": ["type"]
+      },
+      "then": { "required": ["amends"] },
+      "else": { "not": { "required": ["amends"] } }
+    }
+  ],
+  "$defs": {
+    "adrId": {
+      "type": "string",
+      "pattern": "^D-[0-9]{3,}$"
+    },
+    "kebabHandle": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    }
+  }
+}

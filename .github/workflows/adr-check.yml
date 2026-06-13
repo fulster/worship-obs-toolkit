@@ -1,0 +1,22 @@
+# Vérifie les invariants des ADR (D-002) : unicité des IDs D-NNN,
+# synchronisation index <-> fichiers, cohérence du frontmatter.
+# Exemple copiable dans un repo consommateur (adaptez les paths si vos
+# ADR ne vivent pas sous docs/decisions/).
+name: ADR check
+
+on:
+  push:
+    paths:
+      - "docs/decisions/**"
+      - "scripts/adr_check.py"
+  pull_request:
+    paths:
+      - "docs/decisions/**"
+      - "scripts/adr_check.py"
+
+jobs:
+  adr-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/adr_check.py
