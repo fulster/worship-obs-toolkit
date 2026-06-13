@@ -32,3 +32,4 @@ Triées par ID décroissant (le plus récent en haut).
 
 | ID | Titre | Status | Type | Date |
 |---|---|---|---|---|
+| [D-001](D-001-format-source-structure-paroles.md) | Format source structuré des paroles de cantiques | accepted | cadrage | 2026-06-13 |
