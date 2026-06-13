@@ -16,10 +16,17 @@ Ordre indicatif : le schéma fonde le reste ; le sélecteur de couplets
   validation [`schemas/cantique.schema.json`](../../schemas/cantique.schema.json),
   3 fixtures de référence sous `stock/cantiques/` (12-13, Ps 008, 13-03)
   validées contre le schéma.
-- [ ] **Convertisseur brut → YAML** (`D-001`) — script
-  `stock/txt/à nettoyer` → format propre : normalise `\r\r\n → \r\n`,
-  détecte titre / couplets `^N.` / refrain / crédits. Produit un
-  **rapport** des fichiers non auto-structurables (~246 attendus).
+- [x] **Convertisseur brut → YAML** (`D-001`) — fait.
+  [`scripts/convert_cantiques.py`](../../scripts/convert_cantiques.py) :
+  normalise `\r\r\n → \r\n`, découpe par sections (marqueurs `N.` /
+  `(Refrain)`), gère refrain-seul et collisions de numero, écrit dans le
+  staging gitignoré `build/cantiques/` + `_rapport.md`. Sur les 922 :
+  **677 structurés** (126 refrain, 549 sans-refrain, 2 refrain-seul),
+  **245 sans-couplets** à découper à la main, 922/922 valides au schéma.
+  - [ ] **Relecture des 293 cas signalés** (`D-001`) — promouvoir les
+    YAML corrects de `build/cantiques/` vers `stock/cantiques/` ;
+    re-découper les 245 sans-couplets ; trancher la normalisation
+    apostrophes `’→'` et `(c)→©` (polish de corpus).
 - [ ] **Pipeline de lecture** (`D-001`) — adapter `Scene`
   (`obs_json_resources.py`) pour consommer le format structuré et
   **expanser le refrain** après chaque couplet (remplace le nettoyage
