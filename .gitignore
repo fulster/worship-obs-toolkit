@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Configuration locale (contient la clé API Unsplash)
+config.json
+
+# Sortie générée
+*.zip
+
+# Listes de cantiques de travail (garder seulement chants.sample.txt)
+chants.txt
+
+# Éditeurs
+.vscode/
+.idea/

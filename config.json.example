@@ -1,0 +1,15 @@
+{
+    "paths": {
+        "images": "C:/chemin/vers/dossier/images",
+        "output": "C:/chemin/vers/dossier/sortie",
+        "stock_txt": "./stock/txt",
+        "txt": "./stock/txt"
+    },
+    "images": {
+        "accueil": "image_accueil_par_defaut.jpg",
+        "envoi": "image_envoi_par_defaut.jpg"
+    },
+    "api": {
+        "unsplash": "VOTRE_CLE_API_UNSPLASH"
+    }
+}

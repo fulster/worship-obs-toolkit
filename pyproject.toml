@@ -1,0 +1,13 @@
+[project]
+name = "worship-obs-toolkit"
+version = "1.0.0"
+description = "Génère une collection de scènes OBS Studio à partir d'une liste de cantiques pour la projection des paroles pendant le culte."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+dependencies = [
+    "requests>=2.31",
+]
+
+[tool.uv]
+package = false

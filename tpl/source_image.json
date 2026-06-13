@@ -1,0 +1,56 @@
+{
+            "balance": 0.5,
+            "deinterlace_field_order": 0,
+            "deinterlace_mode": 0,
+            "enabled": true,
+            "filters": [
+                {
+                    "balance": 0.5,
+                    "deinterlace_field_order": 0,
+                    "deinterlace_mode": 0,
+                    "enabled": true,
+                    "flags": 0,
+                    "hotkeys": {},
+                    "id": "color_filter",
+                    "mixers": 0,
+                    "monitoring_type": 0,
+                    "muted": false,
+                    "name": "Corrections colorimétrique",
+                    "prev_ver": 436273152,
+                    "private_settings": {},
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "settings": {
+                        "brightness": -0.080000000000000002,
+                        "contrast": -0.050000000000000003,
+                        "gamma": -0.44,
+                        "opacity": 78,
+                        "saturation": -0.23999999999999999
+                    },
+                    "sync": 0,
+                    "versioned_id": "color_filter",
+                    "volume": 1.0
+                }
+            ],
+            "flags": 0,
+            "hotkeys": {},
+            "id": "image_source",
+            "mixers": 0,
+            "monitoring_type": 0,
+            "muted": false,
+            "name": "Image 2",
+            "prev_ver": 436273152,
+            "private_settings": {},
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "settings": {
+                "file": "C:/Users/Etienne/Downloads/forest-1072828_1280.jpg"
+            },
+            "sync": 0,
+            "versioned_id": "image_source",
+            "volume": 1.0
+        }
