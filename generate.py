@@ -32,6 +32,28 @@ def print_green(message):
     """Affiche un message en vert dans le terminal"""
     print(f"{Colors.GREEN}{message}{Colors.RESET}")
 
+def print_yellow(message):
+    """Affiche un message en jaune (avertissement) dans le terminal"""
+    print(f"{Colors.YELLOW}{message}{Colors.RESET}")
+
+def load_flagged_numeros(path='docs/relecture-corpus.md'):
+    """Numéros encore cochés « à relire » dans la worklist (cases `- [ ]`).
+
+    Sert à avertir, au moment de la génération, qu'un cantique du culte n'a pas
+    encore été relu (corpus en baseline, cf. D-001/D-002). Cocher la case dans
+    docs/relecture-corpus.md éteint l'avertissement pour ce cantique.
+    """
+    flagged = set()
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                m = re.match(r'^- \[ \] `([^`]+)`', line)
+                if m:
+                    flagged.add(m.group(1))
+    except OSError:
+        pass
+    return flagged
+
 # Enable ANSI color support on Windows
 if sys.platform == "win32":
     import ctypes
@@ -248,6 +270,9 @@ if not success:
 
 collection = Scene_Collection(name)
 
+# Numéros encore « à relire » (worklist) : on avertit s'ils sont projetés.
+flagged_numeros = load_flagged_numeros()
+
 # Lire le fichier chants.txt et générer des scènes pour les cantiques listés
 print("Lecture du fichier chants.txt...")
 try:
@@ -380,6 +405,8 @@ try:
         
         # Si le cantique est trouvé, l'ajouter à la collection
         if cantique_path:
+            if numero in flagged_numeros:
+                print_yellow(f"⚠ {numero} est marqué « à relire » (corpus non finalisé — voir docs/relecture-corpus.md)")
             collection.add_scene(cantique_path, selection)
         else:
             print_red(f"✗ Cantique {numero} non trouvé dans {txt_dir}")

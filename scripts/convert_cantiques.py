@@ -365,7 +365,7 @@ def main() -> None:
         stale.unlink()
 
     counts: dict[str, int] = {}
-    to_review: list[tuple[str, list[str]]] = []
+    to_review: list[tuple[str, str, list[str]]] = []
     used: dict[str, int] = {}
     written = 0
     for path in files:
@@ -387,9 +387,10 @@ def main() -> None:
             written += 1
         except Exception as exc:  # noqa: BLE001
             category, flags = "erreur", [str(exc)]
+            numero = path.stem
         counts[category] = counts.get(category, 0) + 1
         if category not in ("ok-refrain", "ok-sans-refrain") or flags:
-            to_review.append((path.name, [category, *flags]))
+            to_review.append((numero, path.name, [category, *flags]))
 
     # Rapport.
     args.report.parent.mkdir(parents=True, exist_ok=True)
@@ -401,8 +402,8 @@ def main() -> None:
     rep.append("")
     rep.append(f"## À relire ({len(to_review)})")
     rep.append("")
-    for name, tags in to_review:
-        rep.append(f"- `{name}` — {', '.join(tags)}")
+    for numero, name, tags in to_review:
+        rep.append(f"- `{numero}` ({name}) — {', '.join(tags)}")
     args.report.write_text("\n".join(rep) + "\n", encoding="utf-8")
 
     print(f"Écrits : {written}/{len(files)} dans {args.out}")
