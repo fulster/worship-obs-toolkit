@@ -294,16 +294,37 @@ body::before{
             </li>
           </ul>
 
-          <div class="px-5 py-4 border-t border-ink/8 flex items-center gap-3 flex-wrap">
-            <button v-if="mode==='spontanes'" class="btn btn-ghost text-sm px-4 py-2.5" @click="addPlaceholder">＋ Emplacement d'un chant du culte</button>
-            <details v-if="mode==='culte'" class="text-xs text-ink-soft">
-              <summary class="cursor-pointer select-none hover:text-ink">Thème des images</summary>
-              <input v-model="theme" class="field mt-2 px-2 py-1 text-xs w-64 bg-transparent" placeholder="nature,landscape,forest">
-            </details>
-            <button v-if="mode==='culte'" class="btn btn-primary px-6 py-3 ml-auto text-base flex items-center gap-2" :disabled="!canGenerate || generating" @click="generer">
-              <span v-if="generating" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
-              {{ generating ? 'Génération…' : 'Générer le culte' }}
-            </button>
+          <!-- bas du panneau : séries -->
+          <div v-if="mode==='spontanes'" class="px-5 py-4 border-t border-ink/8">
+            <button class="btn btn-ghost text-sm px-4 py-2.5" @click="addPlaceholder">＋ Emplacement d'un chant du culte</button>
+          </div>
+
+          <!-- bas du panneau : culte (images de fond + génération) -->
+          <div v-if="mode==='culte'" class="px-5 py-4 border-t border-ink/8 space-y-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[.7rem] uppercase tracking-wider text-ink-soft">Images de fond</span>
+              <input v-model="theme" class="field px-2 py-1 text-xs w-44 bg-transparent" placeholder="nature,forest,light">
+              <button class="btn btn-ghost text-xs px-3 py-1.5 flex items-center gap-1.5" :disabled="loadingImages" @click="apercuImages">
+                <span v-if="loadingImages" class="inline-block w-3 h-3 border-2 border-ink-soft/40 border-t-ink-soft rounded-full animate-spin"></span>
+                {{ images ? '↻ Rafraîchir' : '🖼 Aperçu' }}
+              </button>
+            </div>
+            <div v-if="images" class="grid grid-cols-2 gap-3 pop">
+              <figure>
+                <img :src="images.accueil_url" alt="Accueil" class="w-full h-24 object-cover rounded-lg border border-ink/10 shadow-soft">
+                <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">Accueil</figcaption>
+              </figure>
+              <figure>
+                <img :src="images.envoi_url" alt="Envoi" class="w-full h-24 object-cover rounded-lg border border-ink/10 shadow-soft">
+                <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">Envoi</figcaption>
+              </figure>
+            </div>
+            <div class="flex justify-end pt-1">
+              <button class="btn btn-primary px-6 py-3 text-base flex items-center gap-2" :disabled="!canGenerate || generating" @click="generer">
+                <span v-if="generating" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
+                {{ generating ? 'Génération…' : 'Générer le culte' }}
+              </button>
+            </div>
           </div>
 
           <!-- Résultat de génération (dans le panneau du culte) -->
@@ -342,6 +363,7 @@ createApp({
       mode: 'culte', serieNom: '', spontanesListe: [], showSpontanes: false, _stash: null,
       cultes: [], showCultes: false,
       showImport: false, importText: '', importing: false, importReplace: true,
+      images: null, loadingImages: false,
       generating: false, result: null,
       toast: '', _toastT: null, _searchT: null,
     }
@@ -407,6 +429,21 @@ createApp({
       const hasR = toks.some(t => t.toUpperCase() === 'R')
       e.selection = [...nums, ...(hasR ? ['R'] : [])].join(',')
     },
+    async apercuImages() {
+      this.loadingImages = true
+      try {
+        const r = await fetch('/api/images', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: this.theme })
+        })
+        if (!r.ok) throw new Error()
+        const im = await r.json()
+        // cache-buster pour forcer le rechargement de la vignette au rafraîchissement
+        const t = '?t=' + (this.images ? Math.floor(performance.now()) : '')
+        this.images = { accueil: im.accueil, envoi: im.envoi, accueil_url: im.accueil_url + t, envoi_url: im.envoi_url + t }
+      } catch (e) { this.notify("Échec de l'aperçu des images") }
+      finally { this.loadingImages = false }
+    },
     async generer() {
       if (!this.canGenerate) return
       this.generating = true; this.result = null
@@ -416,6 +453,7 @@ createApp({
           body: JSON.stringify({
             titre: this.titre, theme: this.theme,
             entrees: this.entrees.map(e => ({ numero: e.numero, selection: e.selection, origin: e.origin })),
+            images: this.images ? { accueil: this.images.accueil, envoi: this.images.envoi } : null,
           })
         })
         if (!r.ok) throw new Error()
@@ -453,7 +491,7 @@ createApp({
     },
     nouveau() {
       this.mode = 'culte'; this._stash = null; this.serieNom = ''
-      this.titre = ''; this.entrees = []; this.result = null; this.showCultes = false; this.notify('Nouveau culte')
+      this.titre = ''; this.entrees = []; this.result = null; this.images = null; this.showCultes = false; this.notify('Nouveau culte')
     },
     // --- Séries de spontanés ---
     normNom(s) {

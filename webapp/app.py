@@ -129,7 +129,15 @@ def api_generer():
         line = f"{numero} ({selection})" if selection else numero
         entrees.append((line, e.get('origin', 'cantique')))
 
-    images = generate.telecharger_images(CONFIG, theme)
+    # Réutiliser les images déjà prévisualisées si fournies et présentes ;
+    # sinon en télécharger de nouvelles.
+    imgs = data.get('images') or {}
+    img_dir = Path(CONFIG['paths']['images']).resolve()
+    pa, pe = img_dir / (imgs.get('accueil') or ''), img_dir / (imgs.get('envoi') or '')
+    if imgs.get('accueil') and imgs.get('envoi') and pa.exists() and pe.exists():
+        images = (pa, pe, imgs['accueil'], imgs['envoi'])
+    else:
+        images = generate.telecharger_images(CONFIG, theme)
     info = generate.generer_culte(titre, entrees, CONFIG, *images)
 
     return jsonify({
@@ -147,6 +155,27 @@ def api_telecharger(fname):
     """Sert le .zip généré depuis le dossier de sortie configuré."""
     output_dir = Path(CONFIG['paths']['output']).resolve()
     return send_from_directory(output_dir, fname, as_attachment=True)
+
+
+@app.route('/api/images', methods=['POST'])
+def api_images():
+    """Télécharge 2 images de fond (aperçu, avant génération) et renvoie leurs
+    noms + URL. Les mêmes noms peuvent être passés à /api/generer pour réutiliser
+    ces images au lieu d'en retélécharger."""
+    data = request.get_json(silent=True) or {}
+    theme = (data.get('theme') or DEFAULT_THEME).strip()
+    _, _, a_name, e_name = generate.telecharger_images(CONFIG, theme)
+    return jsonify({
+        'accueil': a_name, 'envoi': e_name,
+        'accueil_url': f'/api/image/{a_name}', 'envoi_url': f'/api/image/{e_name}',
+    })
+
+
+@app.route('/api/image/<path:name>')
+def api_image(name):
+    """Sert une image de fond depuis le dossier d'images configuré (aperçu)."""
+    img_dir = Path(CONFIG['paths']['images']).resolve()
+    return send_from_directory(img_dir, name)
 
 
 # --- API : cultes sauvegardés --------------------------------------------------
