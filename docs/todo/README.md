@@ -87,3 +87,26 @@ fichiers embarquent des traductions (EN/DE) à isoler avant promotion.
     place les fichiers de `docs/relecture-corpus.md` : redécouper les
     `sans-couplets` longs, vérifier les `xx`/`renumerotation-sans-entete`
     (langue), trancher le doublon `32-37`, les `source-ambigue`.
+
+## Chantiers D-003 — Interface de préparation des cultes (app web locale)
+
+Issus des *Conséquences* de
+[D-003](../decisions/D-003-interface-de-preparation-des-cultes.md). App
+web **locale** (non publique) pour des préparateurs non techniques en
+rotation ; réutilise le pipeline ; `.zip` + import (D-001).
+
+- [ ] **Rendre `generate.py` appelable** (`D-003`) — extraire une
+  fonction `generer_culte(titre, entrees, …)` du procédural niveau-module,
+  réutilisable par le backend, **sans changer le comportement CLI**.
+  Prérequis aux autres chantiers.
+- [ ] **Backend** (`D-003`) — Flask léger : endpoints recherche corpus /
+  composition / génération du `.zip` ; stockage des cultes préparés.
+- [ ] **Frontend léger** (`D-003`) — recherche + ajout de cantiques,
+  sélecteur de couplets visuel, réordonnancement, gestion des spontanés,
+  bouton « Générer », téléchargement du `.zip`.
+- [ ] **Sauvegarde des cultes** (`D-003`) — sauver/rouvrir/modifier
+  (format et emplacement à définir).
+- [ ] **Doc de déploiement local** (`D-003`) — lancer le serveur, accès
+  LAN, pour des non-techniciens.
+- [ ] **(Différé) Push obs-websocket** (`D-003`) — envoi direct des scènes
+  dans OBS ; rouvre la minute Q1 de D-001.
