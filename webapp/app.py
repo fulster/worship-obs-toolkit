@@ -204,5 +204,89 @@ def delete_culte(cid):
     return jsonify({'ok': True})
 
 
+# --- API : séries de spontanés ([SPONTANES] *.txt) -----------------------------
+
+SERIE_RE = re.compile(r'^[A-Z0-9_]+$')
+SPONT_PREFIX = '[SPONTANES] '
+
+
+def _serie_path(nom):
+    if not SERIE_RE.match(nom or ''):
+        abort(400, 'nom de série invalide')
+    return f'{SPONT_PREFIX}{nom}.txt'
+
+
+def _resoudre_ligne(line):
+    """Entrée enrichie pour une ligne de spontanés (hors marqueur #n)."""
+    numero, sel = generate.extraire_numero_selection(line)
+    if numero is None:
+        return {'placeholder': False, 'numero': '', 'titre': line[:48], 'n_couplets': 0,
+                'refrain': False, 'a_relire': False, 'selection': '', 'found': False}
+    e = BY_NUMERO.get(numero)
+    if e:
+        return {'placeholder': False, 'numero': numero, 'titre': e['titre'],
+                'n_couplets': e['n_couplets'], 'refrain': e['refrain'],
+                'a_relire': e['a_relire'], 'selection': sel, 'found': True}
+    return {'placeholder': False, 'numero': numero, 'titre': '(introuvable)', 'n_couplets': 0,
+            'refrain': False, 'a_relire': False, 'selection': sel, 'found': False}
+
+
+@app.route('/api/spontanes')
+def list_spontanes():
+    noms = sorted(f[len(SPONT_PREFIX):-4] for f in os.listdir('.')
+                  if f.startswith(SPONT_PREFIX) and f.endswith('.txt'))
+    return jsonify(noms)
+
+
+@app.route('/api/spontanes/<nom>')
+def get_serie(nom):
+    path = _serie_path(nom)
+    if not os.path.exists(path):
+        abort(404)
+    entrees = []
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            if re.match(r'^#\d+$', line):
+                entrees.append({'placeholder': True})
+            else:
+                entrees.append(_resoudre_ligne(line))
+    return jsonify({'nom': nom, 'entrees': entrees})
+
+
+@app.route('/api/spontanes/<nom>', methods=['POST'])
+def save_serie(nom):
+    path = _serie_path(nom)
+    data = request.get_json(silent=True) or {}
+    lines, ph = [], 0
+    for e in data.get('entrees', []):
+        if e.get('placeholder'):
+            ph += 1
+            lines.append(f'#{ph}')
+            continue
+        numero = (e.get('numero') or '').strip()
+        if not numero:
+            continue
+        titre = (e.get('titre') or '').strip()
+        sel = (e.get('selection') or '').strip()
+        line = f'{numero} {titre}' if (titre and not titre.startswith('(')) else numero
+        if sel:
+            line += f' ({sel})'
+        lines.append(line)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines) + '\n')
+    return jsonify({'nom': nom, 'count': len(lines)})
+
+
+@app.route('/api/spontanes/<nom>', methods=['DELETE'])
+def delete_serie(nom):
+    path = _serie_path(nom)
+    if os.path.exists(path):
+        os.remove(path)
+    return jsonify({'ok': True})
+
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

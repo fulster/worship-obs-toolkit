@@ -120,9 +120,24 @@ body::before{
       </div>
       <div class="flex items-center gap-2 relative">
         <button class="btn btn-ghost px-3.5 py-2 text-sm hidden sm:inline-flex" @click="nouveau">Nouveau</button>
+        <button class="btn btn-ghost px-3.5 py-2 text-sm" :class="{'!bg-gold/[.12] !border-gold/40 text-pine': mode==='spontanes'}" @click="toggleSpontanes">Spontanés</button>
         <button class="btn btn-ghost px-3.5 py-2 text-sm" @click="toggleCultes">
           Mes cultes <span v-if="cultes.length" class="ml-1 text-gold font-semibold">· {{ cultes.length }}</span>
         </button>
+        <!-- panneau spontanés -->
+        <div v-if="showSpontanes" class="absolute right-0 top-12 w-80 max-w-[88vw] card rounded-xl2 p-2 z-30 pop" style="border-color:rgba(188,135,41,.45)">
+          <div class="px-3 py-2 text-xs uppercase tracking-widest text-ink-soft flex items-center justify-between">
+            Séries de spontanés
+            <button class="text-gold hover:underline normal-case tracking-normal text-sm font-semibold" @click="nouvelleSerie">+ Nouvelle</button>
+          </div>
+          <div v-if="!spontanesListe.length" class="px-3 py-3 text-sm text-ink-soft italic">Aucune série.</div>
+          <ul class="scroll-thin max-h-72 overflow-auto">
+            <li v-for="nom in spontanesListe" :key="nom" class="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gold/[.1]">
+              <button class="flex-1 text-left truncate font-medium" @click="openSerie(nom)">✦ {{ nom }}</button>
+              <button class="iconbtn" title="Supprimer" @click.stop="deleteSerie(nom)">🗑</button>
+            </li>
+          </ul>
+        </div>
         <!-- panneau cultes -->
         <div v-if="showCultes" class="absolute right-0 top-12 w-80 max-w-[88vw] card rounded-xl2 p-2 z-30 pop">
           <div class="px-3 py-2 text-xs uppercase tracking-widest text-ink-soft">Cultes sauvegardés</div>
@@ -143,17 +158,32 @@ body::before{
 
   <main class="max-w-6xl mx-auto px-5 sm:px-8 pb-28 pt-8">
 
+    <!-- bandeau mode « spontanés » (code couleur distinct) -->
+    <section v-if="mode==='spontanes'" class="reveal mb-7">
+      <div class="rounded-xl2 px-5 py-4 flex flex-wrap items-center gap-4 shadow-soft border border-gold/40"
+           style="background:linear-gradient(120deg,#F3E2BC,#EAD7A8)">
+        <span class="text-2xl">✦</span>
+        <div class="flex-1 min-w-[12rem]">
+          <div class="text-[.68rem] uppercase tracking-[.2em] text-pine/70">Série de spontanés</div>
+          <input v-model="serieNom" @input="serieNom = normNom(serieNom)" placeholder="TEMPS_AVENT"
+                 class="field font-display text-2xl font-semibold w-full px-3 py-1.5 mt-0.5 bg-white/50" style="border-color:rgba(30,67,55,.25)">
+        </div>
+        <button class="btn btn-primary px-5 py-2.5 text-sm" @click="saveSerie" :disabled="!serieNom">Enregistrer la série</button>
+        <button class="btn btn-ghost px-4 py-2.5 text-sm" @click="exitSpontanes">Quitter</button>
+      </div>
+    </section>
+
     <!-- titre du culte -->
-    <section class="reveal mb-8" style="animation-delay:.02s">
+    <section v-if="mode==='culte'" class="reveal mb-8" style="animation-delay:.02s">
       <label class="block text-[.72rem] uppercase tracking-[.2em] text-ink-soft mb-2">Titre du culte</label>
       <input v-model="titre" type="text" placeholder="Culte du dimanche…"
              class="field font-display text-3xl sm:text-4xl font-semibold w-full px-4 py-3 bg-transparent placeholder:text-ink/25">
     </section>
 
-    <div class="grid lg:grid-cols-[1fr_1.05fr] gap-6">
+    <div class="grid lg:grid-cols-[1.05fr_1fr] gap-6">
 
       <!-- Bibliothèque -->
-      <section class="reveal" style="animation-delay:.08s">
+      <section class="reveal order-2" style="animation-delay:.08s">
         <div class="card rounded-xl2 overflow-hidden">
           <div class="px-5 pt-5 pb-3">
             <h2 class="font-display text-xl font-semibold flex items-center gap-2">
@@ -192,16 +222,16 @@ body::before{
       </section>
 
       <!-- Le culte -->
-      <section class="reveal" style="animation-delay:.14s">
+      <section class="reveal order-1" style="animation-delay:.14s">
         <div class="card rounded-xl2 overflow-hidden">
-          <div class="px-5 pt-5 pb-3 flex items-center justify-between gap-2">
+          <div class="px-5 pt-5 pb-3 flex items-center justify-between gap-2" :class="mode==='spontanes' ? 'bg-gold/[.1] border-b border-gold/30' : ''">
             <h2 class="font-display text-xl font-semibold flex items-center gap-2">
-              <span class="text-gold">♬</span> Le culte
-              <span v-if="entrees.length" class="text-sm font-sans font-normal text-ink-soft">— {{ entrees.length }} chant{{ entrees.length>1?'s':'' }}</span>
+              <span class="text-gold">{{ mode==='spontanes' ? '✦' : '♬' }}</span> {{ mode==='spontanes' ? 'Spontanés' : 'Le culte' }}
+              <span v-if="entrees.length" class="text-sm font-sans font-normal text-ink-soft">— {{ entrees.length }} {{ mode==='spontanes' ? 'élément' : 'chant' }}{{ entrees.length>1?'s':'' }}</span>
             </h2>
             <div class="flex items-center gap-2 shrink-0">
               <button class="btn btn-ghost text-xs px-3 py-1.5" :class="{'!bg-pine/[.07] !border-pine/30 text-pine': showImport}" @click="showImport = !showImport">⎘ Coller une liste</button>
-              <button v-if="entrees.length" class="btn btn-ghost text-xs px-3 py-1.5" @click="saveCulte" :disabled="!titre.trim()">Sauvegarder</button>
+              <button v-if="mode==='culte' && entrees.length" class="btn btn-ghost text-xs px-3 py-1.5" @click="saveCulte" :disabled="!titre.trim()">Sauvegarder</button>
             </div>
           </div>
 
@@ -230,7 +260,13 @@ body::before{
                   <span class="font-display text-sm text-ink/40 leading-none">{{ i+1 }}</span>
                   <button class="iconbtn !h-6 !w-6 text-sm" :disabled="i===entrees.length-1" @click="move(i,1)" title="Descendre">▼</button>
                 </div>
-                <div class="min-w-0 flex-1">
+                <!-- emplacement d'un chant du culte (#n) -->
+                <div v-if="e.placeholder" class="flex-1 self-center flex items-center gap-2 py-2 px-3 rounded-lg bg-gold/[.13] border border-dashed border-gold/55 text-pine-deep">
+                  <span class="text-gold text-lg leading-none">▸</span>
+                  <span class="italic font-medium text-sm">Emplacement d'un chant du culte</span>
+                </div>
+                <!-- chant -->
+                <div v-else class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
                     <span v-if="e.numero" class="badge-num">{{ e.numero }}</span>
                     <span class="font-medium truncate" :class="{'text-clay italic': e.found===false}">{{ e.titre }}</span>
@@ -248,7 +284,7 @@ body::before{
                   </div>
 
                   <!-- options ligne -->
-                  <div v-if="e.found!==false" class="mt-2 flex items-center gap-2">
+                  <div v-if="e.found!==false && mode==='culte'" class="mt-2 flex items-center gap-2">
                     <button class="switch" :class="{on: e.origin==='spontané'}" @click="e.origin = e.origin==='spontané' ? 'cantique' : 'spontané'" :title="e.origin==='spontané' ? 'Spontané' : 'Cantique'"><i></i></button>
                     <span class="text-xs" :class="e.origin==='spontané' ? 'text-gold font-semibold' : 'text-ink-soft'">{{ e.origin==='spontané' ? 'Spontané' : 'Cantique' }}</span>
                   </div>
@@ -258,12 +294,13 @@ body::before{
             </li>
           </ul>
 
-          <div class="px-5 py-4 border-t border-ink/8 flex items-center gap-3">
-            <details class="text-xs text-ink-soft">
+          <div class="px-5 py-4 border-t border-ink/8 flex items-center gap-3 flex-wrap">
+            <button v-if="mode==='spontanes'" class="btn btn-ghost text-sm px-4 py-2.5" @click="addPlaceholder">＋ Emplacement d'un chant du culte</button>
+            <details v-if="mode==='culte'" class="text-xs text-ink-soft">
               <summary class="cursor-pointer select-none hover:text-ink">Thème des images</summary>
               <input v-model="theme" class="field mt-2 px-2 py-1 text-xs w-64 bg-transparent" placeholder="nature,landscape,forest">
             </details>
-            <button class="btn btn-primary px-6 py-3 ml-auto text-base flex items-center gap-2" :disabled="!canGenerate || generating" @click="generer">
+            <button v-if="mode==='culte'" class="btn btn-primary px-6 py-3 ml-auto text-base flex items-center gap-2" :disabled="!canGenerate || generating" @click="generer">
               <span v-if="generating" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
               {{ generating ? 'Génération…' : 'Générer le culte' }}
             </button>
@@ -306,6 +343,7 @@ createApp({
       titre: '', theme: 'nature,landscape,forest,mountains',
       query: '', results: [], indexCount: 0,
       entrees: [],
+      mode: 'culte', serieNom: '', spontanesListe: [], showSpontanes: false, _stash: null,
       cultes: [], showCultes: false,
       showImport: false, importText: '', importing: false, importReplace: true,
       generating: false, result: null,
@@ -393,7 +431,7 @@ createApp({
     async loadCultes() {
       try { this.cultes = await (await fetch('/api/cultes')).json() } catch (e) {}
     },
-    toggleCultes() { this.showCultes = !this.showCultes; if (this.showCultes) this.loadCultes() },
+    toggleCultes() { this.showSpontanes = false; this.showCultes = !this.showCultes; if (this.showCultes) this.loadCultes() },
     async saveCulte() {
       if (!this.titre.trim()) return
       try {
@@ -419,7 +457,57 @@ createApp({
       try { await fetch('/api/cultes/' + id, { method: 'DELETE' }); this.loadCultes() } catch (e) {}
     },
     nouveau() {
+      this.mode = 'culte'; this._stash = null; this.serieNom = ''
       this.titre = ''; this.entrees = []; this.result = null; this.showCultes = false; this.notify('Nouveau culte')
+    },
+    // --- Séries de spontanés ---
+    normNom(s) {
+      return (s || '').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    },
+    toggleSpontanes() { this.showCultes = false; this.showSpontanes = !this.showSpontanes; if (this.showSpontanes) this.loadSpontanes() },
+    async loadSpontanes() {
+      try { this.spontanesListe = await (await fetch('/api/spontanes')).json() } catch (e) {}
+    },
+    enterSpontanes(nom, entrees) {
+      if (this.mode !== 'spontanes') this._stash = { titre: this.titre, entrees: this.entrees }
+      this.mode = 'spontanes'; this.serieNom = nom; this.entrees = entrees
+      this.result = null; this.showImport = false; this.showSpontanes = false
+    },
+    exitSpontanes() {
+      if (this._stash) { this.titre = this._stash.titre; this.entrees = this._stash.entrees; this._stash = null }
+      else { this.entrees = [] }
+      this.mode = 'culte'; this.serieNom = ''
+    },
+    async openSerie(nom) {
+      try {
+        const s = await (await fetch('/api/spontanes/' + nom)).json()
+        const ent = (s.entrees || []).map(e => e.placeholder ? { placeholder: true }
+          : { numero: e.numero, titre: e.titre, n_couplets: e.n_couplets, refrain: e.refrain,
+              a_relire: e.a_relire, selection: e.selection || '', origin: 'cantique', found: e.found !== false })
+        this.enterSpontanes(nom, ent)
+      } catch (e) { this.notify("Impossible d'ouvrir la série") }
+    },
+    nouvelleSerie() {
+      const nom = this.normNom(prompt("Nom de la série (ex. TEMPS DE L'AVENT) :") || '')
+      if (!nom) return
+      this.enterSpontanes(nom, [])
+    },
+    addPlaceholder() { this.entrees.push({ placeholder: true }) },
+    async saveSerie() {
+      const nom = this.normNom(this.serieNom)
+      if (!nom) { this.notify('Nom de série requis'); return }
+      this.serieNom = nom
+      try {
+        await fetch('/api/spontanes/' + nom, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entrees: this.entrees })
+        })
+        this.notify('Série « ' + nom + ' » enregistrée'); this.loadSpontanes()
+      } catch (e) { this.notify("Échec de l'enregistrement") }
+    },
+    async deleteSerie(nom) {
+      try { await fetch('/api/spontanes/' + nom, { method: 'DELETE' }); this.loadSpontanes() } catch (e) {}
     },
     notify(msg) {
       this.toast = msg; clearTimeout(this._toastT)
