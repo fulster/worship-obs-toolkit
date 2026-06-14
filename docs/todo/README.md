@@ -95,10 +95,12 @@ Issus des *Conséquences* de
 web **locale** (non publique) pour des préparateurs non techniques en
 rotation ; réutilise le pipeline ; `.zip` + import (D-001).
 
-- [ ] **Rendre `generate.py` appelable** (`D-003`) — extraire une
-  fonction `generer_culte(titre, entrees, …)` du procédural niveau-module,
-  réutilisable par le backend, **sans changer le comportement CLI**.
-  Prérequis aux autres chantiers.
+- [x] **Rendre `generate.py` appelable** (`D-003`) — fait. Module
+  importable sans effet de bord ; cœur extrait en
+  `generer_culte(titre, entrees, config, img_*)` (retourne un dict info :
+  `zip`, `ajoutes`, `non_trouves`, `a_relire`), avec `resoudre_entrees`,
+  `lire_chants_txt`, `telecharger_images`, `main()`. CLI inchangée
+  (vérifiée end-to-end).
 - [ ] **Backend** (`D-003`) — Flask léger : endpoints recherche corpus /
   composition / génération du `.zip` ; stockage des cultes préparés.
 - [ ] **Frontend léger** (`D-003`) — recherche + ajout de cantiques,

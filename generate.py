@@ -1,3 +1,16 @@
+"""Génération d'une collection de scènes OBS pour un culte.
+
+Deux usages (cf. D-003) :
+- **CLI** : `uv run python generate.py "Titre du culte" [--theme ...]` — lit
+  `chants.txt`, télécharge les images, produit le `.zip` et ouvre le dossier.
+- **Bibliothèque** : `from generate import generer_culte` — le backend de
+  l'interface de préparation appelle `generer_culte(titre, entrees, config, …)`
+  sans dupliquer la logique de construction des scènes.
+
+L'import du module n'a **aucun effet de bord** (toute l'exécution est sous
+`main()` / `if __name__ == "__main__"`).
+"""
+
 import json
 from zipfile import ZipFile
 from obs_json_resources import Scene_Collection
@@ -9,11 +22,12 @@ import subprocess
 import sys
 import os
 import requests
-import shutil
 import time
 from pathlib import Path
 
-# ANSI color codes for terminal output
+
+# --- Sortie terminal -----------------------------------------------------------
+
 class Colors:
     RED = '\033[91m'
     GREEN = '\033[92m'
@@ -24,17 +38,31 @@ class Colors:
     RESET = '\033[0m'
     BOLD = '\033[1m'
 
+
 def print_red(message):
     """Affiche un message en rouge dans le terminal"""
     print(f"{Colors.RED}{message}{Colors.RESET}")
+
 
 def print_green(message):
     """Affiche un message en vert dans le terminal"""
     print(f"{Colors.GREEN}{message}{Colors.RESET}")
 
+
 def print_yellow(message):
     """Affiche un message en jaune (avertissement) dans le terminal"""
     print(f"{Colors.YELLOW}{message}{Colors.RESET}")
+
+
+def enable_windows_ansi():
+    """Active les codes couleur ANSI sur la console Windows (no-op ailleurs)."""
+    if sys.platform == "win32":
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+
+
+# --- Helpers -------------------------------------------------------------------
 
 def load_flagged_numeros(path='docs/relecture-corpus.md'):
     """Numéros encore cochés « à relire » dans la worklist (cases `- [ ]`).
@@ -54,117 +82,6 @@ def load_flagged_numeros(path='docs/relecture-corpus.md'):
         pass
     return flagged
 
-# Enable ANSI color support on Windows
-if sys.platform == "win32":
-    import ctypes
-    kernel32 = ctypes.windll.kernel32
-    kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
-
-def download_nature_image(seed=None, api_key=None, theme=None):
-    """
-    Télécharge une image de nature depuis l'API Unsplash officielle
-    Nécessite une clé API Unsplash qui peut être fournie via le paramètre api_key
-    ou dans config.json sous config["api"]["unsplash"]
-    Consulter la documentation: https://unsplash.com/documentation
-    """
-    try:
-        # Utiliser un seed aléatoire si non fourni
-        if seed is None:
-            seed = int(time.time() * 1000) % 1000
-        
-        # Si aucune clé API n'est fournie, essayer de la récupérer depuis la configuration
-        if api_key is None:
-            # On suppose que config est déjà chargé et disponible globalement
-            if "api" in config and "unsplash" in config["api"]:
-                api_key = config["api"]["unsplash"]
-            else:
-                print("Erreur: Aucune clé API Unsplash n'a été fournie")
-                return None, None
-        
-        # Définir les dimensions de l'image
-        width = 1920
-        height = 1080
-        
-        # Construire l'URL de l'API Unsplash pour obtenir une image de nature aléatoire
-        api_url = "https://api.unsplash.com/photos/random"
-        
-        # Utiliser le thème fourni ou le thème par défaut
-        if theme is None:
-            theme = "nature,landscape,forest,mountains"
-        
-        # Paramètres pour spécifier une image de nature
-        params = {
-            "query": theme,
-            "orientation": "landscape",
-            "content_filter": "high"
-        }
-        
-        # Si un seed est fourni, l'utiliser comme paramètre
-        if seed is not None:
-            params["seed"] = str(seed)
-        
-        # En-têtes avec l'authentification
-        headers = {
-            "Authorization": f"Client-ID {api_key}",
-            "Accept-Version": "v1"
-        }
-        
-        print(f"Requête à l'API Unsplash avec le thème: {theme}")
-        # Faire la requête à l'API
-        api_response = requests.get(api_url, params=params, headers=headers)
-        
-        if api_response.status_code != 200:
-            print(f"Erreur lors de la requête à l'API Unsplash: {api_response.status_code}")
-            print(f"Message: {api_response.text}")
-            return None, None
-            
-        # Extraire les données JSON
-        photo_data = api_response.json()
-        
-        # Vérifier si les URLs sont présentes dans la réponse
-        if "urls" not in photo_data or "raw" not in photo_data["urls"]:
-            print("Erreur: Structure de réponse Unsplash inattendue, URL de l'image non trouvée")
-            return None, None
-            
-        # Construire une URL avec les dimensions souhaitées
-        img_url = f"{photo_data['urls']['raw']}&w={width}&h={height}&fit=crop"
-        print(f"Téléchargement de l'image depuis: {img_url}")
-        
-        # Télécharger l'image
-        img_response = requests.get(img_url, stream=True)
-        print(f"Statut de la réponse: {img_response.status_code}")
-        
-        if img_response.status_code == 200:
-            # Générer un nom de fichier unique avec microsecondes
-            timestamp = int(time.time() * 1000000)
-            img_name = f"nature_{timestamp}.jpg"
-            print(f"Image téléchargée avec succès, nom du fichier: {img_name}")
-            return img_response.content, img_name
-        else:
-            print(f"Erreur lors du téléchargement: code {img_response.status_code}")
-    except Exception as e:
-        print(f"Erreur lors du téléchargement de l'image: {str(e)}")
-    
-    return None, None
-
-def ensure_img_directory(config):
-    """
-    S'assure que le répertoire des images existe et est accessible en écriture
-    """
-    img_path = Path(config['paths']['images'])
-    try:
-        img_path.mkdir(parents=True, exist_ok=True)
-        print(f"Dossier des images créé/vérifié: {img_path}")
-        
-        # Vérifier les permissions
-        test_file = img_path / "test_write.tmp"
-        test_file.touch()
-        test_file.unlink()
-        print("Permissions d'écriture vérifiées avec succès")
-        
-    except Exception as e:
-        print(f"Erreur lors de la création/vérification du dossier des images: {str(e)}")
-        raise
 
 def slugify(value, allow_unicode=False):
     """
@@ -182,280 +99,7 @@ def slugify(value, allow_unicode=False):
     value = re.sub(r'[^\w\s-]', '', value.lower())
     return re.sub(r'[-\s]+', '-', value).strip('-_')
 
-print("Démarrage du script...")
 
-# Charger la configuration
-try:
-    with open('config.json', 'r', encoding='utf-8') as config_file:
-        config = json.load(config_file)
-    print("Configuration chargée avec succès")
-except Exception as e:
-    print(f"Erreur lors du chargement de la configuration: {str(e)}")
-    sys.exit(1)
-
-if len(sys.argv) < 2:
-    print("Usage: script.py <name> [--theme <theme>]")
-    sys.exit(1)
-
-# Parse arguments for name and optional theme
-args = sys.argv[1:]
-theme = "nature,landscape,forest,mountains"  # Default theme
-
-# Check for --theme argument
-if "--theme" in args:
-    theme_index = args.index("--theme")
-    if theme_index + 1 < len(args):
-        theme = args[theme_index + 1]
-        # Remove --theme and its value from args
-        args.pop(theme_index)
-        args.pop(theme_index)
-    else:
-        print("Erreur: --theme nécessite une valeur")
-        sys.exit(1)
-
-# Concatenate remaining arguments to form the title
-name = ' '.join(args)
-fname = slugify(name)
-print(f"Nom du culte: {name}")
-print(f"Thème des images: {theme}")
-
-# S'assurer que le répertoire des images existe
-ensure_img_directory(config)
-
-print("Téléchargement des images...")
-# Télécharger les images avec des seeds aléatoires
-seed1 = int(time.time() * 1000) % 10000  # Utiliser les millisecondes pour plus de variété
-seed2 = (seed1 + 1000) % 10000  # S'assurer d'avoir un seed différent pour la deuxième image
-
-print(f"Utilisation des seeds {seed1} et {seed2} pour les images")
-img_accueil_content, img_accueil_name = download_nature_image(seed1, theme=theme)
-time.sleep(1)  # Attendre 1 seconde entre les téléchargements
-img_envoi_content, img_envoi_name = download_nature_image(seed2, theme=theme)
-
-# Essayer de télécharger et sauvegarder les nouvelles images
-success = False
-if img_accueil_content and img_envoi_content:
-    try:
-        # Préparer les chemins avec Path pour une meilleure gestion des séparateurs
-        img_path = Path(config['paths']['images']).resolve()
-        img_accueil = img_path / img_accueil_name
-        img_envoi = img_path / img_envoi_name
-        
-        # Sauvegarder l'image d'accueil
-        print("Sauvegarde de l'image d'accueil:", img_accueil.as_posix())
-        img_accueil.write_bytes(img_accueil_content)
-        
-        # Sauvegarder l'image d'envoi
-        print("Sauvegarde de l'image d'envoi:", img_envoi.as_posix())
-        img_envoi.write_bytes(img_envoi_content)
-        
-        # Mettre à jour la configuration
-        print("Mise à jour de la configuration...")
-        config['images']['accueil'] = img_accueil_name
-        config['images']['envoi'] = img_envoi_name
-        with open('config.json', 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=4)
-        print("Configuration mise à jour avec succès")
-        success = True
-        
-    except Exception as e:
-        print(f"Erreur lors de la sauvegarde des images ou de la mise à jour de la configuration: {str(e)}")
-
-# Si quelque chose a échoué, utiliser les images par défaut
-if not success:
-    print("Utilisation des images par défaut.")
-    img_path = Path(config['paths']['images']).resolve()
-    img_accueil = img_path / config['images']['accueil']
-    img_envoi = img_path / config['images']['envoi']
-
-collection = Scene_Collection(name)
-
-# Numéros encore « à relire » (worklist) : on avertit s'ils sont projetés.
-flagged_numeros = load_flagged_numeros()
-
-# Lire le fichier chants.txt et générer des scènes pour les cantiques listés
-print("Lecture du fichier chants.txt...")
-try:
-    with open('chants.txt', 'r', encoding='utf-8') as f:
-        chants_list = f.readlines()
-    
-    # Vérifier si la première ligne est au format [SPONTANES] XXX
-    spontanes_file = None
-    if chants_list and chants_list[0].strip().startswith('[SPONTANES]'):
-        spontanes_marker = chants_list[0].strip()
-        spontanes_file = f"{spontanes_marker}.txt"
-        print(f"Détection d'un fichier de cantiques spontanés: {spontanes_file}")
-        
-        # Extraire les cantiques du fichier principal (sans la ligne [SPONTANES])
-        main_chants = [line.strip() for line in chants_list[1:] if line.strip()]
-        print(f"Fichier principal: {len(main_chants)} cantiques à intégrer")
-        
-        # Lire le fichier de cantiques spontanés s'il existe
-        if os.path.exists(spontanes_file):
-            try:
-                with open(spontanes_file, 'r', encoding='utf-8') as sf:
-                    spontanes_list = sf.readlines()
-                print(f"Fichier de cantiques spontanés trouvé avec {len(spontanes_list)} lignes")
-                
-                # Créer une nouvelle liste entrelacée de (ligne, origine).
-                combined_list = []
-                main_index = 0
-
-                for line in spontanes_list:
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    # Si la ligne est un marqueur #n, insérer un cantique du fichier principal
-                    if re.match(r'^#\d+$', line):
-                        print(f"Marqueur {line} détecté: insertion d'un cantique principal")
-                        if main_index < len(main_chants):
-                            combined_list.append((main_chants[main_index], 'cantique'))
-                            main_index += 1
-                        else:
-                            print(f"Attention: Plus de marqueurs que de cantiques principaux, marqueur {line} ignoré")
-                    else:
-                        # Sinon, ajouter la ligne du fichier de cantiques spontanés
-                        combined_list.append((line, 'spontané'))
-
-                # Ajouter les cantiques principaux restants s'il y en a
-                if main_index < len(main_chants):
-                    remaining = len(main_chants) - main_index
-                    print(f"Ajout des {remaining} cantiques principaux restants")
-                    combined_list.extend((c, 'cantique') for c in main_chants[main_index:])
-
-                # Remplacer la liste de cantiques par la liste entrelacée
-                chants_list = combined_list
-                print(f"Liste entrelacée créée avec {len(chants_list)} cantiques au total")
-            except Exception as e:
-                print(f"Erreur lors de la lecture du fichier de cantiques spontanés: {str(e)}")
-                # En cas d'erreur, utiliser simplement les cantiques du fichier principal
-                chants_list = [(c, 'cantique') for c in main_chants]
-        else:
-            print(f"Attention: Le fichier de cantiques spontanés {spontanes_file} n'existe pas")
-            # Utiliser simplement les cantiques du fichier principal
-            chants_list = [(c, 'cantique') for c in main_chants]
-    
-    # Cas sans spontanés : normaliser en (ligne, origine='cantique').
-    if chants_list and not isinstance(chants_list[0], tuple):
-        chants_list = [(l, 'cantique') for l in chants_list]
-
-    # On traite dans l'ordre de chants.txt (log lisible). Les scènes seront
-    # insérées en ordre inverse plus bas : c'est l'ordre d'insertion dans la
-    # collection qui pilote l'affichage OBS, on retrouve ainsi l'ordre du fichier.
-    resolved = []  # (cantique_path, selection) dans l'ordre de chants.txt
-
-    # Parcourir chaque ligne des fichiers
-    for entry, origin in chants_list:
-        line = entry.strip()
-        libelle = 'Spontané' if origin == 'spontané' else 'Cantique'
-        if not line or line.startswith('#') or line.startswith('[SPONTANES]'):
-            continue  # Ignorer les lignes vides, les commentaires et l'en-tête [SPONTANES]
-
-        # Extraire un sélecteur de couplets en fin de ligne, ex: « (1,3) » ou
-        # « (1,R,2) » — honore la notation déjà utilisée dans chants.txt.
-        selection = None
-        sel_match = re.search(r'\(([\d\s,Rr]+)\)\s*$', line)
-        if sel_match:
-            selection = parse_selection(sel_match.group(1))
-            if selection is None:
-                print(f"Sélecteur illisible, ignoré: {line}")
-
-        # Extraire le numéro du cantique (format: "21-17") ou du psaume (format: "Psaume X", "Ps X" ou "Ps XXX")
-        match_cantique = re.match(r'^(\d+-\d+)', line)
-        match_psaume = re.match(r'^(?:Psaume|Ps)\s+(\d+)([A-Z]?)', line)
-        
-        if match_cantique:
-            numero = match_cantique.group(1)
-            print(f"Recherche du cantique {numero}...")
-        elif match_psaume:
-            num_psaume = int(match_psaume.group(1))
-            # Récupérer le suffixe s'il existe (A, B, etc.)
-            suffixe = match_psaume.group(2) if match_psaume.group(2) else ""
-            numero = f"Ps {num_psaume:03d}{suffixe}"  # Format sur 3 chiffres avec zéros à gauche et suffixe si présent
-            print(f"Recherche du psaume {numero}...")
-        else:
-            print(f"Format de ligne non reconnu: {line}")
-            continue
-        
-        # Rechercher d'abord un cantique structuré (D-001) : stock/cantiques/<numero>.yaml
-        cantique_path = None
-        cantiques_dir = os.path.abspath(config['paths'].get('stock_cantiques', 'stock/cantiques'))
-        yaml_candidate = os.path.join(cantiques_dir, f"{numero}.yaml")
-        if os.path.exists(yaml_candidate):
-            cantique_path = yaml_candidate
-            print_green(f"✓ {libelle} structuré trouvé: {numero}.yaml")
-
-        # Repli : ancien format texte libre dans stock/txt (recherche par sous-chaîne)
-        txt_dir = os.path.abspath(config['paths']['stock_txt'] if 'stock_txt' in config['paths'] else 'stock/txt')
-        filelist = os.listdir(txt_dir) if not cantique_path and os.path.isdir(txt_dir) else []
-        for file in filelist:
-            # Vérifier si le fichier contient le numéro du cantique (peu importe sa position)
-            if numero in file:
-                cantique_path = os.path.join(txt_dir, file)
-                print_green(f"✓ {libelle} trouvé: {file}")
-                break
-        
-        # Si non trouvé et que c'est un psaume avec lettre (ex: Ps 034A), essayer sans le padding (ex: Ps 34A)
-        if not cantique_path and numero.startswith("Ps ") and len(numero) >= 7 and numero[-1].isalpha():
-            # Extraire le numéro et la lettre
-            num_part = numero[3:-1]  # "034"
-            lettre = numero[-1]      # "A"
-            # Créer la version sans padding
-            numero_sans_padding = f"Ps {int(num_part)}{lettre}"  # "Ps 34A"
-            for file in filelist:
-                if numero_sans_padding in file:
-                    cantique_path = os.path.join(txt_dir, file)
-                    print_green(f"✓ {libelle} trouvé: {file}")
-                    break
-        
-        # Si le cantique est trouvé, le mémoriser (insertion différée).
-        if cantique_path:
-            if numero in flagged_numeros:
-                print_yellow(f"⚠ {numero} est marqué « à relire » (corpus non finalisé — voir docs/relecture-corpus.md)")
-            resolved.append((cantique_path, selection))
-        else:
-            print_red(f"✗ Cantique {numero} non trouvé dans {txt_dir}")
-
-    # Insérer les scènes dans l'ordre de chants.txt ; l'ordre d'affichage OBS
-    # final est piloté explicitement par set_display_order plus bas.
-    for cantique_path, selection in resolved:
-        collection.add_scene(cantique_path, selection)
-
-    print(f"{len(collection.scenes)} cantiques ajoutés à la collection")
-except Exception as e:
-    print(f"Erreur lors de la lecture de chants.txt: {str(e)}")
-    print("Utilisation de tous les fichiers du répertoire txt comme alternative...")
-    collection.generate_scenes_from_dir(config['paths']['txt'])
-
-# Add intro scene
-Accueil = Tmp_scene('Accueil', collection)
-Accueil.add_image('fond1', str(img_accueil))
-Accueil.add_text('bienvenue', f'{name}\nBienvenue à tous !')
-Accueil.register()
-
-# Add outro scene
-Envoi = Tmp_scene('Envoi', collection)
-Envoi.add_image('fond2', str(img_envoi))
-Envoi.add_text('aurevoir', 'Bon dimanche à tous !')
-Envoi.register()
-
-# Séquence d'affichage OBS : « Accueil » en tête, « Envoi » en queue, et une
-# copie de « Base : temple » intercalée avant chaque cantique et avant l'envoi —
-# pour enchaîner les scènes sans revenir manuellement à la vue de base.
-cantique_names = [s.name for s in collection.scenes]
-sequence = ['Accueil']
-base_counter = 1
-for scene_name in cantique_names + ['Envoi']:
-    base_name = 'Base : temple' if base_counter == 1 else f'Base : temple {base_counter}'
-    if base_counter > 1:
-        collection.duplicate_base(base_name)
-    sequence.append(base_name)
-    sequence.append(scene_name)
-    base_counter += 1
-
-# Préfixer chaque scène d'une lettre séquentielle (A., B., C., …) : ordre lisible
-# dans OBS et noms uniques pour les bases (toutes ré-affichées « Base : temple »).
 def seq_label(i):
     """0 -> A, 25 -> Z, 26 -> AA, … (style colonne de tableur)."""
     s = ''
@@ -465,24 +109,371 @@ def seq_label(i):
         s = chr(ord('A') + r) + s
     return s
 
-display_order = []
-for i, current in enumerate(sequence):
-    label = 'Base : temple' if current.startswith('Base : temple') else current
-    final = f"{seq_label(i)}. {label}"
-    collection.rename_scene(current, final)
-    display_order.append(final)
-collection.set_display_order(display_order)
-print(f"Ordre des scènes : {len(display_order)} scènes (A. → …), {base_counter - 1} vues « Base »")
 
-# Create output zip file
-output_zip = Path(config['paths']['output']) / f'{fname}.zip'
-with ZipFile(str(output_zip), 'w') as myzip:
-    # Écrire les images dans le sous-répertoire img/
-    myzip.write(str(img_accueil), f'img/{img_accueil_name}')
-    myzip.write(str(img_envoi), f'img/{img_envoi_name}')
-    # Écrire le fichier JSON à la racine
-    myzip.writestr(f'{fname}.json', json.dumps(collection.to_json()))
+def download_nature_image(seed=None, api_key=None, theme=None):
+    """
+    Télécharge une image de nature depuis l'API Unsplash officielle.
+    Nécessite une clé API Unsplash fournie via `api_key`.
+    Consulter la documentation: https://unsplash.com/documentation
+    """
+    try:
+        if seed is None:
+            seed = int(time.time() * 1000) % 1000
 
-# Open the output directory
-output_dir = Path(config['paths']['output']).resolve()
-subprocess.Popen(['explorer', str(output_dir)])
+        if api_key is None:
+            print("Erreur: Aucune clé API Unsplash n'a été fournie")
+            return None, None
+
+        width = 1920
+        height = 1080
+        api_url = "https://api.unsplash.com/photos/random"
+        if theme is None:
+            theme = "nature,landscape,forest,mountains"
+        params = {
+            "query": theme,
+            "orientation": "landscape",
+            "content_filter": "high",
+            "seed": str(seed),
+        }
+        headers = {
+            "Authorization": f"Client-ID {api_key}",
+            "Accept-Version": "v1",
+        }
+
+        print(f"Requête à l'API Unsplash avec le thème: {theme}")
+        api_response = requests.get(api_url, params=params, headers=headers)
+        if api_response.status_code != 200:
+            print(f"Erreur lors de la requête à l'API Unsplash: {api_response.status_code}")
+            print(f"Message: {api_response.text}")
+            return None, None
+
+        photo_data = api_response.json()
+        if "urls" not in photo_data or "raw" not in photo_data["urls"]:
+            print("Erreur: Structure de réponse Unsplash inattendue, URL de l'image non trouvée")
+            return None, None
+
+        img_url = f"{photo_data['urls']['raw']}&w={width}&h={height}&fit=crop"
+        print(f"Téléchargement de l'image depuis: {img_url}")
+        img_response = requests.get(img_url, stream=True)
+        print(f"Statut de la réponse: {img_response.status_code}")
+        if img_response.status_code == 200:
+            timestamp = int(time.time() * 1000000)
+            img_name = f"nature_{timestamp}.jpg"
+            print(f"Image téléchargée avec succès, nom du fichier: {img_name}")
+            return img_response.content, img_name
+        print(f"Erreur lors du téléchargement: code {img_response.status_code}")
+    except Exception as e:
+        print(f"Erreur lors du téléchargement de l'image: {str(e)}")
+    return None, None
+
+
+def ensure_img_directory(config):
+    """S'assure que le répertoire des images existe et est accessible en écriture."""
+    img_path = Path(config['paths']['images'])
+    try:
+        img_path.mkdir(parents=True, exist_ok=True)
+        print(f"Dossier des images créé/vérifié: {img_path}")
+        test_file = img_path / "test_write.tmp"
+        test_file.touch()
+        test_file.unlink()
+        print("Permissions d'écriture vérifiées avec succès")
+    except Exception as e:
+        print(f"Erreur lors de la création/vérification du dossier des images: {str(e)}")
+        raise
+
+
+# --- Cœur réutilisable (CLI + backend, cf. D-003) ------------------------------
+
+def resoudre_entrees(entrees, config, flagged_numeros=None):
+    """Résout une liste de `(ligne, origine)` en `(chemin_yaml, selection)`.
+
+    `origine` ∈ {'cantique', 'spontané'} (impacte seulement le libellé du log).
+    Retourne `(resolved, info)` où `info` récapitule numéros ajoutés / non
+    trouvés / à relire.
+    """
+    if flagged_numeros is None:
+        flagged_numeros = set()
+    resolved = []
+    info = {"ajoutes": [], "non_trouves": [], "a_relire": []}
+    cantiques_dir = os.path.abspath(config['paths'].get('stock_cantiques', 'stock/cantiques'))
+    txt_dir = os.path.abspath(config['paths'].get('stock_txt', 'stock/txt'))
+
+    for entry, origin in entrees:
+        line = entry.strip()
+        libelle = 'Spontané' if origin == 'spontané' else 'Cantique'
+        if not line or line.startswith('#') or line.startswith('[SPONTANES]'):
+            continue
+
+        # Sélecteur de couplets en fin de ligne, ex. « (1,3) » / « (1,R,2) ».
+        selection = None
+        sel_match = re.search(r'\(([\d\s,Rr]+)\)\s*$', line)
+        if sel_match:
+            selection = parse_selection(sel_match.group(1))
+            if selection is None:
+                print(f"Sélecteur illisible, ignoré: {line}")
+
+        # Numéro : cantique « NN-NN » ou psaume « Psaume X » / « Ps X ».
+        match_cantique = re.match(r'^(\d+-\d+)', line)
+        match_psaume = re.match(r'^(?:Psaume|Ps)\s+(\d+)([A-Z]?)', line)
+        if match_cantique:
+            numero = match_cantique.group(1)
+            print(f"Recherche du cantique {numero}...")
+        elif match_psaume:
+            suffixe = match_psaume.group(2) or ""
+            numero = f"Ps {int(match_psaume.group(1)):03d}{suffixe}"
+            print(f"Recherche du psaume {numero}...")
+        else:
+            print(f"Format de ligne non reconnu: {line}")
+            continue
+
+        # Résolution : cantique structuré (stock/cantiques) d'abord, repli txt.
+        cantique_path = None
+        yaml_candidate = os.path.join(cantiques_dir, f"{numero}.yaml")
+        if os.path.exists(yaml_candidate):
+            cantique_path = yaml_candidate
+            print_green(f"✓ {libelle} structuré trouvé: {numero}.yaml")
+
+        filelist = os.listdir(txt_dir) if not cantique_path and os.path.isdir(txt_dir) else []
+        for file in filelist:
+            if numero in file:
+                cantique_path = os.path.join(txt_dir, file)
+                print_green(f"✓ {libelle} trouvé: {file}")
+                break
+
+        # Psaume avec lettre (ex. Ps 034A) → tenter sans le padding (Ps 34A).
+        if not cantique_path and numero.startswith("Ps ") and len(numero) >= 7 and numero[-1].isalpha():
+            numero_sans_padding = f"Ps {int(numero[3:-1])}{numero[-1]}"
+            for file in filelist:
+                if numero_sans_padding in file:
+                    cantique_path = os.path.join(txt_dir, file)
+                    print_green(f"✓ {libelle} trouvé: {file}")
+                    break
+
+        if cantique_path:
+            if numero in flagged_numeros:
+                print_yellow(f"⚠ {numero} est marqué « à relire » (corpus non finalisé — voir docs/relecture-corpus.md)")
+                info["a_relire"].append(numero)
+            resolved.append((cantique_path, selection))
+            info["ajoutes"].append(numero)
+        else:
+            print_red(f"✗ {libelle} {numero} non trouvé")
+            info["non_trouves"].append(numero)
+
+    return resolved, info
+
+
+def generer_culte(titre, entrees, config, img_accueil, img_envoi,
+                  img_accueil_name, img_envoi_name):
+    """Construit la collection OBS d'un culte et écrit le `.zip`.
+
+    Point d'entrée réutilisable (CLI **et** backend, cf. D-003) : ne touche ni à
+    `chants.txt`, ni à argv, ni au téléchargement d'images — tout lui est fourni.
+
+    - `entrees` : liste de `(ligne, origine)` (mêmes lignes que `chants.txt`).
+    - `img_*` : chemins et noms des 2 images de fond (accueil / envoi).
+
+    Retourne un dict d'info : `zip` (Path), `fname`, `ajoutes`, `non_trouves`,
+    `a_relire`.
+    """
+    collection = Scene_Collection(titre)
+    flagged_numeros = load_flagged_numeros()
+
+    resolved, info = resoudre_entrees(entrees, config, flagged_numeros)
+    # Insérer dans l'ordre des entrées ; l'affichage OBS est piloté plus bas.
+    for cantique_path, selection in resolved:
+        collection.add_scene(cantique_path, selection)
+    print(f"{len(collection.scenes)} cantiques ajoutés à la collection")
+
+    # Scènes d'accueil et d'envoi.
+    accueil = Tmp_scene('Accueil', collection)
+    accueil.add_image('fond1', str(img_accueil))
+    accueil.add_text('bienvenue', f'{titre}\nBienvenue à tous !')
+    accueil.register()
+
+    envoi = Tmp_scene('Envoi', collection)
+    envoi.add_image('fond2', str(img_envoi))
+    envoi.add_text('aurevoir', 'Bon dimanche à tous !')
+    envoi.register()
+
+    # Séquence d'affichage : Accueil en tête, Envoi en queue, une vue « Base :
+    # temple » intercalée avant chaque cantique et l'envoi ; préfixes A., B., …
+    cantique_names = [s.name for s in collection.scenes]
+    sequence = ['Accueil']
+    base_counter = 1
+    for scene_name in cantique_names + ['Envoi']:
+        base_name = 'Base : temple' if base_counter == 1 else f'Base : temple {base_counter}'
+        if base_counter > 1:
+            collection.duplicate_base(base_name)
+        sequence.append(base_name)
+        sequence.append(scene_name)
+        base_counter += 1
+
+    display_order = []
+    for i, current in enumerate(sequence):
+        label = 'Base : temple' if current.startswith('Base : temple') else current
+        final = f"{seq_label(i)}. {label}"
+        collection.rename_scene(current, final)
+        display_order.append(final)
+    collection.set_display_order(display_order)
+    print(f"Ordre des scènes : {len(display_order)} scènes (A. → …), {base_counter - 1} vues « Base »")
+
+    # Écriture du .zip (JSON de collection + images).
+    fname = slugify(titre)
+    output_zip = Path(config['paths']['output']) / f'{fname}.zip'
+    with ZipFile(str(output_zip), 'w') as myzip:
+        myzip.write(str(img_accueil), f'img/{img_accueil_name}')
+        myzip.write(str(img_envoi), f'img/{img_envoi_name}')
+        myzip.writestr(f'{fname}.json', json.dumps(collection.to_json()))
+
+    info["zip"] = output_zip
+    info["fname"] = fname
+    return info
+
+
+# --- Étapes spécifiques à la CLI -----------------------------------------------
+
+def charger_config(path='config.json'):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def lire_chants_txt(path='chants.txt'):
+    """Lit `chants.txt` + applique l'entrelacement des spontanés.
+
+    Retourne une liste de `(ligne, origine)` prête pour `generer_culte`.
+    """
+    with open(path, 'r', encoding='utf-8') as f:
+        chants_list = f.readlines()
+
+    if not (chants_list and chants_list[0].strip().startswith('[SPONTANES]')):
+        return [(l, 'cantique') for l in chants_list]
+
+    spontanes_file = f"{chants_list[0].strip()}.txt"
+    print(f"Détection d'un fichier de cantiques spontanés: {spontanes_file}")
+    main_chants = [line.strip() for line in chants_list[1:] if line.strip()]
+    print(f"Fichier principal: {len(main_chants)} cantiques à intégrer")
+
+    if not os.path.exists(spontanes_file):
+        print(f"Attention: Le fichier de cantiques spontanés {spontanes_file} n'existe pas")
+        return [(c, 'cantique') for c in main_chants]
+
+    try:
+        with open(spontanes_file, 'r', encoding='utf-8') as sf:
+            spontanes_list = sf.readlines()
+        print(f"Fichier de cantiques spontanés trouvé avec {len(spontanes_list)} lignes")
+        combined = []
+        main_index = 0
+        for line in spontanes_list:
+            line = line.strip()
+            if not line:
+                continue
+            if re.match(r'^#\d+$', line):
+                print(f"Marqueur {line} détecté: insertion d'un cantique principal")
+                if main_index < len(main_chants):
+                    combined.append((main_chants[main_index], 'cantique'))
+                    main_index += 1
+                else:
+                    print(f"Attention: Plus de marqueurs que de cantiques principaux, marqueur {line} ignoré")
+            else:
+                combined.append((line, 'spontané'))
+        if main_index < len(main_chants):
+            print(f"Ajout des {len(main_chants) - main_index} cantiques principaux restants")
+            combined.extend((c, 'cantique') for c in main_chants[main_index:])
+        print(f"Liste entrelacée créée avec {len(combined)} cantiques au total")
+        return combined
+    except Exception as e:
+        print(f"Erreur lors de la lecture du fichier de cantiques spontanés: {str(e)}")
+        return [(c, 'cantique') for c in main_chants]
+
+
+def telecharger_images(config, theme):
+    """Télécharge 2 images de fond (Unsplash) avec repli ; met à jour `config.json`.
+
+    Retourne `(img_accueil, img_envoi, img_accueil_name, img_envoi_name)`.
+    """
+    ensure_img_directory(config)
+    api_key = config.get('api', {}).get('unsplash')
+    print("Téléchargement des images...")
+    seed1 = int(time.time() * 1000) % 10000
+    seed2 = (seed1 + 1000) % 10000
+    print(f"Utilisation des seeds {seed1} et {seed2} pour les images")
+    a_content, a_name = download_nature_image(seed1, api_key=api_key, theme=theme)
+    time.sleep(1)
+    e_content, e_name = download_nature_image(seed2, api_key=api_key, theme=theme)
+
+    img_path = Path(config['paths']['images']).resolve()
+    if a_content and e_content:
+        try:
+            img_accueil = img_path / a_name
+            img_envoi = img_path / e_name
+            print("Sauvegarde de l'image d'accueil:", img_accueil.as_posix())
+            img_accueil.write_bytes(a_content)
+            print("Sauvegarde de l'image d'envoi:", img_envoi.as_posix())
+            img_envoi.write_bytes(e_content)
+            config['images']['accueil'] = a_name
+            config['images']['envoi'] = e_name
+            with open('config.json', 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=4)
+            print("Configuration mise à jour avec succès")
+            return img_accueil, img_envoi, a_name, e_name
+        except Exception as e:
+            print(f"Erreur lors de la sauvegarde des images ou de la mise à jour de la configuration: {str(e)}")
+
+    print("Utilisation des images par défaut.")
+    a_name = config['images']['accueil']
+    e_name = config['images']['envoi']
+    return img_path / a_name, img_path / e_name, a_name, e_name
+
+
+def main(argv=None):
+    enable_windows_ansi()
+    print("Démarrage du script...")
+
+    try:
+        config = charger_config()
+        print("Configuration chargée avec succès")
+    except Exception as e:
+        print(f"Erreur lors du chargement de la configuration: {str(e)}")
+        sys.exit(1)
+
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if not argv:
+        print("Usage: generate.py <name> [--theme <theme>]")
+        sys.exit(1)
+
+    theme = "nature,landscape,forest,mountains"
+    if "--theme" in argv:
+        i = argv.index("--theme")
+        if i + 1 < len(argv):
+            theme = argv[i + 1]
+            argv.pop(i)
+            argv.pop(i)
+        else:
+            print("Erreur: --theme nécessite une valeur")
+            sys.exit(1)
+
+    titre = ' '.join(argv)
+    print(f"Nom du culte: {titre}")
+    print(f"Thème des images: {theme}")
+
+    images = telecharger_images(config, theme)
+
+    print("Lecture du fichier chants.txt...")
+    try:
+        entrees = lire_chants_txt('chants.txt')
+    except Exception as e:
+        print(f"Erreur lors de la lecture de chants.txt: {str(e)}")
+        entrees = []
+
+    generer_culte(titre, entrees, config, *images)
+
+    # Ouvrir le dossier de sortie (Windows).
+    output_dir = Path(config['paths']['output']).resolve()
+    try:
+        subprocess.Popen(['explorer', str(output_dir)])
+    except Exception:
+        pass
+
+
+if __name__ == "__main__":
+    main()
