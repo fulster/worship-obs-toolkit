@@ -2,6 +2,7 @@ import json
 from zipfile import ZipFile
 from obs_json_resources import Scene_Collection
 from obs_json_resources import Tmp_scene
+from obs_json_resources import parse_selection
 import unicodedata
 import re
 import subprocess
@@ -319,7 +320,16 @@ try:
         line = line.strip()
         if not line or line.startswith('#') or line.startswith('[SPONTANES]'):
             continue  # Ignorer les lignes vides, les commentaires et l'en-tête [SPONTANES]
-            
+
+        # Extraire un sélecteur de couplets en fin de ligne, ex: « (1,3) » ou
+        # « (1,R,2) » — honore la notation déjà utilisée dans chants.txt.
+        selection = None
+        sel_match = re.search(r'\(([\d\s,Rr]+)\)\s*$', line)
+        if sel_match:
+            selection = parse_selection(sel_match.group(1))
+            if selection is None:
+                print(f"Sélecteur illisible, ignoré: {line}")
+
         # Extraire le numéro du cantique (format: "21-17") ou du psaume (format: "Psaume X", "Ps X" ou "Ps XXX")
         match_cantique = re.match(r'^(\d+-\d+)', line)
         match_psaume = re.match(r'^(?:Psaume|Ps)\s+(\d+)([A-Z]?)', line)
@@ -370,7 +380,7 @@ try:
         
         # Si le cantique est trouvé, l'ajouter à la collection
         if cantique_path:
-            collection.add_scene(cantique_path)
+            collection.add_scene(cantique_path, selection)
         else:
             print_red(f"✗ Cantique {numero} non trouvé dans {txt_dir}")
 

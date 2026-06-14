@@ -1,6 +1,7 @@
 import glob
 import os
 import json
+import re
 
 import yaml
 
@@ -11,39 +12,99 @@ def load_cantique_yaml(file):
         return yaml.safe_load(f)
 
 
-def expand_cantique(data):
-    """Construit (head, paroles) pour la projection depuis un cantique structuré.
+def parse_selection(text):
+    """Parse le contenu d'un sélecteur `(...)` en liste de jetons.
+
+    Jetons acceptés : un entier (couplet, 1-based) ou ``R`` (refrain). Sépara-
+    teur virgule, espaces tolérés. Retourne ``None`` si vide ou si un jeton est
+    non reconnu (le sélecteur est alors ignoré côté appelant).
+    """
+    tokens = []
+    for part in text.split(","):
+        p = part.strip()
+        if not p:
+            continue
+        if p.upper() == "R":
+            tokens.append("R")
+        elif p.isdigit():
+            tokens.append(int(p))
+        else:
+            return None
+    return tokens or None
+
+
+def _resolve_sequence(data, selection):
+    """Calcule la séquence finale de jetons à projeter.
+
+    - ``selection is None`` (pas de sélecteur) → tous les couplets dans l'ordre,
+      refrain inséré après chaque (défaut historique).
+    - sélecteur **sans** ``R`` (ex. ``(1,3)``) → couplets choisis dans l'ordre,
+      refrain inséré après chaque (mode A : le refrain revient tout seul).
+    - sélecteur **avec** ``R`` (ex. ``(1,R,3)`` ou ``(R,1,R,2)``) → séquence
+      littérale, reproduite telle quelle (contrôle manuel exact).
+    """
+    couplets = data.get("couplets") or []
+    has_refrain = bool((data.get("refrain") or "").strip())
+
+    if selection is not None and any(t == "R" for t in selection):
+        return list(selection)
+
+    if selection is None:
+        nums = list(range(1, len(couplets) + 1))
+    else:
+        nums = [t for t in selection if t != "R"]
+
+    seq = []
+    for num in nums:
+        seq.append(num)
+        if has_refrain:
+            seq.append("R")
+    return seq
+
+
+def expand_cantique(data, selection=None):
+    """Construit (head, paroles, avertissements) pour la projection.
 
     - head = ``numero\\ntitre`` (le template de titre affiche n° puis titre) ;
     - paroles = un bloc unique destiné au texte défilant : `source` en tête,
-      puis chaque couplet **suivi du refrain** (le refrain n'est stocké qu'une
-      fois dans la source — c'est ici, couche de présentation, qu'il est
-      expansé après chaque couplet, cf. D-001), `credits` en pied.
+      les couplets/refrains selon la séquence résolue (cf. `_resolve_sequence`),
+      `credits` en pied. Le refrain n'est stocké qu'une fois dans la source —
+      c'est ici, couche de présentation, qu'il est expansé (cf. D-001).
 
-    Le refrain et les couplets sont des blocs multi-lignes ; les sections sont
-    séparées par une ligne vide, comme dans les `.txt` nettoyés à la main.
+    `selection` est une liste de jetons (entiers / ``"R"``) issue d'un sélecteur
+    `(...)`, ou ``None`` pour le cantique entier. Les sections sont séparées par
+    une ligne vide, comme dans les `.txt` nettoyés à la main.
     """
     numero = (data.get("numero") or "").strip()
     titre = (data.get("titre") or "").strip()
     head = f"{numero}\n{titre}" if numero else titre
 
+    couplets = data.get("couplets") or []
+    refrain = (data.get("refrain") or "").strip() or None
+
+    warnings = []
+    blocks = []
+    for tok in _resolve_sequence(data, selection):
+        if tok == "R":
+            if refrain:
+                blocks.append(refrain)
+            else:
+                warnings.append("refrain demandé mais le cantique n'en a pas")
+        elif 1 <= tok <= len(couplets):
+            blocks.append(couplets[tok - 1].rstrip())
+        else:
+            warnings.append(f"couplet {tok} hors limites (1..{len(couplets)})")
+
     sections = []
-    source = data.get("source")
+    source = (data.get("source") or "").strip()
     if source:
-        sections.append(source.strip())
-
-    refrain = data.get("refrain")
-    refrain = refrain.strip() if refrain else None
-    for couplet in data.get("couplets") or []:
-        sections.append(couplet.rstrip())
-        if refrain:
-            sections.append(refrain)
-
-    credits = data.get("credits")
+        sections.append(source)
+    sections.extend(blocks)
+    credits = (data.get("credits") or "").strip()
     if credits:
-        sections.append(credits.strip())
+        sections.append(credits)
 
-    return head, "\n\n".join(sections)
+    return head, "\n\n".join(sections), warnings
 
 class Obs_basic :
     def __init__(self,name) :
@@ -106,16 +167,21 @@ class Item_text(Obs_basic) :
 
 # a reprendre sur une classe plus précise
 class Scene(Obs_basic) :
-    def __init__(self, file,sc):
+    def __init__(self, file,sc,selection=None):
         self.file = os.path.abspath(file)
         if os.path.splitext(file)[1].lower() in (".yaml", ".yml"):
             # Format structuré (D-001) : le refrain est expansé après chaque
-            # couplet à la lecture, le code remplace le nettoyage manuel.
-            self.head, body = expand_cantique(load_cantique_yaml(file))
+            # couplet à la lecture, le code remplace le nettoyage manuel. Un
+            # sélecteur (...) choisit/réordonne les couplets (cf. expand_cantique).
+            self.head, body, warnings = expand_cantique(load_cantique_yaml(file), selection)
+            for w in warnings:
+                print(f"  Attention : {os.path.basename(file)} : {w}")
             self.lyrics = '\n\n\n\n'+body
         else:
             # Format texte libre historique (stock/txt) : titre = 1re ligne non
             # vide, paroles = le reste du fichier tel quel.
+            if selection is not None:
+                print(f"  Attention : sélecteur ignoré, cantique non structuré : {os.path.basename(file)}")
             with open(file,"r",encoding="utf-8") as cantique :
                 self.head = ""
                 for line in cantique:
@@ -177,8 +243,8 @@ class Scene_Collection(Obs_basic) :
         self.scenes=[]
     def add_source(self,source) :
         self.core["sources"].append(source)
-    def add_scene(self,file) :
-        self.scenes.append(Scene(file,self))
+    def add_scene(self,file,selection=None) :
+        self.scenes.append(Scene(file,self,selection))
     def generate_scenes_from_dir(self, dir) :
         filelist = os.listdir(os.path.abspath(dir)) # returns list
         filelist.sort(reverse=True)

@@ -31,13 +31,26 @@ L'absence d'une clé optionnelle vaut « aucun » — pas de valeur vide.
   projection appartient à la couche de présentation (templates `tpl/` +
   assemblage `Scene`), pas au fichier source.
 - **Sélecteur de couplets** : dans `chants.txt` / fichier de spontanés,
-  un cantique peut porter un sélecteur, ordre respecté. Le couplet `N`
-  vise `couplets[N-1]` ; `R` vise `refrain`.
+  un cantique peut porter en **fin de ligne** un sélecteur `(...)` —
+  c'est la notation déjà en usage dans `chants.txt`. Un chiffre vise
+  `couplets[N-1]` ; `R` vise `refrain`. Deux modes, selon la présence
+  d'un `R` :
+  - **chiffres seuls** (`(1,3)`) → couplets choisis dans l'ordre, le
+    **refrain est réinséré après chaque** (comme le cantique se chante) ;
+  - **avec `R`** (`(1,R,3)`, `(R,1,R,2)`) → séquence **littérale**,
+    reproduite telle quelle (contrôle manuel exact, refrain en intro
+    ponctuel…).
   ```
-  12-13 : 1,R,3     # couplet 1, refrain, couplet 3
-  35-19 : 2,1       # réordonnés
-  12-13             # sans sélecteur → tout le cantique
+  22-04 « Oh ! Parle-moi Seigneur » (1,2,3)   # couplets 1-2-3, refrain entre chaque
+  35-19 « … » (2,1)                           # réordonnés, refrain entre chaque
+  21-17 « … » (1,R,3)                         # littéral : couplet 1, refrain, couplet 3
+  12-13 « … »                                 # sans sélecteur → tout le cantique
   ```
+  Un couplet hors limites ou un `R` sans refrain est **ignoré avec un
+  avertissement** ; un sélecteur sur un cantique non structuré (`.txt`)
+  est ignoré (avertissement). Le défaut « refrain en intro **par
+  cantique** » (sans `R` explicite) reste un chantier à venir, cf.
+  [`docs/todo/README.md`](todo/README.md).
 - **Non découpable** : un cantique sans numérotation exploitable est
   stocké en **un couplet unique** (cf. `13-03.yaml`) et signalé par le
   rapport du convertisseur ; la relecture humaine tranche le découpage.

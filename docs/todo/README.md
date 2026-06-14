@@ -35,19 +35,20 @@ Ordre indicatif : le schéma fonde le reste ; le sélecteur de couplets
   `stock/cantiques/<numero>.yaml`, repli sur `stock/txt/`. Dépendance
   runtime `pyyaml`. Le sélecteur de couplets (3ᵉ ligne du head
   `numero\ntitre`) reste le chantier suivant.
-- [ ] **Sélecteur de couplets / modèle d'ordre** (`D-001`) — dans le
-  parsing de `chants.txt` / fichier de spontanés (`generate.py`) :
-  syntaxe `12-13 : 1,R,3`, ordre respecté, fallback « tout » +
-  avertissement si structure absente. *(Priorité opérateur — résout la
-  douleur des spontanés-extraits.)*
-  - **Deux portées à concevoir ensemble** (décidé en session) :
-    1. *défaut par cantique* — ex. refrain chanté **en intro**
-       (`R, C1, R, C2…`), trait stable de l'hymne ; à ne PAS oublier en
-       repoussant l'intro-refrain ici plutôt qu'en booléen `refrain_intro`
-       au schéma ;
-    2. *override par culte* — l'ordre exact via le sélecteur `chants.txt`.
-    En attendant, le pipeline de lecture applique le défaut « refrain
-    après chaque couplet » (sans intro).
+- [x] **Sélecteur de couplets (override par culte)** (`D-001`) — fait.
+  `generate.py` lit un sélecteur `(...)` en fin de ligne (notation déjà
+  en usage). Mode A : chiffres seuls (`(1,3)`) → couplets choisis,
+  refrain réinséré après chaque ; mode littéral : avec `R` (`(1,R,3)`,
+  `(R,1,R,2)`) → séquence exacte. Hors-limites / `R` sans refrain /
+  sélecteur sur `.txt` → ignorés avec avertissement. Résolution dans
+  `expand_cantique` / `parse_selection` (`obs_json_resources.py`).
+  *(Résout la douleur des spontanés-extraits.)*
+  - [ ] **Défaut d'ordre par cantique** (`D-001`) — reste à faire :
+    qu'un cantique déclare son refrain **en intro** par défaut (sans
+    avoir à écrire `R` à chaque culte). À concevoir comme un trait de la
+    source (champ schéma), composé avec l'override par culte ci-dessus.
+    En attendant, sans `R` explicite, le défaut est « refrain après
+    chaque couplet, sans intro ».
 - [ ] **Sort de `stock/txt/`** (`D-001`) — décider du devenir des 90
   fichiers nettoyés à la main vs le nouveau corpus YAML (migration,
   coexistence, ou abandon).
