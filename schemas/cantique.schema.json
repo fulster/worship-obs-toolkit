@@ -37,6 +37,34 @@
       "type": "string",
       "minLength": 1,
       "description": "Auteur / éditeur / copyright (ex. 'Noël Colombier (*1932) — © Air Libre, SECLI 09/002'). Clé absente = aucun crédit."
+    },
+    "traductions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Traductions du cantique (voir docs/decisions/D-002-support-multilingue-traductions.md). Le français reste à la racine et est servi par défaut ; les traductions ne sont PAS servies par défaut. Clé absente = cantique monolingue (cas majoritaire).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["langue", "couplets"],
+        "properties": {
+          "langue": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}$",
+            "description": "Code court de langue (ex. 'en', 'de')."
+          },
+          "refrain": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Refrain dans cette langue, stocké une seule fois. Clé absente = pas de refrain traduit."
+          },
+          "couplets": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "description": "Couplets traduits, dans l'ordre de chant."
+          }
+        }
+      }
     }
   }
 }

@@ -52,3 +52,30 @@ Ordre indicatif : le schéma fonde le reste ; le sélecteur de couplets
 - [ ] **Sort de `stock/txt/`** (`D-001`) — décider du devenir des 90
   fichiers nettoyés à la main vs le nouveau corpus YAML (migration,
   coexistence, ou abandon).
+
+## Chantiers D-002 — Support multilingue des traductions
+
+Issus des *Conséquences* de
+[D-002](../decisions/D-002-support-multilingue-traductions.md). 83/922
+fichiers embarquent des traductions (EN/DE) à isoler avant promotion.
+
+- [x] **Schéma `traductions`** (`D-002`) — fait.
+  `schemas/cantique.schema.json` : champ optionnel `traductions`, liste
+  de `{langue, couplets, refrain?}` (`langue` = `^[a-z]{2,3}$`),
+  `additionalProperties: false`. Le FR reste à la racine.
+- [x] **Convertisseur multilingue** (`D-002`) — fait.
+  `convert_cantiques.py` segmente en blocs de langue (en-tête
+  `English`/`Deutsch` + renumérotation), route 1er bloc → `couplets`
+  (FR), reste → `traductions` ; détection `en`/`de`, sinon `xx`. Sur les
+  922 : **73 multilingues** (43 en, 59 de, 20 xx), 922/922 valides au
+  schéma. Flags relecture : `langue-indeterminee`,
+  `renumerotation-sans-entete`. Cas FR non numéroté + trad numérotée
+  géré (le pré-bloc devient le couplet FR).
+- [x] **Pipeline ignore `traductions`** (`D-002`) — fait/vérifié :
+  `expand_cantique` ne lit que `couplets`/`refrain`/`source`/`credits`,
+  jamais `traductions` → le FR seul est servi (vérifié sur `32-37`). Un
+  sélecteur de langue reste un chantier aval hors scope.
+- [ ] **Promotion du corpus** (`D-002`, `D-001`) — une fois les
+  traductions séparées : promouvoir `build/cantiques/` → `stock/cantiques/`
+  (périmètre suspendu à D-002) ; ranger les 38 prières `p####` dans un
+  **dossier séparé** (hors `stock/cantiques/`, cf. minute Q3 de D-002).

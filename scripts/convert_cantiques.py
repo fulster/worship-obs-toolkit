@@ -42,6 +42,52 @@ CREDIT_HINT_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Multilinguisme (D-002) : en-tête de langue + détection par mots-outils.
+LANG_HEADER_RE = re.compile(
+    r"^\(?\s*(english|anglais|deutsch|allemand|german|latin|"
+    r"néerlandais|neerlandais|espagnol|italien)\s*\)?\s*:?\s*$",
+    re.IGNORECASE,
+)
+LANG_CODE = {
+    "english": "en", "anglais": "en",
+    "deutsch": "de", "allemand": "de", "german": "de",
+    "latin": "la", "néerlandais": "nl", "neerlandais": "nl",
+    "espagnol": "es", "italien": "it",
+}
+_FR_WORDS = set(
+    "le la les de des du et un une est dans tu je nous vous ton ta tes son sa ses qui "
+    "que pour avec sur au aux ne pas plus mon ma mes notre votre seigneur dieu christ "
+    "esprit gloire vie il elle ce ces tout tous toi".split()
+)
+_EN_WORDS = set(
+    "the and you your are with his her our we is of to in for that this be he she they "
+    "them lord shall will come holy all my me name god praise sing king love grace "
+    "heaven earth let now from have thy thee thou".split()
+)
+_DE_WORDS = set(
+    "der die das und ich du ist nicht mit ein eine wir ihr herr gott dein sein zu den "
+    "dem auf von wie so auch nur noch wenn dass durch über uns mein dich".split()
+)
+
+
+def detect_lang(text: str) -> str | None:
+    """Détecte fr/en/de par mots-outils ; None si indéterminé."""
+    words = re.findall(r"[a-zà-ÿ']+", text.lower())
+    if not words:
+        return None
+    score = {"fr": 0, "en": 0, "de": 0}
+    for w in words:
+        if w in _FR_WORDS:
+            score["fr"] += 1
+        if w in _EN_WORDS:
+            score["en"] += 1
+        if w in _DE_WORDS:
+            score["de"] += 1
+    lang = max(score, key=score.get)
+    if score[lang] == 0 or score[lang] / len(words) < 0.10:
+        return None
+    return lang
+
 
 def normalize(text: str) -> str:
     """Collapse toute séquence de CR avant LF, puis les CR isolés, en un LF."""
@@ -98,21 +144,25 @@ def parse_cantique(raw: str, stem: str) -> tuple[dict, str, list[str]]:
     # Détacher les crédits de la fin.
     body, credits = peel_credits(body)
 
-    # Marqueurs structurels (refrain + couplets), dans l'ordre du texte. Les
-    # bruts sont double-interlignés : on délimite par marqueurs, pas par lignes
-    # vides, et on ignore les vides à l'intérieur d'une section.
-    refrain_idx = next(
-        (i for i, ln in enumerate(body) if REFRAIN_MARK_RE.match(ln.strip())), None
-    )
-    couplet_idxs = [i for i, ln in enumerate(body) if COUPLET_RE.match(ln.strip())]
-    markers = sorted(
-        ([("refrain", refrain_idx)] if refrain_idx is not None else [])
-        + [("couplet", i) for i in couplet_idxs],
-        key=lambda m: m[1],
-    )
+    # Marqueurs structurels (couplets, refrains, en-têtes de langue), dans
+    # l'ordre du texte. Les bruts sont double-interlignés : on délimite par
+    # marqueurs, pas par lignes vides, et on ignore les vides dans une section.
+    markers = []  # (pos, kind, payload) ; kind = couplet|refrain|header
+    for i, ln in enumerate(body):
+        s = ln.strip()
+        mc = COUPLET_RE.match(s)
+        if mc:
+            markers.append((i, "couplet", int(mc.group(1))))
+            continue
+        if REFRAIN_MARK_RE.match(s):
+            markers.append((i, "refrain", None))
+            continue
+        mh = LANG_HEADER_RE.match(s)
+        if mh:
+            markers.append((i, "header", LANG_CODE.get(mh.group(1).lower(), "xx")))
 
     def section(start: int, end: int, is_couplet: bool) -> list[str]:
-        """Lignes non vides de [start, end[, hors marqueurs refrain/Refr."""
+        """Lignes non vides de [start, end[, hors marqueurs refrain/Refr/langue."""
         out: list[str] = []
         for j in range(start, end):
             ln = body[j]
@@ -123,7 +173,7 @@ def parse_cantique(raw: str, stem: str) -> tuple[dict, str, list[str]]:
                 continue
             if not ln.strip():
                 continue
-            if REFRAIN_MARK_RE.match(ln.strip()):
+            if REFRAIN_MARK_RE.match(ln.strip()) or LANG_HEADER_RE.match(ln.strip()):
                 continue
             if re.fullmatch(r"\s*[Rr]efr(?:\.|ain)?\.?\s*", ln):
                 continue
@@ -133,9 +183,12 @@ def parse_cantique(raw: str, stem: str) -> tuple[dict, str, list[str]]:
     source = None
     refrain = None
     couplets: list[str] = []
+    traductions: list[dict] = []
 
-    if not markers:
+    has_structural = any(k in ("couplet", "refrain") for _, k, _ in markers)
+    if not has_structural:
         # Aucune numérotation : tout le corps utile en un couplet unique.
+        # (un en-tête de langue seul ne structure rien.)
         block = section(0, len(body), is_couplet=False)
         if block:
             block[-1] = REFR_TRAILER_RE.sub("", block[-1])
@@ -145,28 +198,81 @@ def parse_cantique(raw: str, stem: str) -> tuple[dict, str, list[str]]:
         category = "sans-couplets"
         flags.append("non-decoupe")
     else:
-        # Source = bloc non vide entre le titre et le 1er marqueur.
-        pre = [ln.strip() for ln in body[: markers[0][1]] if ln.strip()]
-        if len(pre) == 1:
-            source = pre[0]
-        elif len(pre) > 1:
-            source = " ".join(pre)
-            flags.append("source-ambigue")
+        # Pré-bloc = lignes non vides entre le titre et le 1er marqueur (source
+        # courte, OU paroles FR non numérotées si seule la trad est numérotée —
+        # tranché après segmentation).
+        pre = [ln.strip() for ln in body[: markers[0][0]] if ln.strip()]
 
-        bounds = [m[1] for m in markers] + [len(body)]
-        for k, (kind, start) in enumerate(markers):
-            end = bounds[k + 1]
+        # Segmentation en blocs de langue (D-002). Le 1er bloc est le français ;
+        # un en-tête de langue OU une renumérotation des couplets (n° qui
+        # redescend) ouvre un bloc de traduction.
+        blocks = [{"lang": "fr", "couplets": [], "refrain": None}]
+        last_num = 0
+        positions = [m[0] for m in markers] + [len(body)]
+        for k, (pos, kind, payload) in enumerate(markers):
+            end = positions[k + 1]
+            if kind == "header":
+                blocks.append({"lang": payload, "couplets": [], "refrain": None})
+                last_num = 0
+                continue
             if kind == "refrain":
-                refrain = "\n".join(section(start + 1, end, False)).strip() or None
-                if refrain is None:
-                    flags.append("refrain-vide")
-            else:
-                seg = section(start, end, is_couplet=True)
-                if seg:
-                    seg[-1] = REFR_TRAILER_RE.sub("", seg[-1])
-                text = "\n".join(seg).strip()
-                if text:
-                    couplets.append(text)
+                rtext = "\n".join(section(pos + 1, end, False)).strip() or None
+                if blocks[-1]["refrain"] is None:
+                    blocks[-1]["refrain"] = rtext
+                continue
+            # couplet
+            if payload <= last_num and blocks[-1]["couplets"]:
+                blocks.append({"lang": None, "couplets": [], "refrain": None})
+            last_num = payload
+            seg = section(pos, end, is_couplet=True)
+            if seg:
+                seg[-1] = REFR_TRAILER_RE.sub("", seg[-1])
+            text = "\n".join(seg).strip()
+            if text:
+                blocks[-1]["couplets"].append(text)
+
+        # Bloc 0 = français (racine).
+        fr = blocks[0]
+        refrain = fr["refrain"]
+        if not fr["couplets"] and pre:
+            # Seule la traduction était numérotée : le pré-bloc EST le couplet FR.
+            couplets = ["\n".join(pre)]
+            flags.append("non-decoupe")
+        else:
+            couplets = fr["couplets"]
+            if len(pre) == 1:
+                source = pre[0]
+            elif len(pre) > 1:
+                source = " ".join(pre)
+                flags.append("source-ambigue")
+        if refrain is None and any(m[1] == "refrain" for m in markers) and not blocks[1:]:
+            flags.append("refrain-vide")
+
+        # Blocs suivants = traductions. En-tête de langue = fiable ; bloc ouvert
+        # par renumérotation seule = ambigu (2e série FR ? traduction sans
+        # en-tête ?) → flag relecture. Une traduction n'est jamais « fr » : un
+        # fr détecté sur un slot traduction est suspect (cf. italien lu comme fr)
+        # → 'xx'.
+        for b in blocks[1:]:
+            if not b["couplets"]:
+                continue
+            lang = b["lang"]
+            if lang is None:
+                flags.append("renumerotation-sans-entete")
+                d = detect_lang("\n".join(b["couplets"]))
+                lang = d if d in ("en", "de") else "xx"
+            elif lang == "xx":
+                d = detect_lang("\n".join(b["couplets"]))
+                lang = d if d in ("en", "de") else "xx"
+            t = {"langue": lang, "couplets": b["couplets"]}
+            if b["refrain"]:
+                t["refrain"] = b["refrain"]
+            traductions.append(t)
+            if lang == "xx":
+                flags.append("langue-indeterminee")
+        if traductions:
+            flags.append("multilingue")
+
         if not couplets and refrain:
             # Chant « refrain seul » (chœur court sans couplet) : le refrain
             # devient l'unique couplet.
@@ -189,6 +295,8 @@ def parse_cantique(raw: str, stem: str) -> tuple[dict, str, list[str]]:
     cantique["couplets"] = couplets
     if credits:
         cantique["credits"] = credits
+    if traductions:
+        cantique["traductions"] = traductions
     return cantique, category, flags
 
 
@@ -218,6 +326,15 @@ def to_yaml(c: dict) -> str:
         lines.append("  - " + _block(cp, "    "))
     if "credits" in c:
         lines.append(f"credits: {_dq(c['credits'])}")
+    if c.get("traductions"):
+        lines.append("traductions:")
+        for t in c["traductions"]:
+            lines.append(f"  - langue: {_dq(t['langue'])}")
+            if t.get("refrain"):
+                lines.append("    refrain: " + _block(t["refrain"], "      "))
+            lines.append("    couplets:")
+            for cp in t["couplets"]:
+                lines.append("      - " + _block(cp, "        "))
     return "\n".join(lines) + "\n"
 
 

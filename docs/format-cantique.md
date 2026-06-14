@@ -19,6 +19,7 @@ gère l'expansion du refrain et la sélection de couplets.
 | `source` | — | string | Sous-titre / provenance (`"Psaume 34"`). Absent = aucune. |
 | `refrain` | — | string | Texte du refrain, **stocké une seule fois**. Absent = pas de refrain. |
 | `credits` | — | string | Auteur / éditeur / copyright. Absent = aucun. |
+| `traductions` | — | liste d'objets | Traductions du cantique (`{langue, couplets, refrain?}`), **non servies par défaut**. Le français reste à la racine. Voir [D-002](decisions/D-002-support-multilingue-traductions.md). Absent = monolingue. |
 
 L'absence d'une clé optionnelle vaut « aucun » — pas de valeur vide.
 
@@ -54,6 +55,15 @@ L'absence d'une clé optionnelle vaut « aucun » — pas de valeur vide.
 - **Non découpable** : un cantique sans numérotation exploitable est
   stocké en **un couplet unique** (cf. `13-03.yaml`) et signalé par le
   rapport du convertisseur ; la relecture humaine tranche le découpage.
+- **Multilinguisme** ([D-002](decisions/D-002-support-multilingue-traductions.md)) :
+  le **français** est la langue racine, **servie par défaut**. Les
+  traductions (anglais, allemand…) vont dans `traductions` — une liste
+  de blocs `{langue, couplets, refrain?}` (`langue` = code court `en`,
+  `de`…) — et **ne sont pas projetées par défaut**. Le convertisseur les
+  sépare par en-tête de langue (`English`, `Deutsch`) et/ou
+  renumérotation des couplets ; les cas ambigus (langue indéterminée
+  `xx`, renumérotation sans en-tête) sont signalés au rapport pour
+  relecture.
 
 ## Exemples de référence
 
