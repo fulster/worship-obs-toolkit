@@ -33,7 +33,8 @@ import corpus_index  # noqa: E402
 DEFAULT_THEME = "nature,landscape,forest,mountains"
 CULTES_DIR = os.path.join(HERE, 'cultes')
 os.makedirs(CULTES_DIR, exist_ok=True)
-ID_RE = re.compile(r'^[a-z0-9-]+$')
+HISTO_PATH = os.path.join(CULTES_DIR, 'historique.jsonl')
+ID_RE = re.compile(r'^[0-9a-z-]+$')
 
 app = Flask(__name__, static_folder=os.path.join(HERE, 'static'), static_url_path='')
 
@@ -62,13 +63,29 @@ def _build_entrees(data):
 
 
 def _images_for(data):
-    """Images de fond : réutilise l'aperçu si fourni et présent, sinon télécharge."""
+    """Images de fond : réutilise les images choisies (galerie/aperçu) si elles
+    existent sur le disque, sinon télécharge depuis Unsplash.
+
+    Tolère une sélection partielle : si une seule des deux images est fournie et
+    présente, on l'emploie aussi pour l'autre emplacement (plutôt que de tout
+    retélécharger et perdre le choix de l'opérateur)."""
     theme = (data.get('theme') or DEFAULT_THEME).strip()
     imgs = data.get('images') or {}
     img_dir = Path(CONFIG['paths']['images']).resolve()
-    pa, pe = img_dir / (imgs.get('accueil') or ''), img_dir / (imgs.get('envoi') or '')
-    if imgs.get('accueil') and imgs.get('envoi') and pa.exists() and pe.exists():
-        return pa, pe, imgs['accueil'], imgs['envoi']
+
+    def _resolve(key):
+        name = imgs.get(key) or ''
+        p = img_dir / name
+        return (p, name) if name and p.exists() else (None, None)
+
+    pa, na = _resolve('accueil')
+    pe, ne = _resolve('envoi')
+    if pa and not pe:
+        pe, ne = pa, na   # une seule choisie -> sert pour les deux
+    elif pe and not pa:
+        pa, na = pe, ne
+    if pa and pe:
+        return pa, pe, na, ne
     return generate.telecharger_images(CONFIG, theme)
 
 
@@ -149,6 +166,7 @@ def api_generer():
         app.logger.exception('Echec de la generation')
         return jsonify({'error': f'{type(exc).__name__}: {exc}'}), 500
 
+    _record_historique(titre, len(info['ajoutes']), 'zip')
     return jsonify({
         'titre': titre,
         'fname': info['fname'],
@@ -191,6 +209,7 @@ def api_envoyer_obs():
         app.logger.exception('Echec envoi OBS')
         return jsonify({'error': f'OBS injoignable ou erreur : {exc}'}), 502
 
+    _record_historique(titre, len(info['ajoutes']), 'obs')
     return jsonify({
         'titre': titre,
         'collection': res['collection'],
@@ -227,6 +246,23 @@ def api_telecharger(fname):
     return send_from_directory(output_dir, fname, as_attachment=True)
 
 
+IMG_EXT = ('.jpg', '.jpeg', '.png', '.webp')
+
+
+@app.route('/api/images', methods=['GET'])
+def api_images_list():
+    """Galerie locale : liste les images de fond déjà téléchargées (plus
+    récentes d'abord), pour les réutiliser sans repasser par Unsplash."""
+    img_dir = Path(CONFIG['paths']['images']).resolve()
+    out = []
+    if img_dir.is_dir():
+        files = [p for p in img_dir.iterdir()
+                 if p.is_file() and p.suffix.lower() in IMG_EXT]
+        files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        out = [{'name': p.name, 'url': f'/api/image/{p.name}'} for p in files]
+    return jsonify(out)
+
+
 @app.route('/api/images', methods=['POST'])
 def api_images():
     """Télécharge 2 images de fond (aperçu, avant génération) et renvoie leurs
@@ -248,61 +284,58 @@ def api_image(name):
     return send_from_directory(img_dir, name)
 
 
-# --- API : cultes sauvegardés --------------------------------------------------
+# --- API : historique (audit-trail, lecture seule) -----------------------------
+#
+# On ne sauvegarde plus de cultes réouvrables : chaque génération (.zip) ou envoi
+# OBS consigne une ligne dans `cultes/historique.jsonl`. Le menu « Historique »
+# se contente d'afficher cette trace (titre, date, nb de chants, canal).
 
-def _culte_path(cid):
-    if not ID_RE.match(cid or ''):
-        abort(400, 'identifiant invalide')
-    return os.path.join(CULTES_DIR, f'{cid}.json')
+def _read_historique():
+    entries = []
+    if os.path.exists(HISTO_PATH):
+        with open(HISTO_PATH, encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entries.append(json.loads(line))
+                except Exception:
+                    continue
+    return entries
+
+
+def _record_historique(titre, n_entrees, kind):
+    """Ajoute une entrée d'audit (kind='zip'|'obs'). Best-effort, ne lève jamais."""
+    now = datetime.now()
+    entry = {
+        'id': now.strftime('%Y%m%d-%H%M%S-') + f'{now.microsecond:06d}',
+        'titre': titre, 'n_entrees': n_entrees, 'kind': kind,
+        'date': now.strftime('%d/%m/%Y %H:%M'), 'ts': now.timestamp(),
+    }
+    try:
+        with open(HISTO_PATH, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+    except Exception:
+        app.logger.exception("Echec d'ecriture de l'historique")
+    return entry
 
 
 @app.route('/api/cultes', methods=['GET'])
 def list_cultes():
-    out = []
-    # Plus récents d'abord (date de dernière sauvegarde = mtime du fichier).
-    paths = sorted(Path(CULTES_DIR).glob('*.json'), key=lambda p: p.stat().st_mtime, reverse=True)
-    for path in paths:
-        try:
-            with open(path, encoding='utf-8') as f:
-                c = json.load(f)
-            date = datetime.fromtimestamp(path.stat().st_mtime).strftime('%d/%m/%Y %H:%M')
-            out.append({'id': c.get('id'), 'titre': c.get('titre'),
-                        'n_entrees': len(c.get('entrees') or []), 'date': date})
-        except Exception:
-            continue
-    return jsonify(out)
-
-
-@app.route('/api/cultes', methods=['POST'])
-def save_culte():
-    data = request.get_json(silent=True) or {}
-    titre = (data.get('titre') or 'Culte').strip()
-    cid = generate.slugify(titre) or 'culte'
-    payload = {
-        'id': cid,
-        'titre': titre,
-        'theme': data.get('theme'),
-        'entrees': data.get('entrees', []),
-    }
-    with open(_culte_path(cid), 'w', encoding='utf-8') as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    return jsonify(payload)
-
-
-@app.route('/api/cultes/<cid>', methods=['GET'])
-def get_culte(cid):
-    path = _culte_path(cid)
-    if not os.path.exists(path):
-        abort(404)
-    with open(path, encoding='utf-8') as f:
-        return jsonify(json.load(f))
+    entries = sorted(_read_historique(), key=lambda e: e.get('ts', 0), reverse=True)
+    return jsonify(entries)
 
 
 @app.route('/api/cultes/<cid>', methods=['DELETE'])
 def delete_culte(cid):
-    path = _culte_path(cid)
-    if os.path.exists(path):
-        os.remove(path)
+    """Retire une entrée de l'historique (ménage). Réécrit le journal sans elle."""
+    if not ID_RE.match(cid or ''):
+        abort(400, 'identifiant invalide')
+    kept = [e for e in _read_historique() if e.get('id') != cid]
+    with open(HISTO_PATH, 'w', encoding='utf-8') as f:
+        for e in kept:
+            f.write(json.dumps(e, ensure_ascii=False) + '\n')
     return jsonify({'ok': True})
 
 

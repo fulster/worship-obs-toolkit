@@ -98,10 +98,12 @@ body::before{
 @keyframes pop{ from{ opacity:0; transform:scale(.96); } to{ opacity:1; transform:none; } }
 .pop{ animation:pop .28s ease both; }
 [v-cloak]{ display:none; }
-.switch{ width:2.7rem; height:1.45rem; border-radius:999px; background:rgba(36,31,24,.16); position:relative; transition:background .2s; cursor:pointer; flex:none; }
-.switch.on{ background:#BC8729; }
-.switch i{ position:absolute; top:2px; left:2px; width:1.05rem; height:1.05rem; border-radius:999px; background:#fff; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
-.switch.on i{ left:1.28rem; }
+/* radios du wizard */
+.radio{ width:1.15rem; height:1.15rem; border-radius:999px; border:2px solid rgba(36,31,24,.3); flex:none; position:relative; transition:all .15s; }
+.radio.on{ border-color:#1E4337; }
+.radio.on::after{ content:""; position:absolute; inset:3px; border-radius:999px; background:#1E4337; }
+.radio-gold.on{ border-color:#BC8729; }
+.radio-gold.on::after{ background:#BC8729; }
 </style>
 </head>
 
@@ -122,7 +124,7 @@ body::before{
         <button class="btn btn-ghost px-3.5 py-2 text-sm hidden sm:inline-flex" @click="nouveau">Nouveau</button>
         <button class="btn btn-ghost px-3.5 py-2 text-sm" :class="{'!bg-gold/[.12] !border-gold/40 text-pine': mode==='spontanes'}" @click="toggleSpontanes">Spontanés</button>
         <button class="btn btn-ghost px-3.5 py-2 text-sm" @click="toggleCultes">
-          Mes cultes <span v-if="cultes.length" class="ml-1 text-gold font-semibold">· {{ cultes.length }}</span>
+          Historique <span v-if="cultes.length" class="ml-1 text-gold font-semibold">· {{ cultes.length }}</span>
         </button>
         <!-- panneau spontanés -->
         <div v-if="showSpontanes" class="absolute right-0 top-12 w-80 max-w-[88vw] card rounded-xl2 p-2 z-30 pop" style="border-color:rgba(188,135,41,.45)">
@@ -138,17 +140,20 @@ body::before{
             </li>
           </ul>
         </div>
-        <!-- panneau cultes -->
+        <!-- panneau historique (lecture seule) -->
         <div v-if="showCultes" class="absolute right-0 top-12 w-80 max-w-[88vw] card rounded-xl2 p-2 z-30 pop">
-          <div class="px-3 py-2 text-xs uppercase tracking-widest text-ink-soft">Cultes sauvegardés</div>
-          <div v-if="!cultes.length" class="px-3 py-4 text-sm text-ink-soft italic">Aucun culte sauvegardé pour l'instant.</div>
+          <div class="px-3 py-2 text-xs uppercase tracking-widest text-ink-soft">Cultes créés</div>
+          <div v-if="!cultes.length" class="px-3 py-4 text-sm text-ink-soft italic">Aucun culte créé pour l'instant.</div>
           <ul class="scroll-thin max-h-72 overflow-auto">
             <li v-for="c in cultes" :key="c.id" class="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-ink/[.04]">
-              <button class="flex-1 text-left min-w-0" @click="openCulte(c.id)">
+              <span class="shrink-0 text-[.6rem] font-semibold uppercase tracking-wider rounded px-1.5 py-0.5 border"
+                    :class="c.kind==='obs' ? 'text-pine border-pine/30 bg-pine/[.06]' : 'text-gold border-gold/40 bg-gold/[.08]'"
+                    :title="c.kind==='obs' ? 'Envoyé vers OBS' : 'Archive .zip générée'">{{ c.kind==='obs' ? 'OBS' : 'ZIP' }}</span>
+              <div class="flex-1 min-w-0">
                 <div class="font-medium truncate">{{ c.titre }}</div>
                 <div class="text-xs text-ink-soft">{{ c.n_entrees }} chant{{ c.n_entrees>1?'s':'' }}<span v-if="c.date"> · {{ c.date }}</span></div>
-              </button>
-              <button class="iconbtn" title="Supprimer" @click.stop="deleteCulte(c.id)">🗑</button>
+              </div>
+              <button class="iconbtn" title="Retirer de l'historique" @click.stop="deleteCulte(c.id)">🗑</button>
             </li>
           </ul>
         </div>
@@ -173,14 +178,94 @@ body::before{
       </div>
     </section>
 
-    <!-- titre du culte -->
-    <section v-if="mode==='culte'" class="reveal mb-8" style="animation-delay:.02s">
+    <!-- Stepper (mode culte) -->
+    <nav v-if="mode==='culte'" class="reveal mb-9" style="animation-delay:.02s">
+      <ol class="flex items-center justify-center gap-2 sm:gap-3">
+        <template v-for="(label, idx) in ['Spontanés','Liste des chants','Révision']" :key="idx">
+          <li>
+            <button class="flex items-center gap-2.5 disabled:cursor-default" :disabled="idx+1 > reached" @click="goStep(idx+1)">
+              <span class="w-9 h-9 rounded-full grid place-items-center font-display font-semibold text-sm border transition-all"
+                    :class="step===idx+1 ? 'bg-pine text-parchment border-pine shadow-soft'
+                           : idx+1 < step ? 'bg-gold/[.15] text-pine border-gold/50'
+                           : 'bg-card text-ink-soft border-ink/15'">
+                <span v-if="idx+1 < step">✓</span><span v-else>{{ idx+1 }}</span>
+              </span>
+              <span class="text-sm font-medium hidden sm:inline" :class="step===idx+1 ? 'text-ink' : 'text-ink-soft'">{{ label }}</span>
+            </button>
+          </li>
+          <li v-if="idx<2" class="w-7 sm:w-14 h-px transition-colors" :class="idx+1 < step ? 'bg-gold/50' : 'bg-ink/15'"></li>
+        </template>
+      </ol>
+    </nav>
+
+    <!-- Étape 1 — Spontanés + titre -->
+    <section v-if="mode==='culte' && step===1" class="reveal max-w-2xl mx-auto">
+      <div class="card rounded-xl2 p-6 sm:p-8">
+        <label class="block text-[.72rem] uppercase tracking-[.2em] text-ink-soft mb-2">Titre du culte</label>
+        <input v-model="titre" type="text" placeholder="Culte du dimanche…"
+               class="field font-display text-2xl sm:text-3xl font-semibold w-full px-4 py-3 bg-transparent placeholder:text-ink/25 mb-7">
+
+        <div class="text-[.72rem] uppercase tracking-[.2em] text-ink-soft mb-1">Étape 1 — Spontanés</div>
+        <h2 class="font-display text-2xl font-semibold mb-1">Ce culte comporte-t-il des spontanés ?</h2>
+        <p class="text-sm text-ink-soft mb-5">Choisissez une série à entrelacer aux cantiques, ou poursuivez sans.</p>
+
+        <div class="space-y-2">
+          <label class="flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all"
+                 :class="serieChoisie==='' ? 'border-pine bg-pine/[.05] shadow-soft' : 'border-ink/12 hover:border-ink/25'">
+            <input type="radio" class="sr-only" value="" v-model="serieChoisie">
+            <span class="radio" :class="{on: serieChoisie===''}"></span>
+            <div>
+              <div class="font-medium">Culte sans spontanés</div>
+              <div class="text-xs text-ink-soft">Une liste de cantiques simple.</div>
+            </div>
+          </label>
+          <label v-for="nom in spontanesListe" :key="nom" class="flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all"
+                 :class="serieChoisie===nom ? 'border-gold bg-gold/[.08] shadow-soft' : 'border-ink/12 hover:border-ink/25'">
+            <input type="radio" class="sr-only" :value="nom" v-model="serieChoisie">
+            <span class="radio radio-gold" :class="{on: serieChoisie===nom}"></span>
+            <div class="flex items-center gap-2"><span class="text-gold">✦</span><span class="font-medium">{{ nom }}</span></div>
+          </label>
+        </div>
+        <p v-if="!spontanesListe.length" class="text-sm text-ink-soft italic mt-3">Aucune série enregistrée — créez-en une via le menu « Spontanés ».</p>
+
+        <div class="flex justify-end mt-7">
+          <button class="btn btn-primary px-6 py-3" @click="step=2; reached=Math.max(reached,2)">Suivant →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Étape 2 — Liste des chants -->
+    <section v-if="mode==='culte' && step===2" class="reveal max-w-2xl mx-auto">
+      <div class="card rounded-xl2 p-6 sm:p-8">
+        <div class="text-[.72rem] uppercase tracking-[.2em] text-ink-soft mb-1">Étape 2 — Liste des chants</div>
+        <h2 class="font-display text-2xl font-semibold mb-1">Collez votre liste de cantiques</h2>
+        <p class="text-sm text-ink-soft mb-2">Une ligne par chant. Le sélecteur <code class="text-pine">(1,3)</code> est repris automatiquement.</p>
+        <div v-if="serieChoisie" class="text-sm text-pine mb-4 flex items-center gap-1.5"><span class="text-gold">✦</span> Les spontanés « {{ serieChoisie }} » seront entrelacés.</div>
+
+        <textarea v-model="importText" rows="9" class="field w-full px-4 py-3 text-sm bg-transparent" style="font-family:ui-monospace,monospace"
+          placeholder="Psaume 36 « O Seigneur ta fidélité » (1,2,3)&#10;22-04 « Oh ! Parle-moi Seigneur » (1,2,3)&#10;36-10 « Que la moisson du monde est grande »"></textarea>
+
+        <div class="flex items-center justify-between gap-3 mt-5">
+          <button class="btn btn-ghost px-5 py-3" @click="step=1">← Retour</button>
+          <div class="flex gap-3">
+            <button class="btn btn-ghost px-5 py-3" @click="composer(true)" title="Aller à la révision et composer à la main">Passer</button>
+            <button class="btn btn-primary px-6 py-3 flex items-center gap-1.5" :disabled="composing" @click="composer(false)">
+              <span v-if="composing" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
+              {{ composing ? 'Composition…' : 'Composer le culte →' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- titre (révision) -->
+    <section v-if="mode==='culte' && step===3" class="reveal mb-8" style="animation-delay:.02s">
       <label class="block text-[.72rem] uppercase tracking-[.2em] text-ink-soft mb-2">Titre du culte</label>
       <input v-model="titre" type="text" placeholder="Culte du dimanche…"
              class="field font-display text-3xl sm:text-4xl font-semibold w-full px-4 py-3 bg-transparent placeholder:text-ink/25">
     </section>
 
-    <div class="grid lg:grid-cols-[1.05fr_1fr] gap-6">
+    <div v-if="mode==='spontanes' || (mode==='culte' && step===3)" class="grid lg:grid-cols-[1.05fr_1fr] gap-6">
 
       <!-- Bibliothèque -->
       <section class="reveal order-2" style="animation-delay:.08s">
@@ -229,22 +314,6 @@ body::before{
               <span class="text-gold">{{ mode==='spontanes' ? '✦' : '♬' }}</span> {{ mode==='spontanes' ? 'Spontanés' : 'Le culte' }}
               <span v-if="entrees.length" class="text-sm font-sans font-normal text-ink-soft">— {{ entrees.length }} {{ mode==='spontanes' ? 'élément' : 'chant' }}{{ entrees.length>1?'s':'' }}</span>
             </h2>
-            <div class="flex items-center gap-2 shrink-0">
-              <button class="btn btn-ghost text-xs px-3 py-1.5" :class="{'!bg-pine/[.07] !border-pine/30 text-pine': showImport}" @click="showImport = !showImport">⎘ Coller une liste</button>
-              <button v-if="mode==='culte' && entrees.length" class="btn btn-ghost text-xs px-3 py-1.5" @click="saveCulte" :disabled="!titre.trim()">Sauvegarder</button>
-            </div>
-          </div>
-
-          <!-- import d'une liste collée -->
-          <div v-if="showImport" class="px-5 pb-4 pop">
-            <p class="text-xs text-ink-soft mb-2">Collez votre liste habituelle (une ligne par chant). Le sélecteur <code class="text-pine">(1,3)</code> est repris, et un en-tête <code class="text-pine">[SPONTANES] NOM</code> en 1re ligne entrelace les spontanés.</p>
-            <textarea v-model="importText" rows="5" class="field w-full px-3 py-2 text-sm bg-transparent" style="font-family:ui-monospace,monospace"
-              placeholder="Psaume 36 « O Seigneur ta fidélité » (1,2,3)&#10;22-04 « Oh ! Parle-moi Seigneur » (1,2,3)&#10;36-10 « Que la moisson du monde est grande » (1,2,3)"></textarea>
-            <div class="flex items-center gap-3 mt-2">
-              <label class="flex items-center gap-1.5 text-xs text-ink-soft mr-auto cursor-pointer"><input type="checkbox" v-model="importReplace" class="accent-pine"> Remplacer la liste actuelle</label>
-              <button class="btn btn-ghost text-xs px-3 py-1.5" @click="showImport=false">Annuler</button>
-              <button class="btn btn-primary text-xs px-4 py-1.5" :disabled="importing || !importText.trim()" @click="importer">{{ importing ? 'Import…' : 'Importer' }}</button>
-            </div>
           </div>
 
           <div v-if="!entrees.length" class="px-6 py-16 text-center">
@@ -273,6 +342,7 @@ body::before{
                   <div class="flex items-center gap-2">
                     <span v-if="e.numero" class="badge-num">{{ e.numero }}</span>
                     <span class="font-medium truncate" :class="{'text-clay italic': e.found===false}">{{ e.titre }}</span>
+                    <span v-if="e.origin==='spontané'" class="shrink-0 text-gold text-[.62rem] uppercase tracking-wider border border-gold/40 bg-gold/[.08] rounded px-1.5 py-px font-semibold">spontané</span>
                     <span v-if="e.found===false" class="text-clay text-[.62rem] uppercase tracking-wider border border-clay/40 rounded px-1 py-px">introuvable</span>
                     <span v-else-if="e.a_relire" class="text-clay text-xs" title="Structure à confirmer">⚑</span>
                   </div>
@@ -286,11 +356,6 @@ body::before{
                            class="field !rounded-md text-xs px-2 py-1 w-24 ml-1 bg-transparent" title="Sélecteur exact, ex. 1,R,3">
                   </div>
 
-                  <!-- options ligne -->
-                  <div v-if="e.found!==false && mode==='culte'" class="mt-2 flex items-center gap-2">
-                    <button class="switch" :class="{on: e.origin==='spontané'}" @click="e.origin = e.origin==='spontané' ? 'cantique' : 'spontané'" :title="e.origin==='spontané' ? 'Spontané' : 'Cantique'"><i></i></button>
-                    <span class="text-xs" :class="e.origin==='spontané' ? 'text-gold font-semibold' : 'text-ink-soft'">{{ e.origin==='spontané' ? 'Spontané' : 'Cantique' }}</span>
-                  </div>
                 </div>
                 <button class="iconbtn shrink-0" title="Retirer" @click="remove(i)">✕</button>
               </div>
@@ -304,24 +369,48 @@ body::before{
 
           <!-- bas du panneau : culte (images de fond + génération) -->
           <div v-if="mode==='culte'" class="px-5 py-4 border-t border-ink/8 space-y-3">
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
               <span class="text-[.7rem] uppercase tracking-wider text-ink-soft">Images de fond</span>
-              <input v-model="theme" class="field px-2 py-1 text-xs w-44 bg-transparent" placeholder="nature,forest,light">
-              <button class="btn btn-ghost text-xs px-3 py-1.5 flex items-center gap-1.5" :disabled="loadingImages" @click="apercuImages">
-                <span v-if="loadingImages" class="inline-block w-3 h-3 border-2 border-ink-soft/40 border-t-ink-soft rounded-full animate-spin"></span>
-                {{ images ? '↻ Rafraîchir' : '🖼 Aperçu' }}
-              </button>
+              <button class="btn btn-ghost text-xs px-3 py-1.5" :class="{'!bg-pine/[.07] !border-pine/30 text-pine': showGallery}" @click="toggleGallery">🖼 {{ showGallery ? 'Fermer la galerie' : 'Choisir des images' }}</button>
             </div>
-            <div v-if="images" class="grid grid-cols-2 gap-3 pop">
-              <figure>
-                <img :src="images.accueil_url" alt="Accueil" class="w-full h-24 object-cover rounded-lg border border-ink/10 shadow-soft">
-                <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">Accueil</figcaption>
-              </figure>
-              <figure>
-                <img :src="images.envoi_url" alt="Envoi" class="w-full h-24 object-cover rounded-lg border border-ink/10 shadow-soft">
-                <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">Envoi</figcaption>
+
+            <!-- emplacements accueil / envoi -->
+            <div class="grid grid-cols-2 gap-3">
+              <figure v-for="slot in [{k:'accueil',l:'Accueil'},{k:'envoi',l:'Envoi'}]" :key="slot.k">
+                <button type="button" @click="selectSlot(slot.k)"
+                        class="relative w-full h-24 rounded-lg border overflow-hidden transition-all grid place-items-center"
+                        :class="(pickFor===slot.k && showGallery) ? 'border-pine ring-2 ring-pine/40' : 'border-ink/12 hover:border-ink/30'">
+                  <img v-if="images && images[slot.k+'_url']" :src="images[slot.k+'_url']" :alt="slot.l" class="absolute inset-0 w-full h-full object-cover">
+                  <span v-else class="text-2xl text-ink/25">＋</span>
+                </button>
+                <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">{{ slot.l }}</figcaption>
               </figure>
             </div>
+
+            <!-- galerie locale + repli Unsplash -->
+            <div v-if="showGallery" class="pop rounded-lg border border-ink/10 bg-parchment-deep/30 p-3 space-y-2.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <p class="text-xs text-ink-soft">Cliquez une image pour l'emplacement <b class="text-pine">{{ pickFor==='envoi' ? 'Envoi' : 'Accueil' }}</b>.</p>
+                <div class="flex items-center gap-1.5">
+                  <input v-model="theme" class="field px-2 py-1 text-xs w-32 bg-transparent" placeholder="nature,forest">
+                  <button class="btn btn-ghost text-xs px-2.5 py-1 flex items-center gap-1.5" :disabled="loadingImages" @click="apercuImages" title="Télécharger 2 nouvelles images depuis Unsplash">
+                    <span v-if="loadingImages" class="inline-block w-3 h-3 border-2 border-ink-soft/40 border-t-ink-soft rounded-full animate-spin"></span>
+                    ⬇ Unsplash
+                  </button>
+                </div>
+              </div>
+              <div v-if="gallery.length" class="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-52 overflow-auto scroll-thin">
+                <button v-for="g in gallery" :key="g.name" type="button" @click="assignImg(g)"
+                        class="relative aspect-video rounded-md overflow-hidden border transition-all"
+                        :class="isAssigned(g) ? 'border-pine ring-2 ring-pine/40' : 'border-ink/10 hover:border-pine/50'">
+                  <img :src="g.url" loading="lazy" class="w-full h-full object-cover">
+                  <span v-if="images && images.accueil===g.name" class="absolute top-0.5 left-0.5 text-[.55rem] font-semibold bg-pine text-parchment px-1 rounded leading-tight">A</span>
+                  <span v-if="images && images.envoi===g.name" class="absolute top-0.5 right-0.5 text-[.55rem] font-semibold bg-gold text-white px-1 rounded leading-tight">E</span>
+                </button>
+              </div>
+              <p v-else class="text-xs text-ink-soft italic py-3 text-center">Aucune image téléchargée. Utilisez le bouton Unsplash.</p>
+            </div>
+
             <div class="flex items-center pt-1 gap-3 flex-wrap">
               <span class="text-xs mr-auto flex items-center gap-1.5" :class="obsAvailable ? 'text-pine' : 'text-ink-soft'" :title="obsAvailable ? 'OBS joignable' : 'OBS non détecté — ouvre OBS avec le serveur WebSocket activé'">
                 <span class="w-2 h-2 rounded-full" :class="obsAvailable ? 'bg-pine' : 'bg-ink/20'"></span>
@@ -376,9 +465,11 @@ createApp({
       dragIndex: null, dragOver: null,
       mode: 'culte', serieNom: '', spontanesListe: [], showSpontanes: false, _stash: null,
       cultes: [], showCultes: false,
-      showImport: false, importText: '', importing: false, importReplace: true,
+      importText: '',
       images: null, loadingImages: false,
+      gallery: [], showGallery: false, pickFor: 'accueil',
       obsAvailable: false,
+      step: 1, reached: 1, serieChoisie: '', composing: false,
       generating: false, sending: false, result: null,
       toast: '', _toastT: null, _searchT: null,
     }
@@ -403,27 +494,6 @@ createApp({
         numero: c.numero, titre: c.titre, n_couplets: c.n_couplets,
         refrain: c.refrain, a_relire: c.a_relire, selection: '', origin: 'cantique', found: true,
       })
-    },
-    async importer() {
-      if (!this.importText.trim()) return
-      this.importing = true
-      try {
-        const r = await fetch('/api/importer', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ texte: this.importText })
-        })
-        const items = await r.json()
-        const mapped = items.map(e => ({
-          numero: e.numero, titre: e.titre, n_couplets: e.n_couplets, refrain: e.refrain,
-          a_relire: e.a_relire, selection: e.selection || '', origin: e.origin || 'cantique',
-          found: e.found !== false,
-        }))
-        this.entrees = this.importReplace ? mapped : this.entrees.concat(mapped)
-        const nf = items.filter(e => e.found === false).length
-        this.notify(`${items.length} ligne(s) importée(s)` + (nf ? `, ${nf} introuvable(s)` : ''))
-        this.showImport = false; this.importText = ''
-      } catch (e) { this.notify("Échec de l'import") }
-      finally { this.importing = false }
     },
     remove(i) { this.entrees.splice(i, 1); this.dragIndex = null; this.dragOver = null },
     onDragStart(i, ev) {
@@ -465,8 +535,31 @@ createApp({
         // cache-buster pour forcer le rechargement de la vignette au rafraîchissement
         const t = '?t=' + (this.images ? Math.floor(performance.now()) : '')
         this.images = { accueil: im.accueil, envoi: im.envoi, accueil_url: im.accueil_url + t, envoi_url: im.envoi_url + t }
+        this.loadGallery()
       } catch (e) { this.notify("Échec de l'aperçu des images") }
       finally { this.loadingImages = false }
+    },
+    async loadGallery() {
+      try { this.gallery = await (await fetch('/api/images')).json() } catch (e) {}
+    },
+    toggleGallery() {
+      this.showGallery = !this.showGallery
+      if (this.showGallery && !this.gallery.length) this.loadGallery()
+    },
+    selectSlot(which) {
+      this.pickFor = which
+      if (!this.showGallery) this.showGallery = true
+      if (!this.gallery.length) this.loadGallery()
+    },
+    isAssigned(g) { return this.images && (this.images.accueil === g.name || this.images.envoi === g.name) },
+    assignImg(g) {
+      if (!this.images) this.images = { accueil: '', envoi: '', accueil_url: '', envoi_url: '' }
+      this.images[this.pickFor] = g.name
+      this.images[this.pickFor + '_url'] = g.url
+      // l'autre emplacement encore vide reçoit la même image (jamais à moitié défini)
+      const other = this.pickFor === 'accueil' ? 'envoi' : 'accueil'
+      if (!this.images[other]) { this.images[other] = g.name; this.images[other + '_url'] = g.url }
+      this.pickFor = other   // on enchaîne sur l'autre emplacement
     },
     async generer() {
       if (!this.canGenerate) return
@@ -482,7 +575,7 @@ createApp({
         })
         const j = await r.json().catch(() => ({}))
         if (!r.ok) { this.notify('Génération : ' + (j.error || 'échec')); return }
-        this.result = j
+        this.result = j; this.loadCultes()
       } catch (e) { this.notify('La génération a échoué') }
       finally { this.generating = false }
     },
@@ -504,7 +597,7 @@ createApp({
         })
         const j = await r.json().catch(() => ({}))
         if (!r.ok) { this.notify('OBS : ' + (j.error || 'échec')); return }
-        this.result = j
+        this.result = j; this.loadCultes()
       } catch (e) { this.notify("Échec de l'envoi vers OBS") }
       finally { this.sending = false }
     },
@@ -512,33 +605,36 @@ createApp({
       try { this.cultes = await (await fetch('/api/cultes')).json() } catch (e) {}
     },
     toggleCultes() { this.showSpontanes = false; this.showCultes = !this.showCultes; if (this.showCultes) this.loadCultes() },
-    async saveCulte() {
-      if (!this.titre.trim()) return
-      try {
-        await fetch('/api/cultes', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ titre: this.titre, theme: this.theme, entrees: this.entrees })
-        })
-        this.notify('Culte sauvegardé'); this.loadCultes()
-      } catch (e) { this.notify('Échec de la sauvegarde') }
-    },
-    async openCulte(id) {
-      try {
-        const c = await (await fetch('/api/cultes/' + id)).json()
-        this.titre = c.titre || ''; this.theme = c.theme || this.theme
-        this.entrees = (c.entrees || []).map(e => ({
-          numero: e.numero, titre: e.titre || e.numero, n_couplets: e.n_couplets || 0,
-          refrain: !!e.refrain, a_relire: !!e.a_relire, selection: e.selection || '', origin: e.origin || 'cantique',
-        }))
-        this.showCultes = false; this.result = null; this.images = null; this.notify('Culte ouvert')
-      } catch (e) { this.notify('Impossible d\'ouvrir le culte') }
-    },
     async deleteCulte(id) {
       try { await fetch('/api/cultes/' + id, { method: 'DELETE' }); this.loadCultes() } catch (e) {}
     },
     nouveau() {
       this.mode = 'culte'; this._stash = null; this.serieNom = ''
-      this.titre = ''; this.entrees = []; this.result = null; this.images = null; this.showCultes = false; this.notify('Nouveau culte')
+      this.titre = ''; this.entrees = []; this.result = null; this.images = null; this.showCultes = false
+      this.step = 1; this.reached = 1; this.serieChoisie = ''; this.importText = ''
+      this.loadSpontanes(); this.notify('Nouveau culte')
+    },
+    goStep(n) { if (n <= this.reached) this.step = n },
+    async composer(skip) {
+      if (skip && !this.importText.trim()) { this.step = 3; this.reached = 3; return }
+      this.composing = true
+      try {
+        const texte = (this.serieChoisie ? '[SPONTANES] ' + this.serieChoisie + '\n' : '') + this.importText
+        const r = await fetch('/api/importer', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texte })
+        })
+        const items = await r.json()
+        this.entrees = items.map(e => e.placeholder ? { placeholder: true } : ({
+          numero: e.numero, titre: e.titre, n_couplets: e.n_couplets, refrain: e.refrain,
+          a_relire: e.a_relire, selection: e.selection || '', origin: e.origin || 'cantique',
+          found: e.found !== false,
+        }))
+        const nf = items.filter(e => e.found === false).length
+        if (nf) this.notify(`${items.length} ligne(s), ${nf} introuvable(s)`)
+        this.step = 3; this.reached = 3
+      } catch (e) { this.notify('Échec de la composition') }
+      finally { this.composing = false }
     },
     // --- Séries de spontanés ---
     normNom(s) {
@@ -552,12 +648,13 @@ createApp({
     enterSpontanes(nom, entrees) {
       if (this.mode !== 'spontanes') this._stash = { titre: this.titre, entrees: this.entrees }
       this.mode = 'spontanes'; this.serieNom = nom; this.entrees = entrees
-      this.result = null; this.showImport = false; this.showSpontanes = false
+      this.result = null; this.showSpontanes = false
     },
     exitSpontanes() {
       if (this._stash) { this.titre = this._stash.titre; this.entrees = this._stash.entrees; this._stash = null }
       else { this.entrees = [] }
       this.mode = 'culte'; this.serieNom = ''
+      this.step = this.entrees.length ? 3 : 1; this.reached = Math.max(this.reached, this.step)
     },
     async openSerie(nom) {
       try {
@@ -598,6 +695,7 @@ createApp({
     await this.doSearch()
     try { this.indexCount = (await (await fetch('/api/stats')).json()).total } catch (e) {}
     this.loadCultes()
+    this.loadSpontanes()
     this.checkObs()
     setInterval(this.checkObs, 12000)
   },
