@@ -126,5 +126,26 @@ rotation ; réutilise le pipeline ; `.zip` + import (D-001).
     `arreter-serveur.bat`, `desinstaller-poste-eglise.bat`. Doc
     [`docs/deploiement.md`](../deploiement.md). Serveur sans debug par
     défaut (`WOTK_DEBUG=1` pour le dev).
-- [ ] **(Différé) Push obs-websocket** (`D-003`) — envoi direct des scènes
-  dans OBS ; rouvre la minute Q1 de D-001.
+- [x] **Push obs-websocket** (`D-003`) — sorti du différé : cadré par
+  [D-004](../decisions/D-004-envoi-vers-obs-websocket.md), chantiers
+  ci-dessous.
+
+## Chantiers D-004 — Envoi des scènes vers OBS (obs-websocket)
+
+Issus des *Conséquences* de
+[D-004](../decisions/D-004-envoi-vers-obs-websocket.md). « Envoyer vers
+OBS » **en plus** du `.zip`, par rejeu du JSON généré (collection dédiée).
+Faisabilité validée par un spike (`scripts/spike_obs.py`, OBS 30.1).
+
+- [ ] **Dépendance `obsws-python`** (`D-004`).
+- [ ] **Traducteur `JSON de collection → obs-websocket`** (`D-004`) — cœur :
+  créer la collection dédiée, les sources, les scènes, les items +
+  transformations, les filtres, l'ordre. Aucune logique de scène
+  ré-implémentée. À tester en direct contre l'OBS du poste.
+- [ ] **Endpoint `/api/envoyer-obs`** (`D-004`) — compose → génère le JSON →
+  push ; gestion d'erreurs (OBS injoignable, mauvais port/mot de passe).
+- [ ] **UI « Envoyer vers OBS »** (`D-004`) — bouton à côté de « Générer »,
+  avec retour clair (succès / OBS injoignable).
+- [ ] **Config `obs` + doc** (`D-004`) — section `obs` (host/port/password/
+  enabled) dans `config.json(.example)` ; activer le serveur WebSocket
+  d'OBS documenté dans `docs/deploiement.md`.
