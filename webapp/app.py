@@ -66,6 +66,16 @@ def api_cantiques():
     return jsonify(corpus_index.search(INDEX, q, limit))
 
 
+@app.route('/api/stats')
+def api_stats():
+    """Totaux du corpus (pour l'affichage)."""
+    return jsonify({
+        'total': len(INDEX),
+        'cantiques': sum(1 for e in INDEX if e['kind'] == 'cantique'),
+        'prieres': sum(1 for e in INDEX if e['kind'] == 'priere'),
+    })
+
+
 # --- API : génération ----------------------------------------------------------
 
 @app.route('/api/generer', methods=['POST'])

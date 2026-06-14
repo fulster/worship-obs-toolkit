@@ -1,35 +1,399 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>worship-obs-toolkit — préparation des cultes</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
-    h1 { font-size: 1.3rem; } .note { color: #666; font-size: .9rem; }
-    input { width: 100%; padding: .5rem; font-size: 1rem; box-sizing: border-box; }
-    ul { list-style: none; padding: 0; } li { padding: .4rem .2rem; border-bottom: 1px solid #eee; }
-    .num { font-weight: 600; } .meta { color: #888; font-size: .85rem; }
-    .relire { color: #b8860b; }
-  </style>
-</head>
-<body>
-  <h1>Préparation des cultes</h1>
-  <p class="note">Page de développement temporaire (remplacée par l'interface Vue + Tailwind, chantier D-003).
-     Valide que le backend répond.</p>
-  <input id="q" placeholder="Chercher un cantique (titre ou numéro)…" autofocus>
-  <ul id="res"></ul>
-  <script>
-    const q = document.getElementById('q'), res = document.getElementById('res');
-    async function go() {
-      const r = await fetch('/api/cantiques?q=' + encodeURIComponent(q.value) + '&limit=30');
-      const data = await r.json();
-      res.innerHTML = data.map(c =>
-        `<li><span class="num">${c.numero}</span> ${c.titre}
-          <span class="meta">— ${c.n_couplets} couplet(s)${c.refrain ? ', refrain' : ''}${c.langues.length ? ', +' + c.langues.join('/') : ''}</span>
-          ${c.a_relire ? '<span class="relire">⚠ à relire</span>' : ''}</li>`).join('');
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liturgie — préparation des cultes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="/vendor/tailwind.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        parchment: '#F7F1E5', 'parchment-deep': '#EFE7D6', card: '#FCFAF4',
+        ink: '#241F18', 'ink-soft': '#6B6253',
+        pine: { DEFAULT: '#1E4337', deep: '#16332A', light: '#2C5A4A' },
+        gold: { DEFAULT: '#BC8729', light: '#D9A94A', soft: '#EBD9B0' },
+        clay: '#B0532E',
+      },
+      fontFamily: {
+        display: ['Fraunces', 'Georgia', 'serif'],
+        sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        soft: '0 1px 2px rgba(36,31,24,.04), 0 10px 30px -16px rgba(36,31,24,.22)',
+        lift: '0 2px 8px rgba(36,31,24,.06), 0 22px 48px -20px rgba(36,31,24,.32)',
+      },
+      borderRadius: { xl2: '1.25rem' },
     }
-    q.addEventListener('input', go); go();
-  </script>
+  }
+}
+</script>
+
+<style>
+:root{
+  --ink:#241F18; --pine:#1E4337; --gold:#BC8729;
+}
+*{ -webkit-tap-highlight-color: transparent; }
+html{ scroll-behavior:smooth; }
+body{
+  font-family:'Hanken Grotesk', system-ui, sans-serif;
+  color:#241F18;
+  background:#F7F1E5;
+  background-image:
+    radial-gradient(1200px 520px at 78% -8%, rgba(217,169,74,.16), transparent 60%),
+    radial-gradient(900px 480px at 8% 0%, rgba(30,67,55,.10), transparent 55%);
+  background-attachment:fixed;
+}
+/* grain papier */
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.04; mix-blend-mode:multiply;
+}
+#app{ position:relative; z-index:1; }
+.font-display{ font-family:'Fraunces', Georgia, serif; }
+::selection{ background:rgba(188,135,41,.25); }
+
+/* scrollbars */
+.scroll-thin{ scrollbar-width:thin; scrollbar-color:#C9BFA8 transparent; }
+.scroll-thin::-webkit-scrollbar{ width:9px; }
+.scroll-thin::-webkit-scrollbar-thumb{ background:#D5CBB4; border-radius:9px; border:3px solid transparent; background-clip:content-box; }
+
+/* composants */
+.card{ background:#FCFAF4; border:1px solid rgba(36,31,24,.08); box-shadow:0 1px 2px rgba(36,31,24,.04), 0 14px 34px -22px rgba(36,31,24,.30); }
+.field{ background:#FBF7EE; border:1px solid rgba(36,31,24,.14); border-radius:.7rem; transition:border-color .18s, box-shadow .18s, background .18s; }
+.field:focus{ outline:none; border-color:rgba(188,135,41,.75); box-shadow:0 0 0 4px rgba(188,135,41,.14); background:#fff; }
+
+.btn{ font-weight:600; border-radius:.7rem; transition:transform .12s ease, box-shadow .18s, background .18s, color .18s; }
+.btn:active{ transform:translateY(1px); }
+.btn-primary{ background:#1E4337; color:#F7F1E5; box-shadow:0 8px 22px -12px rgba(30,67,55,.7); }
+.btn-primary:hover{ background:#16332A; }
+.btn-primary:disabled{ background:#B9B0A0; color:#F2ECDE; cursor:not-allowed; box-shadow:none; }
+.btn-gold{ background:#BC8729; color:#fff; box-shadow:0 8px 22px -12px rgba(188,135,41,.8); }
+.btn-gold:hover{ background:#A8761F; }
+.btn-ghost{ background:transparent; color:#46402F; border:1px solid rgba(36,31,24,.16); }
+.btn-ghost:hover{ background:rgba(36,31,24,.05); border-color:rgba(36,31,24,.28); }
+
+.chip{ font-variant-numeric:tabular-nums; font-weight:600; font-size:.78rem; min-width:1.9rem; height:1.9rem; display:inline-flex; align-items:center; justify-content:center; padding:0 .35rem; border-radius:.55rem; border:1px solid rgba(36,31,24,.16); background:#FBF7EE; color:#6B6253; cursor:pointer; transition:all .14s; }
+.chip:hover{ border-color:rgba(30,67,55,.5); color:#1E4337; }
+.chip-on{ background:#1E4337; border-color:#1E4337; color:#F4EBD7; box-shadow:0 4px 10px -5px rgba(30,67,55,.7); }
+.chip-r{ font-family:'Fraunces', serif; }
+.chip-r.chip-on{ background:#BC8729; border-color:#BC8729; color:#fff; }
+
+.iconbtn{ width:2rem; height:2rem; display:inline-flex; align-items:center; justify-content:center; border-radius:.55rem; color:#8A8273; transition:all .14s; }
+.iconbtn:hover{ background:rgba(36,31,24,.06); color:#241F18; }
+.iconbtn:disabled{ opacity:.3; cursor:not-allowed; }
+
+.badge-num{ font-family:'Fraunces', serif; font-weight:600; font-variant-numeric:tabular-nums; color:#1E4337; }
+
+/* révélation au chargement */
+@keyframes reveal{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+.reveal{ animation:reveal .7s cubic-bezier(.22,.9,.3,1) both; }
+@keyframes pop{ from{ opacity:0; transform:scale(.96); } to{ opacity:1; transform:none; } }
+.pop{ animation:pop .28s ease both; }
+[v-cloak]{ display:none; }
+.switch{ width:2.7rem; height:1.45rem; border-radius:999px; background:rgba(36,31,24,.16); position:relative; transition:background .2s; cursor:pointer; flex:none; }
+.switch.on{ background:#BC8729; }
+.switch i{ position:absolute; top:2px; left:2px; width:1.05rem; height:1.05rem; border-radius:999px; background:#fff; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.switch.on i{ left:1.28rem; }
+</style>
+</head>
+
+<body>
+<div id="app" v-cloak>
+
+  <!-- En-tête -->
+  <header class="sticky top-0 z-20 backdrop-blur-md bg-parchment/80 border-b border-ink/10">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-pine text-gold-soft grid place-items-center shadow-soft shrink-0 font-display text-xl leading-none" aria-hidden="true">✝</div>
+        <div class="min-w-0">
+          <div class="font-display text-2xl font-semibold leading-none tracking-tight">Liturgie</div>
+          <div class="text-[.72rem] uppercase tracking-[.22em] text-ink-soft mt-1">Préparation des cultes</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 relative">
+        <button class="btn btn-ghost px-3.5 py-2 text-sm hidden sm:inline-flex" @click="nouveau">Nouveau</button>
+        <button class="btn btn-ghost px-3.5 py-2 text-sm" @click="toggleCultes">
+          Mes cultes <span v-if="cultes.length" class="ml-1 text-gold font-semibold">· {{ cultes.length }}</span>
+        </button>
+        <!-- panneau cultes -->
+        <div v-if="showCultes" class="absolute right-0 top-12 w-80 max-w-[88vw] card rounded-xl2 p-2 z-30 pop">
+          <div class="px-3 py-2 text-xs uppercase tracking-widest text-ink-soft">Cultes sauvegardés</div>
+          <div v-if="!cultes.length" class="px-3 py-4 text-sm text-ink-soft italic">Aucun culte sauvegardé pour l'instant.</div>
+          <ul class="scroll-thin max-h-72 overflow-auto">
+            <li v-for="c in cultes" :key="c.id" class="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-ink/[.04]">
+              <button class="flex-1 text-left min-w-0" @click="openCulte(c.id)">
+                <div class="font-medium truncate">{{ c.titre }}</div>
+                <div class="text-xs text-ink-soft">{{ c.n_entrees }} chant{{ c.n_entrees>1?'s':'' }}</div>
+              </button>
+              <button class="iconbtn" title="Supprimer" @click.stop="deleteCulte(c.id)">🗑</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-5 sm:px-8 pb-28 pt-8">
+
+    <!-- titre du culte -->
+    <section class="reveal mb-8" style="animation-delay:.02s">
+      <label class="block text-[.72rem] uppercase tracking-[.2em] text-ink-soft mb-2">Titre du culte</label>
+      <input v-model="titre" type="text" placeholder="Culte du dimanche…"
+             class="field font-display text-3xl sm:text-4xl font-semibold w-full px-4 py-3 bg-transparent placeholder:text-ink/25">
+    </section>
+
+    <div class="grid lg:grid-cols-[1fr_1.05fr] gap-6">
+
+      <!-- Bibliothèque -->
+      <section class="reveal" style="animation-delay:.08s">
+        <div class="card rounded-xl2 overflow-hidden">
+          <div class="px-5 pt-5 pb-3">
+            <h2 class="font-display text-xl font-semibold flex items-center gap-2">
+              <span class="text-gold">❧</span> Bibliothèque
+            </h2>
+            <p class="text-sm text-ink-soft mt-0.5">{{ indexInfo }}</p>
+            <div class="relative mt-3">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft pointer-events-none">⌕</span>
+              <input v-model="query" @input="onSearch" type="text" placeholder="Chercher un titre ou un numéro…"
+                     class="field w-full pl-10 pr-3 py-2.5 bg-transparent">
+            </div>
+          </div>
+          <ul class="scroll-thin max-h-[58vh] overflow-auto px-2 pb-2">
+            <li v-for="c in results" :key="c.kind+c.numero"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-pine/[.045] transition-colors">
+              <div class="w-16 shrink-0 text-right badge-num text-[.95rem]">{{ c.numero }}</div>
+              <div class="min-w-0 flex-1">
+                <div class="font-medium leading-tight truncate flex items-center gap-1.5">
+                  {{ c.titre }}
+                  <span v-if="c.kind==='priere'" class="text-[.62rem] uppercase tracking-wider text-pine-light border border-pine/30 rounded px-1 py-px">prière</span>
+                </div>
+                <div class="text-xs text-ink-soft mt-0.5 flex items-center gap-2 flex-wrap">
+                  <span>{{ c.n_couplets }} couplet{{ c.n_couplets>1?'s':'' }}</span>
+                  <span v-if="c.refrain" class="text-pine-light">· refrain</span>
+                  <span v-if="c.langues && c.langues.length" class="text-gold">· {{ c.langues.join('/') }}</span>
+                  <span v-if="c.a_relire" class="text-clay" title="Structure à confirmer">· ⚑ à relire</span>
+                </div>
+              </div>
+              <button class="iconbtn shrink-0 text-pine opacity-60 group-hover:opacity-100 text-lg" title="Ajouter au culte" @click="add(c)">＋</button>
+            </li>
+            <li v-if="!results.length" class="px-4 py-10 text-center text-ink-soft text-sm italic">
+              Aucun résultat. Essayez un autre mot ou un numéro (ex. <span class="badge-num">21-07</span>).
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Le culte -->
+      <section class="reveal" style="animation-delay:.14s">
+        <div class="card rounded-xl2 overflow-hidden">
+          <div class="px-5 pt-5 pb-3 flex items-center justify-between">
+            <h2 class="font-display text-xl font-semibold flex items-center gap-2">
+              <span class="text-gold">♬</span> Le culte
+              <span v-if="entrees.length" class="text-sm font-sans font-normal text-ink-soft">— {{ entrees.length }} chant{{ entrees.length>1?'s':'' }}</span>
+            </h2>
+            <button v-if="entrees.length" class="btn btn-ghost text-xs px-3 py-1.5" @click="saveCulte" :disabled="!titre.trim()">Sauvegarder</button>
+          </div>
+
+          <div v-if="!entrees.length" class="px-6 py-16 text-center">
+            <div class="text-5xl text-ink/15 mb-3">♪</div>
+            <p class="text-ink-soft">Votre culte est vide.<br>Cherchez un cantique à gauche et ajoutez-le.</p>
+          </div>
+
+          <ul v-else class="px-2 pb-2 scroll-thin max-h-[58vh] overflow-auto">
+            <li v-for="(e, i) in entrees" :key="i" class="pop rounded-xl px-3 py-3 hover:bg-parchment-deep/40 transition-colors border-b border-ink/5 last:border-0">
+              <div class="flex items-start gap-3">
+                <div class="flex flex-col items-center pt-0.5 gap-0.5">
+                  <button class="iconbtn !h-6 !w-6 text-sm" :disabled="i===0" @click="move(i,-1)" title="Monter">▲</button>
+                  <span class="font-display text-sm text-ink/40 leading-none">{{ i+1 }}</span>
+                  <button class="iconbtn !h-6 !w-6 text-sm" :disabled="i===entrees.length-1" @click="move(i,1)" title="Descendre">▼</button>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="badge-num">{{ e.numero }}</span>
+                    <span class="font-medium truncate">{{ e.titre }}</span>
+                    <span v-if="e.a_relire" class="text-clay text-xs" title="Structure à confirmer">⚑</span>
+                  </div>
+
+                  <!-- sélecteur de couplets -->
+                  <div class="mt-2 flex items-center gap-1.5 flex-wrap">
+                    <span class="text-[.7rem] uppercase tracking-wider text-ink-soft mr-1">Couplets</span>
+                    <button v-for="n in e.n_couplets" :key="n" class="chip" :class="{'chip-on': isSel(e,n)}" @click="toggle(e,n)">{{ n }}</button>
+                    <button v-if="e.refrain" class="chip chip-r" :class="{'chip-on': isSel(e,'R')}" @click="toggle(e,'R')">R</button>
+                    <input v-model="e.selection" type="text" placeholder="tout"
+                           class="field !rounded-md text-xs px-2 py-1 w-24 ml-1 bg-transparent" title="Sélecteur exact, ex. 1,R,3">
+                  </div>
+
+                  <!-- options ligne -->
+                  <div class="mt-2 flex items-center gap-2">
+                    <button class="switch" :class="{on: e.origin==='spontané'}" @click="e.origin = e.origin==='spontané' ? 'cantique' : 'spontané'" :title="e.origin==='spontané' ? 'Spontané' : 'Cantique'"><i></i></button>
+                    <span class="text-xs" :class="e.origin==='spontané' ? 'text-gold font-semibold' : 'text-ink-soft'">{{ e.origin==='spontané' ? 'Spontané' : 'Cantique' }}</span>
+                  </div>
+                </div>
+                <button class="iconbtn shrink-0" title="Retirer" @click="remove(i)">✕</button>
+              </div>
+            </li>
+          </ul>
+
+          <div class="px-5 py-4 border-t border-ink/8 flex items-center gap-3">
+            <details class="text-xs text-ink-soft">
+              <summary class="cursor-pointer select-none hover:text-ink">Thème des images</summary>
+              <input v-model="theme" class="field mt-2 px-2 py-1 text-xs w-64 bg-transparent" placeholder="nature,landscape,forest">
+            </details>
+            <button class="btn btn-primary px-6 py-3 ml-auto text-base flex items-center gap-2" :disabled="!canGenerate || generating" @click="generer">
+              <span v-if="generating" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
+              {{ generating ? 'Génération…' : 'Générer le culte' }}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Résultat de génération -->
+    <transition>
+      <section v-if="result" class="reveal mt-7">
+        <div class="card rounded-xl2 p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
+          <div class="flex-1">
+            <h3 class="font-display text-2xl font-semibold flex items-center gap-2"><span class="text-gold">✓</span> Culte prêt</h3>
+            <p class="text-ink-soft mt-1">
+              <b class="text-ink">{{ result.ajoutes.length }}</b> chant{{ result.ajoutes.length>1?'s':'' }} dans la collection.
+            </p>
+            <p v-if="result.non_trouves.length" class="text-clay text-sm mt-1">⚠ Introuvables : {{ result.non_trouves.join(', ') }}</p>
+            <p v-if="result.a_relire.length" class="text-gold text-sm mt-1">⚑ À relire : {{ result.a_relire.join(', ') }}</p>
+          </div>
+          <a :href="result.download" class="btn btn-gold px-6 py-3 text-base text-center" download>⬇ Télécharger le .zip</a>
+        </div>
+        <p class="text-xs text-ink-soft mt-3 text-center sm:text-left">Dans OBS Studio : <b>Scene Collection → Import</b>, puis sélectionnez le <code>.json</code> de l'archive.</p>
+      </section>
+    </transition>
+  </main>
+
+  <!-- toast -->
+  <transition>
+    <div v-if="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-pine text-parchment px-5 py-3 rounded-xl shadow-lift text-sm pop">{{ toast }}</div>
+  </transition>
+</div>
+
+<script src="/vendor/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue
+createApp({
+  data() {
+    return {
+      titre: '', theme: 'nature,landscape,forest,mountains',
+      query: '', results: [], indexCount: 0,
+      entrees: [],
+      cultes: [], showCultes: false,
+      generating: false, result: null,
+      toast: '', _toastT: null, _searchT: null,
+    }
+  },
+  computed: {
+    canGenerate() { return this.titre.trim() && this.entrees.length },
+    indexInfo() { return this.indexCount ? this.indexCount + ' chants dans le corpus' : 'Corpus' },
+  },
+  methods: {
+    async onSearch() {
+      clearTimeout(this._searchT)
+      this._searchT = setTimeout(this.doSearch, 160)
+    },
+    async doSearch() {
+      try {
+        const r = await fetch('/api/cantiques?q=' + encodeURIComponent(this.query) + '&limit=40')
+        this.results = await r.json()
+      } catch (e) { this.notify('Erreur de recherche') }
+    },
+    add(c) {
+      this.entrees.push({
+        numero: c.numero, titre: c.titre, n_couplets: c.n_couplets,
+        refrain: c.refrain, a_relire: c.a_relire, selection: '', origin: 'cantique',
+      })
+    },
+    remove(i) { this.entrees.splice(i, 1) },
+    move(i, d) {
+      const j = i + d
+      if (j < 0 || j >= this.entrees.length) return
+      const a = this.entrees
+      ;[a[i], a[j]] = [a[j], a[i]]
+    },
+    tokensOf(e) { return (e.selection || '').split(',').map(t => t.trim()).filter(Boolean) },
+    isSel(e, tok) { return this.tokensOf(e).map(t => t.toUpperCase()).includes(String(tok).toUpperCase()) },
+    toggle(e, tok) {
+      let toks = this.tokensOf(e)
+      const key = String(tok)
+      if (toks.map(t => t.toUpperCase()).includes(key.toUpperCase()))
+        toks = toks.filter(t => t.toUpperCase() !== key.toUpperCase())
+      else toks.push(key)
+      const nums = toks.filter(t => /^\d+$/.test(t)).map(Number).sort((a, b) => a - b).map(String)
+      const hasR = toks.some(t => t.toUpperCase() === 'R')
+      e.selection = [...nums, ...(hasR ? ['R'] : [])].join(',')
+    },
+    async generer() {
+      if (!this.canGenerate) return
+      this.generating = true; this.result = null
+      try {
+        const r = await fetch('/api/generer', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titre: this.titre, theme: this.theme,
+            entrees: this.entrees.map(e => ({ numero: e.numero, selection: e.selection, origin: e.origin })),
+          })
+        })
+        if (!r.ok) throw new Error()
+        this.result = await r.json()
+        this.$nextTick(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }))
+      } catch (e) { this.notify('La génération a échoué') }
+      finally { this.generating = false }
+    },
+    async loadCultes() {
+      try { this.cultes = await (await fetch('/api/cultes')).json() } catch (e) {}
+    },
+    toggleCultes() { this.showCultes = !this.showCultes; if (this.showCultes) this.loadCultes() },
+    async saveCulte() {
+      if (!this.titre.trim()) return
+      try {
+        await fetch('/api/cultes', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ titre: this.titre, theme: this.theme, entrees: this.entrees })
+        })
+        this.notify('Culte sauvegardé'); this.loadCultes()
+      } catch (e) { this.notify('Échec de la sauvegarde') }
+    },
+    async openCulte(id) {
+      try {
+        const c = await (await fetch('/api/cultes/' + id)).json()
+        this.titre = c.titre || ''; this.theme = c.theme || this.theme
+        this.entrees = (c.entrees || []).map(e => ({
+          numero: e.numero, titre: e.titre || e.numero, n_couplets: e.n_couplets || 0,
+          refrain: !!e.refrain, a_relire: !!e.a_relire, selection: e.selection || '', origin: e.origin || 'cantique',
+        }))
+        this.showCultes = false; this.result = null; this.notify('Culte ouvert')
+      } catch (e) { this.notify('Impossible d\'ouvrir le culte') }
+    },
+    async deleteCulte(id) {
+      try { await fetch('/api/cultes/' + id, { method: 'DELETE' }); this.loadCultes() } catch (e) {}
+    },
+    nouveau() {
+      this.titre = ''; this.entrees = []; this.result = null; this.showCultes = false; this.notify('Nouveau culte')
+    },
+    notify(msg) {
+      this.toast = msg; clearTimeout(this._toastT)
+      this._toastT = setTimeout(() => { this.toast = '' }, 2400)
+    },
+  },
+  async mounted() {
+    await this.doSearch()
+    try { this.indexCount = (await (await fetch('/api/stats')).json()).total } catch (e) {}
+    this.loadCultes()
+  },
+}).mount('#app')
+</script>
 </body>
 </html>

@@ -107,12 +107,14 @@ rotation ; réutilise le pipeline ; `.zip` + import (D-001).
   cultes (`/api/cultes`). Lancement : `uv run python webapp/app.py`.
   Testé via `test_client` (recherche, CRUD, génération hors-ligne +
   téléchargement).
-- [ ] **Frontend léger** (`D-003`) — recherche + ajout de cantiques,
-  sélecteur de couplets visuel, réordonnancement, gestion des spontanés,
-  bouton « Générer », téléchargement du `.zip`. **Stack : Vue 3 +
-  Tailwind en *vendored / no-build*** (pas de npm/Vite — décision de
-  session, dans l'esprit de l'axe 2 de D-003). Remplace le placeholder
-  `webapp/static/index.html`.
+- [x] **Frontend** (`D-003`) — fait. `webapp/static/index.html` : Vue 3
+  + Tailwind **vendored** (`webapp/static/vendor/`, no-build, offline),
+  aesthetic « liturgie moderne » (Fraunces + Hanken Grotesk, parchemin /
+  vert sapin / or). Recherche live, ajout, **sélecteur de couplets**
+  (chips 1..N + R, champ exact), interrupteur cantique/spontané,
+  réordonnancement, sauvegarde/réouverture, « Générer » + téléchargement,
+  avertissements « à relire » / introuvables. Endpoint `/api/stats` pour
+  le compteur. Rendu vérifié en headless.
 - [x] **Sauvegarde des cultes** (`D-003`) — fait (côté backend) :
   `/api/cultes` GET/POST/GET-id/DELETE, stockés en JSON dans
   `webapp/cultes/` (gitignoré). Le frontend les exploitera.
