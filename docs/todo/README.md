@@ -156,3 +156,18 @@ Faisabilité validée par un spike (`scripts/spike_obs.py`, OBS 30.1).
   (enabled/host/port/password) dans `config.json.example` (défauts =
   localhost:4455 sans auth) ; activation du serveur WebSocket OBS documentée
   dans [`docs/deploiement.md`](../deploiement.md).
+- [ ] **Envoi OBS : 605 InvalidInputKind sur certains postes** (`D-004`)
+  — symptôme : « Envoyer vers OBS » échoue avec le code obs-websocket
+  605 (`InvalidInputKind`) sur le poste de l'église ; OBS joignable et
+  authentifié (donc ni connexion ni mot de passe). Le rejeu crée 3 types
+  de sources : `text_gdiplus_v2` (titres + paroles), `image_source`
+  (fonds), `dshow_input` (caméra swissonic). **Vérifié** : sur l'OBS de
+  dev (30.1.0) les 3 sont présents → l'envoi y fonctionne ; le 605 vient
+  d'un OBS auquel il en manque un. **Hypothèse** : `text_gdiplus_v2`
+  absent (GDI+ = Windows uniquement ; équivalent portable
+  `text_ft2_source_v2`). **À faire** : (1) sonde sur le poste fautif
+  (`get_input_kind_list`) pour identifier le type manquant ; (2) selon le
+  cas — fallback GDI+ → FreeType2 (⇒ amendement D-004, dévie du rejeu à
+  l'identique) ou exclusion de la scène caméra ; (3) contrôle préalable
+  dans `obs_push.py` remplaçant le « 605 » par un message explicite
+  (« OBS ne connaît pas le type de source X »).
