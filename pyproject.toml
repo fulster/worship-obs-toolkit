@@ -10,6 +10,7 @@ dependencies = [
     "pyyaml>=6.0",
     "flask>=3.0",
     "waitress>=3.0",
+    "obsws-python>=1.7",
 ]
 
 [tool.uv]

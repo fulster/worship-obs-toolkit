@@ -137,11 +137,13 @@ Issus des *Conséquences* de
 OBS » **en plus** du `.zip`, par rejeu du JSON généré (collection dédiée).
 Faisabilité validée par un spike (`scripts/spike_obs.py`, OBS 30.1).
 
-- [ ] **Dépendance `obsws-python`** (`D-004`).
-- [ ] **Traducteur `JSON de collection → obs-websocket`** (`D-004`) — cœur :
-  créer la collection dédiée, les sources, les scènes, les items +
-  transformations, les filtres, l'ordre. Aucune logique de scène
-  ré-implémentée. À tester en direct contre l'OBS du poste.
+- [x] **Dépendance `obsws-python`** (`D-004`) — fait.
+- [x] **Traducteur `JSON de collection → obs-websocket`** (`D-004`) — fait.
+  `obs_push.push_collection(coll, host, port, password, name)` : crée une
+  collection dédiée (nom unique), rejoue sources / scènes / items +
+  transformations (`bounds_type` → enum) / filtres, ordonne, retire la
+  scène par défaut. **Validé en direct** (OBS 30.1) : 7 scènes ordonnées,
+  items + `scroll_filter`/`gpu_delay` + transformations fidèles.
 - [ ] **Endpoint `/api/envoyer-obs`** (`D-004`) — compose → génère le JSON →
   push ; gestion d'erreurs (OBS injoignable, mauvais port/mot de passe).
 - [ ] **UI « Envoyer vers OBS »** (`D-004`) — bouton à côté de « Générer »,
