@@ -340,8 +340,10 @@ try:
     if chants_list and not isinstance(chants_list[0], tuple):
         chants_list = [(l, 'cantique') for l in chants_list]
 
-    # Inverser l'ordre pour avoir les scènes dans le même ordre que le fichier chants.txt
-    chants_list.reverse()
+    # On traite dans l'ordre de chants.txt (log lisible). Les scènes seront
+    # insérées en ordre inverse plus bas : c'est l'ordre d'insertion dans la
+    # collection qui pilote l'affichage OBS, on retrouve ainsi l'ordre du fichier.
+    resolved = []  # (cantique_path, selection) dans l'ordre de chants.txt
 
     # Parcourir chaque ligne des fichiers
     for entry, origin in chants_list:
@@ -407,15 +409,19 @@ try:
                     print_green(f"✓ {libelle} trouvé: {file}")
                     break
         
-        # Si le cantique est trouvé, l'ajouter à la collection
+        # Si le cantique est trouvé, le mémoriser (insertion différée).
         if cantique_path:
             if numero in flagged_numeros:
                 print_yellow(f"⚠ {numero} est marqué « à relire » (corpus non finalisé — voir docs/relecture-corpus.md)")
-            collection.add_scene(cantique_path, selection)
+            resolved.append((cantique_path, selection))
         else:
             print_red(f"✗ Cantique {numero} non trouvé dans {txt_dir}")
 
-    
+    # Insérer les scènes en ordre inverse : l'ordre d'ajout détermine
+    # l'affichage dans OBS, on retrouve donc l'ordre de chants.txt.
+    for cantique_path, selection in reversed(resolved):
+        collection.add_scene(cantique_path, selection)
+
     print(f"{len(collection.scenes)} cantiques ajoutés à la collection")
 except Exception as e:
     print(f"Erreur lors de la lecture de chants.txt: {str(e)}")
