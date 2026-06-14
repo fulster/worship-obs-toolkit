@@ -47,6 +47,30 @@ INDEX = corpus_index.build_index(
 BY_NUMERO = {e['numero']: e for e in INDEX}
 
 
+def _build_entrees(data):
+    """Liste `(ligne, origine)` depuis le corps JSON (entrées composées)."""
+    out = []
+    for e in data.get('entrees', []):
+        numero = (e.get('numero') or '').strip()
+        if not numero:
+            continue
+        selection = (e.get('selection') or '').strip()
+        line = f'{numero} ({selection})' if selection else numero
+        out.append((line, e.get('origin', 'cantique')))
+    return out
+
+
+def _images_for(data):
+    """Images de fond : réutilise l'aperçu si fourni et présent, sinon télécharge."""
+    theme = (data.get('theme') or DEFAULT_THEME).strip()
+    imgs = data.get('images') or {}
+    img_dir = Path(CONFIG['paths']['images']).resolve()
+    pa, pe = img_dir / (imgs.get('accueil') or ''), img_dir / (imgs.get('envoi') or '')
+    if imgs.get('accueil') and imgs.get('envoi') and pa.exists() and pe.exists():
+        return pa, pe, imgs['accueil'], imgs['envoi']
+    return generate.telecharger_images(CONFIG, theme)
+
+
 # --- Pages ---------------------------------------------------------------------
 
 @app.route('/')
@@ -118,28 +142,8 @@ def api_generer():
     """
     data = request.get_json(silent=True) or {}
     titre = (data.get('titre') or 'Culte').strip()
-    theme = (data.get('theme') or DEFAULT_THEME).strip()
-
-    entrees = []
-    for e in data.get('entrees', []):
-        numero = (e.get('numero') or '').strip()
-        if not numero:
-            continue
-        selection = (e.get('selection') or '').strip()
-        line = f"{numero} ({selection})" if selection else numero
-        entrees.append((line, e.get('origin', 'cantique')))
-
-    # Réutiliser les images déjà prévisualisées si fournies et présentes ;
-    # sinon en télécharger de nouvelles.
-    imgs = data.get('images') or {}
-    img_dir = Path(CONFIG['paths']['images']).resolve()
-    pa, pe = img_dir / (imgs.get('accueil') or ''), img_dir / (imgs.get('envoi') or '')
-    if imgs.get('accueil') and imgs.get('envoi') and pa.exists() and pe.exists():
-        images = (pa, pe, imgs['accueil'], imgs['envoi'])
-    else:
-        images = generate.telecharger_images(CONFIG, theme)
     try:
-        info = generate.generer_culte(titre, entrees, CONFIG, *images)
+        info = generate.generer_culte(titre, _build_entrees(data), CONFIG, *_images_for(data))
     except Exception as exc:  # noqa: BLE001
         app.logger.exception('Echec de la generation')
         return jsonify({'error': f'{type(exc).__name__}: {exc}'}), 500
@@ -151,6 +155,48 @@ def api_generer():
         'non_trouves': info['non_trouves'],
         'a_relire': info['a_relire'],
         'download': f"/api/telecharger/{info['fname']}.zip",
+    })
+
+
+@app.route('/api/envoyer-obs', methods=['POST'])
+def api_envoyer_obs():
+    """Envoie le culte directement dans OBS via obs-websocket (D-004).
+
+    Recrée une collection dédiée (en plus du `.zip`, ne le remplace pas).
+    """
+    import obs_push  # import paresseux (obsws-python)
+
+    obs_cfg = CONFIG.get('obs') or {}
+    if not obs_cfg.get('enabled', True):
+        return jsonify({'error': "L'envoi vers OBS est désactivé (config « obs »)."}), 400
+
+    data = request.get_json(silent=True) or {}
+    titre = (data.get('titre') or 'Culte').strip()
+    try:
+        collection, info = generate.construire_collection(
+            titre, _build_entrees(data), CONFIG, *_images_for(data))
+    except Exception as exc:  # noqa: BLE001
+        app.logger.exception('Echec de la construction')
+        return jsonify({'error': f'{type(exc).__name__}: {exc}'}), 500
+
+    try:
+        res = obs_push.push_collection(
+            collection.to_json(),
+            host=obs_cfg.get('host', 'localhost'),
+            port=int(obs_cfg.get('port', 4455)),
+            password=obs_cfg.get('password', ''),
+            name=titre)
+    except Exception as exc:  # noqa: BLE001
+        app.logger.exception('Echec envoi OBS')
+        return jsonify({'error': f'OBS injoignable ou erreur : {exc}'}), 502
+
+    return jsonify({
+        'titre': titre,
+        'collection': res['collection'],
+        'scenes': res['scenes'],
+        'ajoutes': info['ajoutes'],
+        'non_trouves': info['non_trouves'],
+        'a_relire': info['a_relire'],
     })
 
 

@@ -322,10 +322,14 @@ body::before{
                 <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">Envoi</figcaption>
               </figure>
             </div>
-            <div class="flex justify-end pt-1">
-              <button class="btn btn-primary px-6 py-3 text-base flex items-center gap-2" :disabled="!canGenerate || generating" @click="generer">
+            <div class="flex justify-end pt-1 gap-3 flex-wrap">
+              <button class="btn btn-ghost px-5 py-3 text-base flex items-center gap-2" :disabled="!canGenerate || sending || generating" @click="envoyerObs" title="Crée la collection directement dans OBS (OBS doit être ouvert)">
+                <span v-if="sending" class="inline-block w-4 h-4 border-2 border-ink-soft/40 border-t-ink-soft rounded-full animate-spin"></span>
+                {{ sending ? 'Envoi…' : '📡 Envoyer vers OBS' }}
+              </button>
+              <button class="btn btn-primary px-6 py-3 text-base flex items-center gap-2" :disabled="!canGenerate || generating || sending" @click="generer">
                 <span v-if="generating" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
-                {{ generating ? 'Génération…' : 'Générer le culte' }}
+                {{ generating ? 'Génération…' : 'Générer le .zip' }}
               </button>
             </div>
           </div>
@@ -334,14 +338,16 @@ body::before{
           <div v-if="result && mode==='culte'" class="px-5 py-5 border-t border-ink/8 bg-pine/[.05] pop">
             <div class="flex flex-col sm:flex-row sm:items-center gap-4">
               <div class="flex-1">
-                <h3 class="font-display text-xl font-semibold flex items-center gap-2"><span class="text-gold">✓</span> Culte prêt</h3>
-                <p class="text-ink-soft text-sm mt-0.5"><b class="text-ink">{{ result.ajoutes.length }}</b> chant{{ result.ajoutes.length>1?'s':'' }} dans la collection.</p>
+                <h3 class="font-display text-xl font-semibold flex items-center gap-2"><span class="text-gold">✓</span> {{ result.collection ? 'Envoyé dans OBS' : 'Culte prêt' }}</h3>
+                <p v-if="result.collection" class="text-ink-soft text-sm mt-0.5">Collection <b class="text-ink">« {{ result.collection }} »</b> créée dans OBS ({{ result.scenes }} scènes).</p>
+                <p v-else class="text-ink-soft text-sm mt-0.5"><b class="text-ink">{{ result.ajoutes.length }}</b> chant{{ result.ajoutes.length>1?'s':'' }} dans la collection.</p>
                 <p v-if="result.non_trouves.length" class="text-clay text-sm mt-0.5">⚠ Introuvables : {{ result.non_trouves.join(', ') }}</p>
                 <p v-if="result.a_relire.length" class="text-gold text-sm mt-0.5">⚑ À relire : {{ result.a_relire.join(', ') }}</p>
               </div>
-              <a :href="result.download" class="btn btn-gold px-5 py-3 text-center shrink-0" download>⬇ Télécharger le .zip</a>
+              <a v-if="result.download" :href="result.download" class="btn btn-gold px-5 py-3 text-center shrink-0" download>⬇ Télécharger le .zip</a>
             </div>
-            <p class="text-xs text-ink-soft mt-3">Dans OBS Studio : <b>Scene Collection → Import</b>, puis sélectionnez le <code>.json</code> de l'archive.</p>
+            <p v-if="result.collection" class="text-xs text-ink-soft mt-3">La collection est active dans OBS. Sinon, bascule dessus via <b>Collection de scènes</b>.</p>
+            <p v-else class="text-xs text-ink-soft mt-3">Dans OBS Studio : <b>Scene Collection → Import</b>, puis sélectionnez le <code>.json</code> de l'archive.</p>
           </div>
         </div>
       </section>
@@ -368,7 +374,7 @@ createApp({
       cultes: [], showCultes: false,
       showImport: false, importText: '', importing: false, importReplace: true,
       images: null, loadingImages: false,
-      generating: false, result: null,
+      generating: false, sending: false, result: null,
       toast: '', _toastT: null, _searchT: null,
     }
   },
@@ -474,6 +480,24 @@ createApp({
         this.result = j
       } catch (e) { this.notify('La génération a échoué') }
       finally { this.generating = false }
+    },
+    async envoyerObs() {
+      if (!this.canGenerate) return
+      this.sending = true; this.result = null
+      try {
+        const r = await fetch('/api/envoyer-obs', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titre: this.titre, theme: this.theme,
+            entrees: this.entrees.map(e => ({ numero: e.numero, selection: e.selection, origin: e.origin })),
+            images: this.images ? { accueil: this.images.accueil, envoi: this.images.envoi } : null,
+          })
+        })
+        const j = await r.json().catch(() => ({}))
+        if (!r.ok) { this.notify('OBS : ' + (j.error || 'échec')); return }
+        this.result = j
+      } catch (e) { this.notify("Échec de l'envoi vers OBS") }
+      finally { this.sending = false }
     },
     async loadCultes() {
       try { this.cultes = await (await fetch('/api/cultes')).json() } catch (e) {}

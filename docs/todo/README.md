@@ -144,10 +144,15 @@ Faisabilité validée par un spike (`scripts/spike_obs.py`, OBS 30.1).
   transformations (`bounds_type` → enum) / filtres, ordonne, retire la
   scène par défaut. **Validé en direct** (OBS 30.1) : 7 scènes ordonnées,
   items + `scroll_filter`/`gpu_delay` + transformations fidèles.
-- [ ] **Endpoint `/api/envoyer-obs`** (`D-004`) — compose → génère le JSON →
-  push ; gestion d'erreurs (OBS injoignable, mauvais port/mot de passe).
-- [ ] **UI « Envoyer vers OBS »** (`D-004`) — bouton à côté de « Générer »,
-  avec retour clair (succès / OBS injoignable).
-- [ ] **Config `obs` + doc** (`D-004`) — section `obs` (host/port/password/
-  enabled) dans `config.json(.example)` ; activer le serveur WebSocket
-  d'OBS documenté dans `docs/deploiement.md`.
+- [x] **Endpoint `/api/envoyer-obs`** (`D-004`) — fait. `construire_collection`
+  (extrait de `generer_culte`) → `obs_push.push_collection` ; renvoie
+  collection / scènes / ajoutés / non trouvés. Erreurs : OBS désactivé (400),
+  injoignable (502). **Validé en direct** (collection « Test envoi OBS direct »,
+  7 scènes).
+- [x] **UI « Envoyer vers OBS »** (`D-004`) — fait. Bouton à côté de
+  « Générer le .zip » ; panneau de résultat adaptatif (« Envoyé dans OBS —
+  collection … » sans téléchargement) ; erreur affichée si OBS injoignable.
+- [x] **Config `obs` + doc** (`D-004`) — fait. Section `obs`
+  (enabled/host/port/password) dans `config.json.example` (défauts =
+  localhost:4455 sans auth) ; activation du serveur WebSocket OBS documentée
+  dans [`docs/deploiement.md`](../deploiement.md).

@@ -43,6 +43,25 @@ sera relancé tout seul à chaque session.
 > Après une modification du corpus (`stock/cantiques/`), un redémarrage du
 > serveur est nécessaire : l'index est chargé en mémoire au démarrage.
 
+## Envoi direct vers OBS (optionnel)
+
+L'interface peut **créer la collection directement dans OBS** (bouton « Envoyer
+vers OBS »), en plus du `.zip` (cf.
+[D-004](decisions/D-004-envoi-vers-obs-websocket.md)). Pour l'activer :
+
+1. Dans OBS (≥ 28) : **Outils → Paramètres du serveur WebSocket** → cocher
+   « Activer le serveur WebSocket », noter le **port** (4455 par défaut) et le
+   **mot de passe**.
+2. Dans `config.json`, section **`obs`** :
+   ```json
+   "obs": { "enabled": true, "host": "localhost", "port": 4455, "password": "VOTRE_MDP" }
+   ```
+   (si l'authentification est désactivée dans OBS, laisser `"password": ""`).
+3. Redémarrer le serveur (`arreter-serveur.bat` puis `serveur.bat`).
+
+OBS doit être **ouvert** au moment de l'envoi. Le `.zip` reste disponible si OBS
+n'est pas joignable.
+
 ## Désinstallation
 
 Double-cliquer **`desinstaller-poste-eglise.bat`** : retire le démarrage

@@ -13,5 +13,11 @@
     },
     "api": {
         "unsplash": "VOTRE_CLE_API_UNSPLASH"
+    },
+    "obs": {
+        "enabled": true,
+        "host": "localhost",
+        "port": 4455,
+        "password": ""
     }
 }

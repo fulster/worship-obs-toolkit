@@ -309,23 +309,18 @@ def resoudre_entrees(entrees, config, flagged_numeros=None):
     return resolved, info
 
 
-def generer_culte(titre, entrees, config, img_accueil, img_envoi,
-                  img_accueil_name, img_envoi_name):
-    """Construit la collection OBS d'un culte et écrit le `.zip`.
+def construire_collection(titre, entrees, config, img_accueil, img_envoi,
+                          img_accueil_name, img_envoi_name):
+    """Construit la collection OBS d'un culte **sans écrire de fichier**.
 
-    Point d'entrée réutilisable (CLI **et** backend, cf. D-003) : ne touche ni à
-    `chants.txt`, ni à argv, ni au téléchargement d'images — tout lui est fourni.
+    Point d'entrée réutilisable : ne touche ni à `chants.txt`, ni à argv, ni au
+    téléchargement d'images — tout lui est fourni. Sert à la fois à générer le
+    `.zip` (`generer_culte`) et à l'envoi direct vers OBS (`obs_push`, D-004).
 
-    - `entrees` : liste de `(ligne, origine)` (mêmes lignes que `chants.txt`).
-    - `img_*` : chemins et noms des 2 images de fond (accueil / envoi).
-
-    Retourne un dict d'info : `zip` (Path), `fname`, `ajoutes`, `non_trouves`,
-    `a_relire`.
+    Retourne `(collection, info)` où info = `{ajoutes, non_trouves, a_relire}`.
     """
     collection = Scene_Collection(titre)
-    flagged_numeros = load_flagged_numeros()
-
-    resolved, info = resoudre_entrees(entrees, config, flagged_numeros)
+    resolved, info = resoudre_entrees(entrees, config, load_flagged_numeros())
     # Insérer dans l'ordre des entrées ; l'affichage OBS est piloté plus bas.
     for cantique_path, selection in resolved:
         collection.add_scene(cantique_path, selection)
@@ -363,10 +358,22 @@ def generer_culte(titre, entrees, config, img_accueil, img_envoi,
         display_order.append(final)
     collection.set_display_order(display_order)
     print(f"Ordre des scènes : {len(display_order)} scènes (A. → …), {base_counter - 1} vues « Base »")
+    return collection, info
 
-    # Écriture du .zip (JSON de collection + images). On crée le dossier de
-    # sortie au besoin, et on n'ajoute que les images réellement présentes
-    # (une image manquante ne doit pas faire échouer toute la génération).
+
+def generer_culte(titre, entrees, config, img_accueil, img_envoi,
+                  img_accueil_name, img_envoi_name):
+    """Construit la collection et écrit le `.zip` (JSON + images).
+
+    Retourne un dict d'info : `zip` (Path), `fname`, `ajoutes`, `non_trouves`,
+    `a_relire`.
+    """
+    collection, info = construire_collection(
+        titre, entrees, config, img_accueil, img_envoi, img_accueil_name, img_envoi_name)
+
+    # Écriture du .zip. On crée le dossier de sortie au besoin, et on n'ajoute
+    # que les images réellement présentes (une image manquante ne doit pas faire
+    # échouer toute la génération).
     fname = slugify(titre)
     output_dir = Path(config['paths']['output'])
     output_dir.mkdir(parents=True, exist_ok=True)
