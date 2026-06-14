@@ -13,7 +13,7 @@ rm -rf "$OUT"
 mkdir -p "$STAGE/webapp" "$STAGE/docs" "$STAGE/stock"
 
 # Code, interface, templates, conf d'exemple.
-cp generate.py obs_json_resources.py pyproject.toml uv.lock README.md config.json.example "$STAGE/"
+cp generate.py obs_json_resources.py obs_push.py pyproject.toml uv.lock README.md config.json.example "$STAGE/"
 cp webapp/app.py webapp/corpus_index.py "$STAGE/webapp/"
 cp -r webapp/static "$STAGE/webapp/"
 cp -r tpl "$STAGE/"
