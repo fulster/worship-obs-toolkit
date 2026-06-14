@@ -2,6 +2,7 @@ import glob
 import os
 import json
 import re
+import copy
 
 import yaml
 
@@ -257,6 +258,35 @@ class Scene_Collection(Obs_basic) :
         self.core["sources"].append(source)
     def add_scene(self,file,selection=None) :
         self.scenes.append(Scene(file,self,selection))
+    def duplicate_base(self, new_name, base_name="Base : temple"):
+        """Duplique une scène existante (la « base ») sous un nouveau nom.
+
+        Permet d'intercaler des copies de la vue de base entre les cantiques.
+        Les copies partagent la même source (caméra) ; seul le nom de scène
+        change (OBS impose des noms de scène uniques).
+        """
+        for src in self.core["sources"]:
+            if src.get("id") == "scene" and src.get("name") == base_name:
+                clone = copy.deepcopy(src)
+                clone["name"] = new_name
+                self.core["sources"].append(clone)
+                return new_name
+        return None
+    def set_display_order(self, names):
+        """Fixe l'ordre d'affichage des scènes dans OBS.
+
+        Renseigne `scene_order` (mécanisme officiel) ET réordonne les scènes
+        dans `sources` pour que les deux concordent. Les sources non-scène
+        (caméra, textes) restent en tête ; les scènes non listées (sécurité)
+        sont ajoutées à la fin.
+        """
+        self.core["scene_order"] = [{"name": n} for n in names]
+        non_scenes = [s for s in self.core["sources"] if s.get("id") != "scene"]
+        scenes = {s["name"]: s for s in self.core["sources"] if s.get("id") == "scene"}
+        ordered = [scenes[n] for n in names if n in scenes]
+        listed = set(names)
+        ordered += [s for nm, s in scenes.items() if nm not in listed]
+        self.core["sources"] = non_scenes + ordered
     def generate_scenes_from_dir(self, dir) :
         filelist = os.listdir(os.path.abspath(dir)) # returns list
         filelist.sort(reverse=True)

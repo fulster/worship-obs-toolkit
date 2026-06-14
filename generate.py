@@ -417,9 +417,9 @@ try:
         else:
             print_red(f"✗ Cantique {numero} non trouvé dans {txt_dir}")
 
-    # Insérer les scènes en ordre inverse : l'ordre d'ajout détermine
-    # l'affichage dans OBS, on retrouve donc l'ordre de chants.txt.
-    for cantique_path, selection in reversed(resolved):
+    # Insérer les scènes dans l'ordre de chants.txt ; l'ordre d'affichage OBS
+    # final est piloté explicitement par set_display_order plus bas.
+    for cantique_path, selection in resolved:
         collection.add_scene(cantique_path, selection)
 
     print(f"{len(collection.scenes)} cantiques ajoutés à la collection")
@@ -439,6 +439,22 @@ Envoi = Tmp_scene('Envoi', collection)
 Envoi.add_image('fond2', str(img_envoi))
 Envoi.add_text('aurevoir', 'Bon dimanche à tous !')
 Envoi.register()
+
+# Ordre d'affichage OBS : « Accueil » en tête, « Envoi » en queue, et une copie
+# de « Base : temple » intercalée avant chaque cantique et avant l'envoi — pour
+# enchaîner les scènes sans revenir manuellement à la vue de base.
+cantique_names = [s.name for s in collection.scenes]
+display_order = ['Accueil']
+base_counter = 1
+for scene_name in cantique_names + ['Envoi']:
+    base_name = 'Base : temple' if base_counter == 1 else f'Base : temple {base_counter}'
+    if base_counter > 1:
+        collection.duplicate_base(base_name)
+    display_order.append(base_name)
+    display_order.append(scene_name)
+    base_counter += 1
+collection.set_display_order(display_order)
+print(f"Ordre des scènes : Accueil → … → Envoi, {base_counter - 1} vues « Base » intercalées")
 
 # Create output zip file
 output_zip = Path(config['paths']['output']) / f'{fname}.zip'
