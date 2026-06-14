@@ -364,12 +364,17 @@ def generer_culte(titre, entrees, config, img_accueil, img_envoi,
     collection.set_display_order(display_order)
     print(f"Ordre des scènes : {len(display_order)} scènes (A. → …), {base_counter - 1} vues « Base »")
 
-    # Écriture du .zip (JSON de collection + images).
+    # Écriture du .zip (JSON de collection + images). On crée le dossier de
+    # sortie au besoin, et on n'ajoute que les images réellement présentes
+    # (une image manquante ne doit pas faire échouer toute la génération).
     fname = slugify(titre)
-    output_zip = Path(config['paths']['output']) / f'{fname}.zip'
+    output_dir = Path(config['paths']['output'])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_zip = output_dir / f'{fname}.zip'
     with ZipFile(str(output_zip), 'w') as myzip:
-        myzip.write(str(img_accueil), f'img/{img_accueil_name}')
-        myzip.write(str(img_envoi), f'img/{img_envoi_name}')
+        for img_path, img_name in ((img_accueil, img_accueil_name), (img_envoi, img_envoi_name)):
+            if img_path and Path(img_path).exists():
+                myzip.write(str(img_path), f'img/{img_name}')
         myzip.writestr(f'{fname}.json', json.dumps(collection.to_json()))
 
     info["zip"] = output_zip

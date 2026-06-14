@@ -138,7 +138,11 @@ def api_generer():
         images = (pa, pe, imgs['accueil'], imgs['envoi'])
     else:
         images = generate.telecharger_images(CONFIG, theme)
-    info = generate.generer_culte(titre, entrees, CONFIG, *images)
+    try:
+        info = generate.generer_culte(titre, entrees, CONFIG, *images)
+    except Exception as exc:  # noqa: BLE001
+        app.logger.exception('Echec de la generation')
+        return jsonify({'error': f'{type(exc).__name__}: {exc}'}), 500
 
     return jsonify({
         'titre': titre,

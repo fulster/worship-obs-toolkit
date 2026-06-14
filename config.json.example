@@ -1,7 +1,9 @@
 {
     "paths": {
-        "images": "C:/chemin/vers/dossier/images",
-        "output": "C:/chemin/vers/dossier/sortie",
+        "images": "./img",
+        "output": "./cultes",
+        "stock_cantiques": "./stock/cantiques",
+        "stock_prieres": "./stock/prieres",
         "stock_txt": "./stock/txt",
         "txt": "./stock/txt"
     },

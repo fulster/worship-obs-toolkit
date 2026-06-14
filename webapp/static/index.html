@@ -469,8 +469,9 @@ createApp({
             images: this.images ? { accueil: this.images.accueil, envoi: this.images.envoi } : null,
           })
         })
-        if (!r.ok) throw new Error()
-        this.result = await r.json()
+        const j = await r.json().catch(() => ({}))
+        if (!r.ok) { this.notify('Génération : ' + (j.error || 'échec')); return }
+        this.result = j
       } catch (e) { this.notify('La génération a échoué') }
       finally { this.generating = false }
     },
