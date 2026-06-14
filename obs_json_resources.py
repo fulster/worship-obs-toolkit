@@ -77,10 +77,18 @@ def expand_cantique(data, selection=None):
     """
     numero = (data.get("numero") or "").strip()
     titre = (data.get("titre") or "").strip()
-    head = f"{numero}\n{titre}" if numero else titre
 
     couplets = data.get("couplets") or []
     refrain = (data.get("refrain") or "").strip() or None
+
+    # Head = « numéro titre » (1re ligne) + indication des couplets joués
+    # (2e ligne) : couplets sélectionnés tels qu'écrits, sinon tous.
+    titre_line = f"{numero} {titre}".strip() if numero else titre
+    if selection is None:
+        indication = ",".join(str(i) for i in range(1, len(couplets) + 1))
+    else:
+        indication = ",".join(str(t) for t in selection)
+    head = f"{titre_line}\n{indication}" if indication else titre_line
 
     warnings = []
     blocks = []
@@ -173,10 +181,15 @@ class Scene(Obs_basic) :
             # Format structuré (D-001) : le refrain est expansé après chaque
             # couplet à la lecture, le code remplace le nettoyage manuel. Un
             # sélecteur (...) choisit/réordonne les couplets (cf. expand_cantique).
-            self.head, body, warnings = expand_cantique(load_cantique_yaml(file), selection)
+            data = load_cantique_yaml(file)
+            self.head, body, warnings = expand_cantique(data, selection)
             for w in warnings:
                 print(f"  Attention : {os.path.basename(file)} : {w}")
             self.lyrics = '\n\n\n\n'+body
+            # Nom de scène = « numéro titre » (visible dans la liste OBS).
+            numero = (data.get("numero") or "").strip()
+            titre = (data.get("titre") or "").strip()
+            self.name = f"{numero} {titre}".strip() or os.path.splitext(os.path.basename(file))[0]
         else:
             # Format texte libre historique (stock/txt) : titre = 1re ligne non
             # vide, paroles = le reste du fichier tel quel.
@@ -189,8 +202,7 @@ class Scene(Obs_basic) :
                         self.head = line
                         break
                 self.lyrics = '\n\n\n\n'+cantique.read()
-        base=os.path.basename(file)
-        self.name = os.path.splitext(base)[0]
+            self.name = os.path.splitext(os.path.basename(file))[0]
         super().__init__(self.name)
 
         #title

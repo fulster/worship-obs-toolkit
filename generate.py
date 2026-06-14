@@ -297,52 +297,56 @@ try:
                     spontanes_list = sf.readlines()
                 print(f"Fichier de cantiques spontanés trouvé avec {len(spontanes_list)} lignes")
                 
-                # Créer une nouvelle liste entrelacée
+                # Créer une nouvelle liste entrelacée de (ligne, origine).
                 combined_list = []
                 main_index = 0
-                
+
                 for line in spontanes_list:
                     line = line.strip()
                     if not line:
                         continue
-                    
+
                     # Si la ligne est un marqueur #n, insérer un cantique du fichier principal
                     if re.match(r'^#\d+$', line):
-                        marker_num = int(line[1:])
                         print(f"Marqueur {line} détecté: insertion d'un cantique principal")
                         if main_index < len(main_chants):
-                            combined_list.append(main_chants[main_index])
+                            combined_list.append((main_chants[main_index], 'cantique'))
                             main_index += 1
                         else:
                             print(f"Attention: Plus de marqueurs que de cantiques principaux, marqueur {line} ignoré")
                     else:
                         # Sinon, ajouter la ligne du fichier de cantiques spontanés
-                        combined_list.append(line)
-                
+                        combined_list.append((line, 'spontané'))
+
                 # Ajouter les cantiques principaux restants s'il y en a
                 if main_index < len(main_chants):
                     remaining = len(main_chants) - main_index
                     print(f"Ajout des {remaining} cantiques principaux restants")
-                    combined_list.extend(main_chants[main_index:])
-                
+                    combined_list.extend((c, 'cantique') for c in main_chants[main_index:])
+
                 # Remplacer la liste de cantiques par la liste entrelacée
                 chants_list = combined_list
                 print(f"Liste entrelacée créée avec {len(chants_list)} cantiques au total")
             except Exception as e:
                 print(f"Erreur lors de la lecture du fichier de cantiques spontanés: {str(e)}")
                 # En cas d'erreur, utiliser simplement les cantiques du fichier principal
-                chants_list = main_chants
+                chants_list = [(c, 'cantique') for c in main_chants]
         else:
             print(f"Attention: Le fichier de cantiques spontanés {spontanes_file} n'existe pas")
             # Utiliser simplement les cantiques du fichier principal
-            chants_list = main_chants
+            chants_list = [(c, 'cantique') for c in main_chants]
     
+    # Cas sans spontanés : normaliser en (ligne, origine='cantique').
+    if chants_list and not isinstance(chants_list[0], tuple):
+        chants_list = [(l, 'cantique') for l in chants_list]
+
     # Inverser l'ordre pour avoir les scènes dans le même ordre que le fichier chants.txt
     chants_list.reverse()
-    
+
     # Parcourir chaque ligne des fichiers
-    for line in chants_list:
-        line = line.strip()
+    for entry, origin in chants_list:
+        line = entry.strip()
+        libelle = 'Spontané' if origin == 'spontané' else 'Cantique'
         if not line or line.startswith('#') or line.startswith('[SPONTANES]'):
             continue  # Ignorer les lignes vides, les commentaires et l'en-tête [SPONTANES]
 
@@ -378,7 +382,7 @@ try:
         yaml_candidate = os.path.join(cantiques_dir, f"{numero}.yaml")
         if os.path.exists(yaml_candidate):
             cantique_path = yaml_candidate
-            print_green(f"✓ Cantique structuré trouvé: {numero}.yaml")
+            print_green(f"✓ {libelle} structuré trouvé: {numero}.yaml")
 
         # Repli : ancien format texte libre dans stock/txt (recherche par sous-chaîne)
         txt_dir = os.path.abspath(config['paths']['stock_txt'] if 'stock_txt' in config['paths'] else 'stock/txt')
@@ -387,7 +391,7 @@ try:
             # Vérifier si le fichier contient le numéro du cantique (peu importe sa position)
             if numero in file:
                 cantique_path = os.path.join(txt_dir, file)
-                print_green(f"✓ Cantique trouvé: {file}")
+                print_green(f"✓ {libelle} trouvé: {file}")
                 break
         
         # Si non trouvé et que c'est un psaume avec lettre (ex: Ps 034A), essayer sans le padding (ex: Ps 34A)
@@ -400,7 +404,7 @@ try:
             for file in filelist:
                 if numero_sans_padding in file:
                     cantique_path = os.path.join(txt_dir, file)
-                    print_green(f"✓ Cantique trouvé: {file}")
+                    print_green(f"✓ {libelle} trouvé: {file}")
                     break
         
         # Si le cantique est trouvé, l'ajouter à la collection
