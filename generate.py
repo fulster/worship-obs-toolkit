@@ -184,6 +184,65 @@ def ensure_img_directory(config):
 
 # --- Cœur réutilisable (CLI + backend, cf. D-003) ------------------------------
 
+def extraire_numero_selection(line):
+    """Extrait `(numero, selecteur_str)` d'une ligne de culte.
+
+    - `numero` : « NN-NN » (cantique) ou « Ps 0NN[A] » (psaume, depuis
+      « Psaume X » / « Ps X »), `None` si non reconnu.
+    - `selecteur_str` : contenu d'un « (...) » final (ex. « 1,2,3 »), '' si absent.
+    """
+    line = (line or '').strip()
+    sel = ''
+    m = re.search(r'\(([\d\s,Rr]+)\)\s*$', line)
+    if m:
+        sel = re.sub(r'\s+', '', m.group(1))
+    mc = re.match(r'^(\d+-\d+)', line)
+    if mc:
+        return mc.group(1), sel
+    mp = re.match(r'^(?:Psaume|Ps)\s+(\d+)([A-Za-z]?)', line)
+    if mp:
+        return f"Ps {int(mp.group(1)):03d}{mp.group(2).upper()}", sel
+    return None, sel
+
+
+def interpreter_lignes(lignes):
+    """Applique l'entrelacement des spontanés à une liste de lignes brutes.
+
+    Si la 1re ligne est `[SPONTANES] XXX`, charge `[SPONTANES] XXX.txt` et
+    entrelace les chants principaux (lignes suivantes) aux marqueurs `#n`.
+    Retourne une liste de `(ligne, origine)` où origine ∈ {'cantique','spontané'}.
+    """
+    lignes = [l.rstrip('\n') for l in lignes]
+    if not (lignes and lignes[0].strip().startswith('[SPONTANES]')):
+        return [(l, 'cantique') for l in lignes]
+
+    spontanes_file = f"{lignes[0].strip()}.txt"
+    main_chants = [l.strip() for l in lignes[1:] if l.strip()]
+    if not os.path.exists(spontanes_file):
+        print(f"Attention: Le fichier de spontanés {spontanes_file} n'existe pas")
+        return [(c, 'cantique') for c in main_chants]
+    try:
+        with open(spontanes_file, 'r', encoding='utf-8') as sf:
+            spontanes_list = sf.readlines()
+        combined = []
+        main_index = 0
+        for line in spontanes_list:
+            line = line.strip()
+            if not line:
+                continue
+            if re.match(r'^#\d+$', line):
+                if main_index < len(main_chants):
+                    combined.append((main_chants[main_index], 'cantique'))
+                    main_index += 1
+            else:
+                combined.append((line, 'spontané'))
+        combined.extend((c, 'cantique') for c in main_chants[main_index:])
+        return combined
+    except Exception as e:
+        print(f"Erreur lecture spontanés: {e}")
+        return [(c, 'cantique') for c in main_chants]
+
+
 def resoudre_entrees(entrees, config, flagged_numeros=None):
     """Résout une liste de `(ligne, origine)` en `(chemin_yaml, selection)`.
 
@@ -204,27 +263,15 @@ def resoudre_entrees(entrees, config, flagged_numeros=None):
         if not line or line.startswith('#') or line.startswith('[SPONTANES]'):
             continue
 
-        # Sélecteur de couplets en fin de ligne, ex. « (1,3) » / « (1,R,2) ».
-        selection = None
-        sel_match = re.search(r'\(([\d\s,Rr]+)\)\s*$', line)
-        if sel_match:
-            selection = parse_selection(sel_match.group(1))
-            if selection is None:
-                print(f"Sélecteur illisible, ignoré: {line}")
-
-        # Numéro : cantique « NN-NN » ou psaume « Psaume X » / « Ps X ».
-        match_cantique = re.match(r'^(\d+-\d+)', line)
-        match_psaume = re.match(r'^(?:Psaume|Ps)\s+(\d+)([A-Z]?)', line)
-        if match_cantique:
-            numero = match_cantique.group(1)
-            print(f"Recherche du cantique {numero}...")
-        elif match_psaume:
-            suffixe = match_psaume.group(2) or ""
-            numero = f"Ps {int(match_psaume.group(1)):03d}{suffixe}"
-            print(f"Recherche du psaume {numero}...")
-        else:
+        # Numéro + sélecteur de couplets (ex. « 22-04 … (1,3) »).
+        numero, sel_str = extraire_numero_selection(line)
+        if numero is None:
             print(f"Format de ligne non reconnu: {line}")
             continue
+        selection = parse_selection(sel_str) if sel_str else None
+        if sel_str and selection is None:
+            print(f"Sélecteur illisible, ignoré: {line}")
+        print(f"Recherche de {numero}...")
 
         # Résolution : cantique structuré (stock/cantiques) d'abord, repli txt.
         cantique_path = None
@@ -338,52 +385,12 @@ def charger_config(path='config.json'):
 
 
 def lire_chants_txt(path='chants.txt'):
-    """Lit `chants.txt` + applique l'entrelacement des spontanés.
+    """Lit `chants.txt` et applique l'entrelacement des spontanés.
 
     Retourne une liste de `(ligne, origine)` prête pour `generer_culte`.
     """
     with open(path, 'r', encoding='utf-8') as f:
-        chants_list = f.readlines()
-
-    if not (chants_list and chants_list[0].strip().startswith('[SPONTANES]')):
-        return [(l, 'cantique') for l in chants_list]
-
-    spontanes_file = f"{chants_list[0].strip()}.txt"
-    print(f"Détection d'un fichier de cantiques spontanés: {spontanes_file}")
-    main_chants = [line.strip() for line in chants_list[1:] if line.strip()]
-    print(f"Fichier principal: {len(main_chants)} cantiques à intégrer")
-
-    if not os.path.exists(spontanes_file):
-        print(f"Attention: Le fichier de cantiques spontanés {spontanes_file} n'existe pas")
-        return [(c, 'cantique') for c in main_chants]
-
-    try:
-        with open(spontanes_file, 'r', encoding='utf-8') as sf:
-            spontanes_list = sf.readlines()
-        print(f"Fichier de cantiques spontanés trouvé avec {len(spontanes_list)} lignes")
-        combined = []
-        main_index = 0
-        for line in spontanes_list:
-            line = line.strip()
-            if not line:
-                continue
-            if re.match(r'^#\d+$', line):
-                print(f"Marqueur {line} détecté: insertion d'un cantique principal")
-                if main_index < len(main_chants):
-                    combined.append((main_chants[main_index], 'cantique'))
-                    main_index += 1
-                else:
-                    print(f"Attention: Plus de marqueurs que de cantiques principaux, marqueur {line} ignoré")
-            else:
-                combined.append((line, 'spontané'))
-        if main_index < len(main_chants):
-            print(f"Ajout des {len(main_chants) - main_index} cantiques principaux restants")
-            combined.extend((c, 'cantique') for c in main_chants[main_index:])
-        print(f"Liste entrelacée créée avec {len(combined)} cantiques au total")
-        return combined
-    except Exception as e:
-        print(f"Erreur lors de la lecture du fichier de cantiques spontanés: {str(e)}")
-        return [(c, 'cantique') for c in main_chants]
+        return interpreter_lignes(f.readlines())
 
 
 def telecharger_images(config, theme):

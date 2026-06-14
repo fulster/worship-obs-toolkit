@@ -10,9 +10,22 @@ from __future__ import annotations
 
 import glob
 import os
+import re
 import unicodedata
 
 import yaml
+
+
+def _aliases(numero: str) -> str:
+    """Variantes de recherche d'un numéro (surtout les psaumes).
+
+    « Ps 036 » devient cherchable par « psaume 36 », « ps 36 », « 36 ».
+    """
+    m = re.match(r'ps\s*0*(\d+)([a-z]?)', numero.lower())
+    if m:
+        n, suf = m.group(1), m.group(2)
+        return f" psaume {n}{suf} ps {n}{suf} {n}"
+    return ''
 
 
 def _norm(s: str) -> str:
@@ -48,7 +61,7 @@ def build_index(cantiques_dir: str, prieres_dir: str, flagged: set | None = None
                             if isinstance(t, dict)],
                 'kind': kind,
                 'a_relire': numero in flagged,
-                '_search': _norm(f"{numero} {titre}"),
+                '_search': _norm(f"{numero} {titre}") + _aliases(numero),
             })
     return index
 

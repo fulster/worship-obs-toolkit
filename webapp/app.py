@@ -44,6 +44,7 @@ INDEX = corpus_index.build_index(
     CONFIG['paths'].get('stock_prieres', 'stock/prieres'),
     generate.load_flagged_numeros(),
 )
+BY_NUMERO = {e['numero']: e for e in INDEX}
 
 
 # --- Pages ---------------------------------------------------------------------
@@ -74,6 +75,36 @@ def api_stats():
         'cantiques': sum(1 for e in INDEX if e['kind'] == 'cantique'),
         'prieres': sum(1 for e in INDEX if e['kind'] == 'priere'),
     })
+
+
+@app.route('/api/importer', methods=['POST'])
+def api_importer():
+    """Importe une liste collée (format chants.txt, en-tête [SPONTANES] géré).
+
+    Corps : `{texte}`. Retourne des entrées enrichies (titre, couplets…) prêtes
+    pour la composition ; `found:false` pour les lignes non reconnues/introuvables.
+    """
+    data = request.get_json(silent=True) or {}
+    texte = data.get('texte', '') or ''
+    out = []
+    for line, origin in generate.interpreter_lignes(texte.splitlines()):
+        line = line.strip()
+        if not line or line.startswith('#') or line.startswith('[SPONTANES]'):
+            continue
+        numero, sel = generate.extraire_numero_selection(line)
+        if numero is None:
+            out.append({'numero': '', 'titre': line[:48], 'n_couplets': 0, 'refrain': False,
+                        'a_relire': False, 'selection': '', 'origin': origin, 'found': False})
+            continue
+        e = BY_NUMERO.get(numero)
+        if e:
+            out.append({'numero': numero, 'titre': e['titre'], 'n_couplets': e['n_couplets'],
+                        'refrain': e['refrain'], 'a_relire': e['a_relire'],
+                        'selection': sel, 'origin': origin, 'found': True})
+        else:
+            out.append({'numero': numero, 'titre': '(introuvable)', 'n_couplets': 0, 'refrain': False,
+                        'a_relire': False, 'selection': sel, 'origin': origin, 'found': False})
+    return jsonify(out)
 
 
 # --- API : génération ----------------------------------------------------------

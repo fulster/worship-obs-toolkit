@@ -194,12 +194,27 @@ body::before{
       <!-- Le culte -->
       <section class="reveal" style="animation-delay:.14s">
         <div class="card rounded-xl2 overflow-hidden">
-          <div class="px-5 pt-5 pb-3 flex items-center justify-between">
+          <div class="px-5 pt-5 pb-3 flex items-center justify-between gap-2">
             <h2 class="font-display text-xl font-semibold flex items-center gap-2">
               <span class="text-gold">♬</span> Le culte
               <span v-if="entrees.length" class="text-sm font-sans font-normal text-ink-soft">— {{ entrees.length }} chant{{ entrees.length>1?'s':'' }}</span>
             </h2>
-            <button v-if="entrees.length" class="btn btn-ghost text-xs px-3 py-1.5" @click="saveCulte" :disabled="!titre.trim()">Sauvegarder</button>
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="btn btn-ghost text-xs px-3 py-1.5" :class="{'!bg-pine/[.07] !border-pine/30 text-pine': showImport}" @click="showImport = !showImport">⎘ Coller une liste</button>
+              <button v-if="entrees.length" class="btn btn-ghost text-xs px-3 py-1.5" @click="saveCulte" :disabled="!titre.trim()">Sauvegarder</button>
+            </div>
+          </div>
+
+          <!-- import d'une liste collée -->
+          <div v-if="showImport" class="px-5 pb-4 pop">
+            <p class="text-xs text-ink-soft mb-2">Collez votre liste habituelle (une ligne par chant). Le sélecteur <code class="text-pine">(1,3)</code> est repris, et un en-tête <code class="text-pine">[SPONTANES] NOM</code> en 1re ligne entrelace les spontanés.</p>
+            <textarea v-model="importText" rows="5" class="field w-full px-3 py-2 text-sm bg-transparent" style="font-family:ui-monospace,monospace"
+              placeholder="Psaume 36 « O Seigneur ta fidélité » (1,2,3)&#10;22-04 « Oh ! Parle-moi Seigneur » (1,2,3)&#10;36-10 « Que la moisson du monde est grande » (1,2,3)"></textarea>
+            <div class="flex items-center gap-3 mt-2">
+              <label class="flex items-center gap-1.5 text-xs text-ink-soft mr-auto cursor-pointer"><input type="checkbox" v-model="importReplace" class="accent-pine"> Remplacer la liste actuelle</label>
+              <button class="btn btn-ghost text-xs px-3 py-1.5" @click="showImport=false">Annuler</button>
+              <button class="btn btn-primary text-xs px-4 py-1.5" :disabled="importing || !importText.trim()" @click="importer">{{ importing ? 'Import…' : 'Importer' }}</button>
+            </div>
           </div>
 
           <div v-if="!entrees.length" class="px-6 py-16 text-center">
@@ -217,13 +232,14 @@ body::before{
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
-                    <span class="badge-num">{{ e.numero }}</span>
-                    <span class="font-medium truncate">{{ e.titre }}</span>
-                    <span v-if="e.a_relire" class="text-clay text-xs" title="Structure à confirmer">⚑</span>
+                    <span v-if="e.numero" class="badge-num">{{ e.numero }}</span>
+                    <span class="font-medium truncate" :class="{'text-clay italic': e.found===false}">{{ e.titre }}</span>
+                    <span v-if="e.found===false" class="text-clay text-[.62rem] uppercase tracking-wider border border-clay/40 rounded px-1 py-px">introuvable</span>
+                    <span v-else-if="e.a_relire" class="text-clay text-xs" title="Structure à confirmer">⚑</span>
                   </div>
 
                   <!-- sélecteur de couplets -->
-                  <div class="mt-2 flex items-center gap-1.5 flex-wrap">
+                  <div v-if="e.found!==false" class="mt-2 flex items-center gap-1.5 flex-wrap">
                     <span class="text-[.7rem] uppercase tracking-wider text-ink-soft mr-1">Couplets</span>
                     <button v-for="n in e.n_couplets" :key="n" class="chip" :class="{'chip-on': isSel(e,n)}" @click="toggle(e,n)">{{ n }}</button>
                     <button v-if="e.refrain" class="chip chip-r" :class="{'chip-on': isSel(e,'R')}" @click="toggle(e,'R')">R</button>
@@ -232,7 +248,7 @@ body::before{
                   </div>
 
                   <!-- options ligne -->
-                  <div class="mt-2 flex items-center gap-2">
+                  <div v-if="e.found!==false" class="mt-2 flex items-center gap-2">
                     <button class="switch" :class="{on: e.origin==='spontané'}" @click="e.origin = e.origin==='spontané' ? 'cantique' : 'spontané'" :title="e.origin==='spontané' ? 'Spontané' : 'Cantique'"><i></i></button>
                     <span class="text-xs" :class="e.origin==='spontané' ? 'text-gold font-semibold' : 'text-ink-soft'">{{ e.origin==='spontané' ? 'Spontané' : 'Cantique' }}</span>
                   </div>
@@ -291,6 +307,7 @@ createApp({
       query: '', results: [], indexCount: 0,
       entrees: [],
       cultes: [], showCultes: false,
+      showImport: false, importText: '', importing: false, importReplace: true,
       generating: false, result: null,
       toast: '', _toastT: null, _searchT: null,
     }
@@ -313,8 +330,29 @@ createApp({
     add(c) {
       this.entrees.push({
         numero: c.numero, titre: c.titre, n_couplets: c.n_couplets,
-        refrain: c.refrain, a_relire: c.a_relire, selection: '', origin: 'cantique',
+        refrain: c.refrain, a_relire: c.a_relire, selection: '', origin: 'cantique', found: true,
       })
+    },
+    async importer() {
+      if (!this.importText.trim()) return
+      this.importing = true
+      try {
+        const r = await fetch('/api/importer', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texte: this.importText })
+        })
+        const items = await r.json()
+        const mapped = items.map(e => ({
+          numero: e.numero, titre: e.titre, n_couplets: e.n_couplets, refrain: e.refrain,
+          a_relire: e.a_relire, selection: e.selection || '', origin: e.origin || 'cantique',
+          found: e.found !== false,
+        }))
+        this.entrees = this.importReplace ? mapped : this.entrees.concat(mapped)
+        const nf = items.filter(e => e.found === false).length
+        this.notify(`${items.length} ligne(s) importée(s)` + (nf ? `, ${nf} introuvable(s)` : ''))
+        this.showImport = false; this.importText = ''
+      } catch (e) { this.notify("Échec de l'import") }
+      finally { this.importing = false }
     },
     remove(i) { this.entrees.splice(i, 1) },
     move(i, d) {
