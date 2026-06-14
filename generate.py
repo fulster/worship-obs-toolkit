@@ -337,12 +337,17 @@ try:
             print(f"Format de ligne non reconnu: {line}")
             continue
         
-        # Rechercher le fichier correspondant dans stock/txt
+        # Rechercher d'abord un cantique structuré (D-001) : stock/cantiques/<numero>.yaml
         cantique_path = None
+        cantiques_dir = os.path.abspath(config['paths'].get('stock_cantiques', 'stock/cantiques'))
+        yaml_candidate = os.path.join(cantiques_dir, f"{numero}.yaml")
+        if os.path.exists(yaml_candidate):
+            cantique_path = yaml_candidate
+            print_green(f"✓ Cantique structuré trouvé: {numero}.yaml")
+
+        # Repli : ancien format texte libre dans stock/txt (recherche par sous-chaîne)
         txt_dir = os.path.abspath(config['paths']['stock_txt'] if 'stock_txt' in config['paths'] else 'stock/txt')
-        
-        # Lister tous les fichiers dans le répertoire stock/txt
-        filelist = os.listdir(txt_dir)
+        filelist = os.listdir(txt_dir) if not cantique_path and os.path.isdir(txt_dir) else []
         for file in filelist:
             # Vérifier si le fichier contient le numéro du cantique (peu importe sa position)
             if numero in file:

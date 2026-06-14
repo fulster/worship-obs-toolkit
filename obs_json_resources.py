@@ -2,6 +2,49 @@ import glob
 import os
 import json
 
+import yaml
+
+
+def load_cantique_yaml(file):
+    """Charge un cantique au format structuré (D-001) depuis un fichier YAML."""
+    with open(file, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def expand_cantique(data):
+    """Construit (head, paroles) pour la projection depuis un cantique structuré.
+
+    - head = ``numero\\ntitre`` (le template de titre affiche n° puis titre) ;
+    - paroles = un bloc unique destiné au texte défilant : `source` en tête,
+      puis chaque couplet **suivi du refrain** (le refrain n'est stocké qu'une
+      fois dans la source — c'est ici, couche de présentation, qu'il est
+      expansé après chaque couplet, cf. D-001), `credits` en pied.
+
+    Le refrain et les couplets sont des blocs multi-lignes ; les sections sont
+    séparées par une ligne vide, comme dans les `.txt` nettoyés à la main.
+    """
+    numero = (data.get("numero") or "").strip()
+    titre = (data.get("titre") or "").strip()
+    head = f"{numero}\n{titre}" if numero else titre
+
+    sections = []
+    source = data.get("source")
+    if source:
+        sections.append(source.strip())
+
+    refrain = data.get("refrain")
+    refrain = refrain.strip() if refrain else None
+    for couplet in data.get("couplets") or []:
+        sections.append(couplet.rstrip())
+        if refrain:
+            sections.append(refrain)
+
+    credits = data.get("credits")
+    if credits:
+        sections.append(credits.strip())
+
+    return head, "\n\n".join(sections)
+
 class Obs_basic :
     def __init__(self,name) :
         class_name = self.__class__.__name__
@@ -65,15 +108,21 @@ class Item_text(Obs_basic) :
 class Scene(Obs_basic) :
     def __init__(self, file,sc):
         self.file = os.path.abspath(file)
-        with open(file,"r",encoding="utf-8") as cantique :
-            # Lire le titre (première ligne non vide)
-            self.head = ""
-            for line in cantique:
-                if line.strip():
-                    self.head = line
-                    break
-            # Lire le reste des paroles
-            self.lyrics = '\n\n\n\n'+cantique.read()
+        if os.path.splitext(file)[1].lower() in (".yaml", ".yml"):
+            # Format structuré (D-001) : le refrain est expansé après chaque
+            # couplet à la lecture, le code remplace le nettoyage manuel.
+            self.head, body = expand_cantique(load_cantique_yaml(file))
+            self.lyrics = '\n\n\n\n'+body
+        else:
+            # Format texte libre historique (stock/txt) : titre = 1re ligne non
+            # vide, paroles = le reste du fichier tel quel.
+            with open(file,"r",encoding="utf-8") as cantique :
+                self.head = ""
+                for line in cantique:
+                    if line.strip():
+                        self.head = line
+                        break
+                self.lyrics = '\n\n\n\n'+cantique.read()
         base=os.path.basename(file)
         self.name = os.path.splitext(base)[0]
         super().__init__(self.name)

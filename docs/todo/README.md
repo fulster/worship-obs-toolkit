@@ -27,15 +27,27 @@ Ordre indicatif : le schéma fonde le reste ; le sélecteur de couplets
     YAML corrects de `build/cantiques/` vers `stock/cantiques/` ;
     re-découper les 245 sans-couplets ; trancher la normalisation
     apostrophes `’→'` et `(c)→©` (polish de corpus).
-- [ ] **Pipeline de lecture** (`D-001`) — adapter `Scene`
-  (`obs_json_resources.py`) pour consommer le format structuré et
-  **expanser le refrain** après chaque couplet (remplace le nettoyage
-  manuel).
-- [ ] **Sélecteur de couplets** (`D-001`) — dans le parsing de
-  `chants.txt` / fichier de spontanés (`generate.py`) : syntaxe
-  `12-13 : 1,R,3`, ordre respecté, fallback « tout » + avertissement si
-  structure absente. *(Priorité opérateur — résout la douleur des
-  spontanés-extraits.)*
+- [x] **Pipeline de lecture** (`D-001`) — fait. `Scene`
+  (`obs_json_resources.py`) dispatche sur l'extension : `.yaml` →
+  `load_cantique_yaml` + `expand_cantique` (refrain **expansé après
+  chaque couplet**, le code remplace le nettoyage manuel) ; `.txt` →
+  comportement historique inchangé. `generate.py` résout d'abord
+  `stock/cantiques/<numero>.yaml`, repli sur `stock/txt/`. Dépendance
+  runtime `pyyaml`. Le sélecteur de couplets (3ᵉ ligne du head
+  `numero\ntitre`) reste le chantier suivant.
+- [ ] **Sélecteur de couplets / modèle d'ordre** (`D-001`) — dans le
+  parsing de `chants.txt` / fichier de spontanés (`generate.py`) :
+  syntaxe `12-13 : 1,R,3`, ordre respecté, fallback « tout » +
+  avertissement si structure absente. *(Priorité opérateur — résout la
+  douleur des spontanés-extraits.)*
+  - **Deux portées à concevoir ensemble** (décidé en session) :
+    1. *défaut par cantique* — ex. refrain chanté **en intro**
+       (`R, C1, R, C2…`), trait stable de l'hymne ; à ne PAS oublier en
+       repoussant l'intro-refrain ici plutôt qu'en booléen `refrain_intro`
+       au schéma ;
+    2. *override par culte* — l'ordre exact via le sélecteur `chants.txt`.
+    En attendant, le pipeline de lecture applique le défaut « refrain
+    après chaque couplet » (sans intro).
 - [ ] **Sort de `stock/txt/`** (`D-001`) — décider du devenir des 90
   fichiers nettoyés à la main vs le nouveau corpus YAML (migration,
   coexistence, ou abandon).
