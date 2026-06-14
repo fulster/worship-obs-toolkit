@@ -318,6 +318,12 @@ def delete_serie(nom):
 
 
 if __name__ == '__main__':
-    # Pas de mode debug par défaut (usage utilisateur via le lanceur).
-    # Pour le développement : définir WOTK_DEBUG=1.
-    app.run(host='127.0.0.1', port=5000, debug=os.environ.get('WOTK_DEBUG') == '1')
+    host, port = '127.0.0.1', 5000
+    if os.environ.get('WOTK_PROD') == '1':
+        # Production (machine d'église, toujours allumé) : serveur WSGI waitress.
+        from waitress import serve
+        print(f'Serveur (waitress) sur http://{host}:{port}')
+        serve(app, host=host, port=port)
+    else:
+        # Développement / lancement simple. WOTK_DEBUG=1 pour le rechargement auto.
+        app.run(host=host, port=port, debug=os.environ.get('WOTK_DEBUG') == '1')
