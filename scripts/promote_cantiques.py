@@ -51,18 +51,59 @@ def write_worklist(report: Path, worklist: Path) -> int:
         "# Relecture du corpus — worklist",
         "",
         "Cantiques signalés par le convertisseur (flags de "
-        "`build/cantiques/_rapport.md`), promus en baseline puis à raffiner "
-        "en place — D-001 *migration-scriptee-relue*, D-002 multilinguisme.",
-        "Comment relire : voir [README.md](../README.md) § « Relecture "
-        "incrémentale du corpus ».",
+        "`build/cantiques/_rapport.md`), promus « en baseline » puis à raffiner "
+        "en place — D-001 *migration-scriptee-relue*, D-002 multilinguisme. "
+        "Tous sont valides et projetables ; les signalements pointent une "
+        "structure à confirmer, pas un fichier cassé.",
         "",
-        "Chaque entrée est **indexée par le numéro** du cantique "
-        "(`stock/cantiques/<numero>.yaml`, ou `stock/prieres/` pour les "
-        "`p####`). **Cocher la case éteint l'avertissement de `generate.py`** "
-        "pour ce cantique.",
+        "## Comment relire",
         "",
-        "> Fichier régénéré par `scripts/promote_cantiques.py` : ne pas "
-        "éditer à la main hormis cocher les cases `- [ ]` → `- [x]`.",
+        "1. Prends une entrée **non cochée** ci-dessous : "
+        "`` - [ ] `<numero>` — <titre> — _<flags>_ ``.",
+        "2. Ouvre `stock/cantiques/<numero>.yaml` (les prières sont dans "
+        "`stock/prieres/`). Au besoin, compare au brut "
+        "`stock/txt/à nettoyer/`.",
+        "3. Vérifie/corrige selon le(s) flag(s) — voir la légende ci-dessous. "
+        "Format du fichier : [`docs/format-cantique.md`](format-cantique.md).",
+        "4. **Coche la case** (`- [ ]` → `- [x]`) : ça éteint l'avertissement "
+        "« à relire » de `generate.py` pour ce cantique.",
+        "",
+        "## Que vérifier selon le signalement",
+        "",
+        "| Flag | Ce que ça signifie | À vérifier / corriger |",
+        "|---|---|---|",
+        "| `non-decoupe` (cat. `sans-couplets`) | Aucune numérotation `N.` "
+        "détectée → tout le chant tient dans un seul `couplets:`. | Si le chant "
+        "a plusieurs strophes, les **redécouper** en plusieurs entrées de "
+        "`couplets:`. Si c'est un chant court (refrain, alléluia), laisser tel "
+        "quel. |",
+        "| `multilingue` | Une/des traduction(s) ont été isolées dans "
+        "`traductions:`. | Vérifier que `couplets:` (français) **ne contient "
+        "aucun texte étranger** et que chaque bloc a le bon `langue:`. |",
+        "| `langue-indeterminee` | Langue d'une traduction non devinée "
+        "(`langue: \"xx\"`). | Mettre le bon code (`en`, `de`…). Si le bloc est "
+        "en réalité **du français** (2ᵉ série), le remonter dans `couplets:` et "
+        "supprimer le bloc. |",
+        "| `renumerotation-sans-entete` | Bloc séparé sur une renumérotation "
+        "des couplets, **sans en-tête de langue** (ambigu). | Trancher : vraie "
+        "traduction (garder, fixer `langue:`) **ou** suite du français "
+        "(fusionner dans `couplets:`). |",
+        "| `source-ambigue` | Plusieurs lignes entre titre et 1er couplet mises "
+        "dans `source:`. | Vérifier que `source:` **n'a pas avalé des paroles** "
+        "; sinon les remettre en `couplets:`. |",
+        "| `collision-numero` | Deux bruts portent ce numéro ; le doublon est "
+        "resté en staging. | Comparer "
+        "`build/cantiques/<numero>__doublon*.yaml` et **garder la bonne "
+        "version**. |",
+        "| `refrain-vide` | Marqueur de refrain trouvé mais sans texte. | "
+        "Renseigner `refrain:` ou retirer le marqueur. |",
+        "| `numero-incertain` | Numéro non dérivable du nom de fichier "
+        "(typiquement les prières `p####`). | Vérifier/corriger `numero:`. |",
+        "",
+        "> ⚠️ Fichier **régénéré** par `scripts/promote_cantiques.py` (qui "
+        "**écrase** `stock/cantiques/`). Ne **rien** éditer ici à la main "
+        "hormis cocher les cases ; et ne relance pas `promote` après des "
+        "relectures en place, sous peine de les perdre.",
         "",
     ]
     for cat in sorted(groups, key=lambda c: -len(groups[c])):
