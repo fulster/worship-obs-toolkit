@@ -5,6 +5,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+# (dist/ = sortie du kit de déploiement assemblé par scripts/build_kit.sh)
 .pytest_cache/
 .mypy_cache/
 

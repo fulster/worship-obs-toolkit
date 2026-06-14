@@ -1,0 +1,31 @@
+name: Kit de déploiement
+
+# À chaque release publiée, assemble le kit de déploiement (runtime) et le
+# joint à la release comme asset téléchargeable. Déclenchable aussi à la main.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de la release cible (ex. v1.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  kit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assembler le kit
+        run: bash scripts/build_kit.sh
+
+      - name: Joindre le kit à la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.release.tag_name || github.event.inputs.tag }}"
+          gh release upload "$TAG" dist/worship-obs-toolkit-kit.zip --clobber
