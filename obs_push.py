@@ -73,9 +73,12 @@ def push_collection(coll: dict, host='localhost', port=4455, password='',
         final, i = f'{name} {i}', i + 1
     cl.create_scene_collection(final)
 
-    # 2) Scènes + items + filtres, en rejouant le JSON.
+    # 2) Scènes + items + filtres, en rejouant le JSON. On crée en ordre
+    #    INVERSE : OBS empile chaque nouvelle scène en tête de liste (index le
+    #    plus haut), donc créer la dernière en premier place « A. Accueil » en
+    #    haut du dock — l'ordre d'affichage retrouve `ordered`.
     created = set()
-    for scene_name in ordered:
+    for scene_name in reversed(ordered):
         cl.create_scene(scene_name)
         for item in by_name[scene_name].get('settings', {}).get('items', []):
             inp = inputs.get(item.get('name'))

@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -200,6 +201,25 @@ def api_envoyer_obs():
     })
 
 
+@app.route('/api/obs-status')
+def api_obs_status():
+    """OBS est-il joignable (serveur WebSocket) ? Pour activer le bouton d'envoi."""
+    obs_cfg = CONFIG.get('obs') or {}
+    if not obs_cfg.get('enabled', True):
+        return jsonify({'available': False, 'reason': 'désactivé'})
+    try:
+        import obsws_python
+        cl = obsws_python.ReqClient(
+            host=obs_cfg.get('host', 'localhost'),
+            port=int(obs_cfg.get('port', 4455)),
+            password=obs_cfg.get('password', ''),
+            timeout=2)
+        version = cl.get_version().obs_version
+        return jsonify({'available': True, 'version': version})
+    except Exception:
+        return jsonify({'available': False})
+
+
 @app.route('/api/telecharger/<path:fname>')
 def api_telecharger(fname):
     """Sert le .zip généré depuis le dossier de sortie configuré."""
@@ -239,12 +259,15 @@ def _culte_path(cid):
 @app.route('/api/cultes', methods=['GET'])
 def list_cultes():
     out = []
-    for path in sorted(Path(CULTES_DIR).glob('*.json')):
+    # Plus récents d'abord (date de dernière sauvegarde = mtime du fichier).
+    paths = sorted(Path(CULTES_DIR).glob('*.json'), key=lambda p: p.stat().st_mtime, reverse=True)
+    for path in paths:
         try:
             with open(path, encoding='utf-8') as f:
                 c = json.load(f)
+            date = datetime.fromtimestamp(path.stat().st_mtime).strftime('%d/%m/%Y %H:%M')
             out.append({'id': c.get('id'), 'titre': c.get('titre'),
-                        'n_entrees': len(c.get('entrees') or [])})
+                        'n_entrees': len(c.get('entrees') or []), 'date': date})
         except Exception:
             continue
     return jsonify(out)

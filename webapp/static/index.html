@@ -146,7 +146,7 @@ body::before{
             <li v-for="c in cultes" :key="c.id" class="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-ink/[.04]">
               <button class="flex-1 text-left min-w-0" @click="openCulte(c.id)">
                 <div class="font-medium truncate">{{ c.titre }}</div>
-                <div class="text-xs text-ink-soft">{{ c.n_entrees }} chant{{ c.n_entrees>1?'s':'' }}</div>
+                <div class="text-xs text-ink-soft">{{ c.n_entrees }} chant{{ c.n_entrees>1?'s':'' }}<span v-if="c.date"> · {{ c.date }}</span></div>
               </button>
               <button class="iconbtn" title="Supprimer" @click.stop="deleteCulte(c.id)">🗑</button>
             </li>
@@ -322,13 +322,17 @@ body::before{
                 <figcaption class="text-[.62rem] uppercase tracking-[.15em] text-ink-soft mt-1 text-center">Envoi</figcaption>
               </figure>
             </div>
-            <div class="flex justify-end pt-1 gap-3 flex-wrap">
-              <button class="btn btn-ghost px-5 py-3 text-base flex items-center gap-2" :disabled="!canGenerate || sending || generating" @click="envoyerObs" title="Crée la collection directement dans OBS (OBS doit être ouvert)">
-                <span v-if="sending" class="inline-block w-4 h-4 border-2 border-ink-soft/40 border-t-ink-soft rounded-full animate-spin"></span>
+            <div class="flex items-center pt-1 gap-3 flex-wrap">
+              <span class="text-xs mr-auto flex items-center gap-1.5" :class="obsAvailable ? 'text-pine' : 'text-ink-soft'" :title="obsAvailable ? 'OBS joignable' : 'OBS non détecté — ouvre OBS avec le serveur WebSocket activé'">
+                <span class="w-2 h-2 rounded-full" :class="obsAvailable ? 'bg-pine' : 'bg-ink/20'"></span>
+                {{ obsAvailable ? 'OBS détecté' : 'OBS non détecté' }}
+              </span>
+              <button class="btn px-5 py-3 text-base flex items-center gap-2" :class="obsAvailable ? 'btn-primary' : 'btn-ghost'" :disabled="!canGenerate || sending || generating || !obsAvailable" @click="envoyerObs" :title="obsAvailable ? 'Crée la collection directement dans OBS' : 'OBS non détecté'">
+                <span v-if="sending" class="inline-block w-4 h-4 border-2 rounded-full animate-spin" :class="obsAvailable ? 'border-parchment/50 border-t-parchment' : 'border-ink-soft/40 border-t-ink-soft'"></span>
                 {{ sending ? 'Envoi…' : '📡 Envoyer vers OBS' }}
               </button>
-              <button class="btn btn-primary px-6 py-3 text-base flex items-center gap-2" :disabled="!canGenerate || generating || sending" @click="generer">
-                <span v-if="generating" class="inline-block w-4 h-4 border-2 border-parchment/50 border-t-parchment rounded-full animate-spin"></span>
+              <button class="btn px-6 py-3 text-base flex items-center gap-2" :class="obsAvailable ? 'btn-ghost' : 'btn-primary'" :disabled="!canGenerate || generating || sending" @click="generer">
+                <span v-if="generating" class="inline-block w-4 h-4 border-2 rounded-full animate-spin" :class="obsAvailable ? 'border-ink-soft/40 border-t-ink-soft' : 'border-parchment/50 border-t-parchment'"></span>
                 {{ generating ? 'Génération…' : 'Générer le .zip' }}
               </button>
             </div>
@@ -374,6 +378,7 @@ createApp({
       cultes: [], showCultes: false,
       showImport: false, importText: '', importing: false, importReplace: true,
       images: null, loadingImages: false,
+      obsAvailable: false,
       generating: false, sending: false, result: null,
       toast: '', _toastT: null, _searchT: null,
     }
@@ -481,8 +486,12 @@ createApp({
       } catch (e) { this.notify('La génération a échoué') }
       finally { this.generating = false }
     },
+    async checkObs() {
+      try { this.obsAvailable = !!(await (await fetch('/api/obs-status')).json()).available }
+      catch (e) { this.obsAvailable = false }
+    },
     async envoyerObs() {
-      if (!this.canGenerate) return
+      if (!this.canGenerate || !this.obsAvailable) return
       this.sending = true; this.result = null
       try {
         const r = await fetch('/api/envoyer-obs', {
@@ -521,7 +530,7 @@ createApp({
           numero: e.numero, titre: e.titre || e.numero, n_couplets: e.n_couplets || 0,
           refrain: !!e.refrain, a_relire: !!e.a_relire, selection: e.selection || '', origin: e.origin || 'cantique',
         }))
-        this.showCultes = false; this.result = null; this.notify('Culte ouvert')
+        this.showCultes = false; this.result = null; this.images = null; this.notify('Culte ouvert')
       } catch (e) { this.notify('Impossible d\'ouvrir le culte') }
     },
     async deleteCulte(id) {
@@ -589,6 +598,8 @@ createApp({
     await this.doSearch()
     try { this.indexCount = (await (await fetch('/api/stats')).json()).total } catch (e) {}
     this.loadCultes()
+    this.checkObs()
+    setInterval(this.checkObs, 12000)
   },
 }).mount('#app')
 </script>
