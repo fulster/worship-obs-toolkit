@@ -1,0 +1,381 @@
+# Relecture du corpus — worklist
+
+Cantiques signalés par le convertisseur (les flags de `build/cantiques/_rapport.md`), promus en baseline puis à raffiner en place — D-001 *migration-scriptee-relue*, D-002 multilinguisme.
+Chaque entrée référence un fichier du corpus (par son nom source) à vérifier dans `stock/cantiques/` (ou `stock/prieres/` pour les `p####`).
+Cocher au fur et à mesure.
+
+## sans-couplets (245)
+
+- [ ] `12-02. Le Seigneur est vivant.txt` — non-decoupe
+- [ ] `12-08. Que la gloire du Seigneur.txt` — non-decoupe
+- [ ] `12-11. Car ta bonté vaut mieux que la vie.txt` — non-decoupe
+- [ ] `12-14. Laudate, omnes gentes.txt` — non-decoupe
+- [ ] `12-21. Louez Dieu dans son sanctuaire.txt` — non-decoupe
+- [ ] `13-03. Quand les montagnes s’éloigneraient.txt` — non-decoupe
+- [ ] `13-05. Si mon peuple s’humilie.txt` — non-decoupe
+- [ ] `14-08. Dieu a tant aimé le monde.txt` — non-decoupe
+- [ ] `14-10. Agneau de Dieu, Agneau vainqueur.txt` — non-decoupe
+- [ ] `14-11. A celui qui nous aime.txt` — non-decoupe
+- [ ] `14-12. Tu aimeras le Seigneur, ton Dieu.txt` — non-decoupe
+- [ ] `21-10. Prosternez-vous devant votre Roi.txt` — non-decoupe
+- [ ] `21-13. Réunis en ton nom.txt` — non-decoupe
+- [ ] `21-15. Venez le célébrer.txt` — non-decoupe
+- [ ] `21-17. Nous voici rassemblés en ton nom.txt` — non-decoupe
+- [ ] `22-06. Parle-moi.txt` — non-decoupe
+- [ ] `24-15. Et comme les épis.txt` — non-decoupe
+- [ ] `32-39. Gloria, gloria.txt` — non-decoupe
+- [ ] `34-22. Christ est vivant.txt` — non-decoupe
+- [ ] `34-23. Christ est ressuscité, alléluia !.txt` — non-decoupe
+- [ ] `34-24. Christ est ressuscité.txt` — non-decoupe
+- [ ] `34-25. Le Seigneur est ressuscité, alléluia !.txt` — non-decoupe
+- [ ] `34-33. Gloire au Christ victorieux.txt` — non-decoupe
+- [ ] `35-12. Envoie, Seigneur, ton Esprit.txt` — non-decoupe
+- [ ] `35-17. Viens, Esprit du Dieu vivant.txt` — non-decoupe
+- [ ] `36-25. Père, unis-nous tous.txt` — non-decoupe
+- [ ] `41-30. Christ est roi.txt` — non-decoupe
+- [ ] `41-36. Oui, tu es digne de régner.txt` — non-decoupe
+- [ ] `41-39. Louez le Seigneur.txt` — non-decoupe
+- [ ] `41-40. Gloire au Seigneur.txt` — non-decoupe
+- [ ] `41-42. Chante alléluia au Seigneur.txt` — non-decoupe
+- [ ] `43-12. Abba, Père, je veux être.txt` — non-decoupe
+- [ ] `43-13. Jésus, je viens à toi.txt` — non-decoupe
+- [ ] `46-12. Seigneur, quand j'aurai faim.txt` — non-decoupe
+- [ ] `49-09. Reste avec nous, Seigneur.txt` — non-decoupe
+- [ ] `49-26. Quand naît la lumière.txt` — non-decoupe
+- [ ] `49-52. Pour le pain de chaque jour.txt` — non-decoupe
+- [ ] `49-53. Rendons grâce au Seigneur.txt` — non-decoupe
+- [ ] `49-54. Tous les yeux regardent vers toi.txt` — non-decoupe
+- [ ] `49-56. Pour ce repas, pour toute joie.txt` — non-decoupe
+- [ ] `49-57. Compte les bienfaits de Dieu.txt` — non-decoupe
+- [ ] `49-58. Pour la beauté de nos chemins.txt` — non-decoupe
+- [ ] `49-59. Sois béni pour tous tes biens.txt` — non-decoupe
+- [ ] `49-60. Donne à tout être qui vit.txt` — non-decoupe
+- [ ] `49-63. Pour tes bienfaits, Seigneur.txt` — non-decoupe
+- [ ] `49-64. Bénis, Seigneur, cette journée.txt` — non-decoupe
+- [ ] `51-01. Je chanterai l’Eternel.txt` — non-decoupe
+- [ ] `51-02. Jeunes et vieux.txt` — non-decoupe
+- [ ] `51-03. Gloire à ton nom, Jésus.txt` — non-decoupe
+- [ ] `51-04. Tous ensemble, amis.txt` — non-decoupe
+- [ ] `51-07. Ensemble nous pouvons chanter.txt` — non-decoupe
+- [ ] `51-08. Grandes et merveilleuses.txt` — non-decoupe
+- [ ] `51-11. Chante, chante, peuple joyeux.txt` — non-decoupe
+- [ ] `51-12. Jubilate Deo.txt` — non-decoupe
+- [ ] `51-15. Alléluia ! Alléluia !.txt` — non-decoupe
+- [ ] `51-16. Roi des rois.txt` — non-decoupe
+- [ ] `51-17. Alléluia ! Chantez tous en chœur.txt` — non-decoupe
+- [ ] `51-18. Frappe des mains.txt` — non-decoupe
+- [ ] `51-20. Du lever du soleil.txt` — non-decoupe
+- [ ] `51-23. Dieu, tu es grand.txt` — non-decoupe
+- [ ] `52-01. Jésus-Christ est Seigneur.txt` — non-decoupe
+- [ ] `52-02. Oui, nous faisons partie.txt` — non-decoupe
+- [ ] `52-04. Notre Dieu règne encor !.txt` — non-decoupe
+- [ ] `52-08. C’est vrai, tel que je suis.txt` — non-decoupe
+- [ ] `52-11. Je n’ai rien à moi.txt` — non-decoupe
+- [ ] `52-12. Dieu nous a tant aimés.txt` — non-decoupe
+- [ ] `52-15. Avec Dieu nous ferons des exploits.txt` — non-decoupe
+- [ ] `53-07. Que le flambeau de ta Parole.txt` — non-decoupe
+- [ ] `53-08. Dona nobis pacem.txt` — non-decoupe
+- [ ] `53-11. Amen.txt` — non-decoupe
+- [ ] `54-05. Venez, bergers et mages.txt` — non-decoupe
+- [ ] `54-06. Gloria ! Gloria !.txt` — non-decoupe
+- [ ] `54-15. Il vit !.txt` — non-decoupe
+- [ ] `55-11. Vous êtes le sel de la terre.txt` — non-decoupe
+- [ ] `55-12. Ecoutez, le temps viendra.txt` — non-decoupe
+- [ ] `55-13. Les petits prophètes.txt` — non-decoupe
+- [ ] `61-01. Notre secours est dans le nom du Seigneur.txt` — non-decoupe
+- [ ] `61-02. Ce jour que fit le Seigneur.txt` — non-decoupe
+- [ ] `61-03. Notre secours soit au nom du Seigneur.txt` — non-decoupe
+- [ ] `61-04. Le Seigneur est ressuscité.txt` — non-decoupe
+- [ ] `61-11. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `61-12. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `61-13. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `61-14. Seigneur, prends pitié.txt` — non-decoupe
+- [ ] `61-15. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `61-16. O Dieu, crée en moi un cœur pur.txt` — non-decoupe
+- [ ] `61-17. Du fond de ma détresse.txt` — non-decoupe
+- [ ] `61-19. O Seigneur, pardonne.txt` — non-decoupe
+- [ ] `61-31. Louange à toi, Seigneur Jésus.txt` — non-decoupe
+- [ ] `61-33. Donnez louange à l’Eternel.txt` — non-decoupe
+- [ ] `61-34. Gloire soit à Dieu au plus haut des cieux.txt` — non-decoupe
+- [ ] `61-35. Bénis le Seigneur, mon âme.txt` — non-decoupe
+- [ ] `61-36. Bénissez l’Eternel.txt` — non-decoupe
+- [ ] `61-37. O ma joie et mon espérance.txt` — non-decoupe
+- [ ] `61-38. Gloire à Dieu au plus haut des cieux.txt` — non-decoupe
+- [ ] `61-51. Gloire à Dieu notre Créateur.txt` — non-decoupe
+- [ ] `61-52. Louange à Dieu le Créateur.txt` — non-decoupe
+- [ ] `61-53. Gloire soit au Père.txt` — non-decoupe
+- [ ] `61-55. Gloire soit à Dieu le Père.txt` — non-decoupe
+- [ ] `61-56. Gloire soit au Père.txt` — non-decoupe
+- [ ] `61-61. Parle, parle, Seigneur.txt` — non-decoupe
+- [ ] `61-62. Je mets mon espoir.txt` — non-decoupe
+- [ ] `61-63. Je mets mon espoir.txt` — non-decoupe
+- [ ] `61-64. Accorde-nous, Seigneur.txt` — non-decoupe
+- [ ] `61-65. Tu es la lumière du monde.txt` — non-decoupe
+- [ ] `61-66. Mon âme a soif de toi.txt` — non-decoupe
+- [ ] `61-68. Béni soit notre Dieu.txt` — non-decoupe
+- [ ] `61-69. Béni soit le Seigneur notre Dieu.txt` — non-decoupe
+- [ ] `61-70. Béni soit à jamais.txt` — non-decoupe
+- [ ] `61-71. Gloire à toi, Seigneur Dieu.txt` — non-decoupe
+- [ ] `61-72. Gloire et louange à toi.txt` — non-decoupe
+- [ ] `61-73. Gloire à toi, Seigneur Dieu.txt` — non-decoupe
+- [ ] `61-74. Alléluia.txt` — non-decoupe
+- [ ] `61-75. Amen, alléluia !.txt` — non-decoupe
+- [ ] `61-76. Alléluia.txt` — non-decoupe
+- [ ] `61-77. Alléluia.txt` — non-decoupe
+- [ ] `61-85. Je crois en Dieu, tout-puissant Créateur.txt` — non-decoupe
+- [ ] `61-86. Je crois en Dieu, le Père tout-puissant.txt` — non-decoupe
+- [ ] `61-87. Je crois, Seigneur, tu es source de vie.txt` — non-decoupe
+- [ ] `61-88. Je crois, Seigneur ! viens au secours.txt` — non-decoupe
+- [ ] `61-89. Je crois en Dieu qui chante.txt` — non-decoupe
+- [ ] `62-01. Exauce-nous.txt` — non-decoupe
+- [ ] `62-02. Seigneur, écoute-nous.txt` — non-decoupe
+- [ ] `62-03. Seigneur, écoute-nous.txt` — non-decoupe
+- [ ] `62-04. Seigneur, exauce-nous.txt` — non-decoupe
+- [ ] `62-05. Seigneur, reçois notre prière.txt` — non-decoupe
+- [ ] `62-06. Souviens-toi, Seigneur.txt` — non-decoupe
+- [ ] `62-07. Dieu de tendresse.txt` — non-decoupe
+- [ ] `62-08. Amen.txt` — non-decoupe
+- [ ] `62-09. Amen.txt` — non-decoupe
+- [ ] `62-10. Amen.txt` — non-decoupe
+- [ ] `62-11. Amen.txt` — non-decoupe
+- [ ] `62-21. Notre Père.txt` — non-decoupe
+- [ ] `62-22. Notre Père.txt` — non-decoupe
+- [ ] `62-23. Notre Père.txt` — non-decoupe
+- [ ] `62-31. Que la paix du Seigneur.txt` — non-decoupe
+- [ ] `62-41. Saint ! notre Dieu.txt` — non-decoupe
+- [ ] `62-42. Saint, saint, saint.txt` — non-decoupe
+- [ ] `62-43. Saint est le Seigneur.txt` — non-decoupe
+- [ ] `62-44. Hosanna au plus haut des cieux.txt` — non-decoupe
+- [ ] `62-45. Saint, saint.txt` — non-decoupe
+- [ ] `62-46. Saint, saint, saint.txt` — non-decoupe
+- [ ] `62-51. Christ est venu.txt` — non-decoupe
+- [ ] `62-61. Christ, agneau de Dieu.txt` — non-decoupe
+- [ ] `62-62. Agneau de Dieu.txt` — non-decoupe
+- [ ] `62-63. Agneau de Dieu.txt` — non-decoupe
+- [ ] `62-71. Donnons louange et gloire.txt` — non-decoupe
+- [ ] `62-72. Sur le chemin où tu appelles.txt` — non-decoupe
+- [ ] `62-73. Que le Seigneur, tournant vers nous sa face.txt` — non-decoupe
+- [ ] `62-74. Affermis-nous par ton Esprit.txt` — non-decoupe
+- [ ] `62-76. Dieu, bénis notre départ.txt` — non-decoupe
+- [ ] `62-77. Ma paix je vous laisse.txt` — non-decoupe
+- [ ] `62-80. Dans ces jours qui viennent.txt` — non-decoupe
+- [ ] `62-81. Que la grâce de Dieu.txt` — non-decoupe
+- [ ] `62-83. La paix du Seigneur.txt` — non-decoupe
+- [ ] `62-85. Ta paix, ô Christ.txt` — non-decoupe
+- [ ] `63-01. Seigneur, sois au milieu de nous.txt` — non-decoupe
+- [ ] `63-02. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `63-03. Heureux celui dont la faute est remise.txt` — non-decoupe
+- [ ] `63-04. Gloire soit au Père.txt` — non-decoupe
+- [ ] `63-05. Que la paix du Seigneur.txt` — non-decoupe
+- [ ] `63-06. Saint, saint, saint le Seigneur.txt` — non-decoupe
+- [ ] `63-07. Christ, agneau de Dieu.txt` — non-decoupe
+- [ ] `63-08. Seigneur, remplis-nous de toute paix.txt` — non-decoupe
+- [ ] `63-11. Seigneur, sois au milieu de nous.txt` — non-decoupe
+- [ ] `63-12. Pitié pour moi, Seigneur.txt` — non-decoupe
+- [ ] `63-13. Tu es digne, notre Sauveur.txt` — non-decoupe
+- [ ] `63-14. Gloire au Père.txt` — non-decoupe
+- [ ] `63-15. Que la paix du Seigneur.txt` — non-decoupe
+- [ ] `63-16. Saint, saint, saint.txt` — non-decoupe
+- [ ] `63-17. Gloire à toi qui étais mort.txt` — non-decoupe
+- [ ] `63-18. Agneau de Dieu.txt` — non-decoupe
+- [ ] `63-21. Amen.txt` — non-decoupe
+- [ ] `63-22. Le Seigneur soit avec vous.txt` — non-decoupe
+- [ ] `63-23. Gloire soit au Père.txt` — non-decoupe
+- [ ] `63-24. Kyrie.txt` — non-decoupe
+- [ ] `63-25. Gloria.txt` — non-decoupe
+- [ ] `63-26. Gloria.txt` — non-decoupe
+- [ ] `63-27. 63.27 Après l’Epître.txt` — non-decoupe
+- [ ] `63-28. Après l’Evangile.txt` — non-decoupe
+- [ ] `63-29. Après l’Evangile.txt` — non-decoupe
+- [ ] `63-30. Ouverture de la Cène.txt` — non-decoupe
+- [ ] `63-31. Après la Préface.txt` — non-decoupe
+- [ ] `63-32. Prière eucharistique.txt` — non-decoupe
+- [ ] `63-33. Agnus Dei.txt` — non-decoupe
+- [ ] `63-34. Prière d’action de grâce.txt` — non-decoupe
+- [ ] `63-35. Envoi.txt` — non-decoupe
+- [ ] `63-41. Gloire soit au Père.txt` — non-decoupe
+- [ ] `63-42. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `63-43. Bienheureux est celui.txt` — non-decoupe
+- [ ] `63-44. Alléluia.txt` — non-decoupe
+- [ ] `63-45. Louange à toi, ô Christ.txt` — non-decoupe
+- [ ] `63-46. Saint, saint, saint.txt` — non-decoupe
+- [ ] `63-47. Seigneur Jésus, nous proclamons.txt` — non-decoupe
+- [ ] `63-48. Amen.txt` — non-decoupe
+- [ ] `63-49. Christ, agneau de Dieu.txt` — non-decoupe
+- [ ] `63-51. Seigneur, sois au milieu de nous.txt` — non-decoupe
+- [ ] `63-52. Seigneur, aie pitié de nous.txt` — non-decoupe
+- [ ] `63-53. Gloire soit au Père.txt` — non-decoupe
+- [ ] `63-54. Heureux celui qui écoute.txt` — non-decoupe
+- [ ] `63-55. Saint, saint, saint.txt` — non-decoupe
+- [ ] `63-56. Tu as connu la mort.txt` — non-decoupe
+- [ ] `63-57. Christ, Agneau de Dieu.txt` — non-decoupe
+- [ ] `64-01. O Seigneur, notre Dieu.txt` — non-decoupe
+- [ ] `64-02. Béni soit celui qui vient.txt` — non-decoupe
+- [ ] `64-03. O Dieu, viens à notre aide.txt` — non-decoupe
+- [ ] `64-04. Le Seigneur est ma lumière.txt` — non-decoupe
+- [ ] `64-05. Donne-nous, Seigneur un cœur nouveau.txt` — non-decoupe
+- [ ] `64-06. Mon âme a soif de toi.txt` — non-decoupe
+- [ ] `64-07. Terre entière, chante ta joie.txt` — non-decoupe
+- [ ] `64-08. Je bénirai le Seigneur.txt` — non-decoupe
+- [ ] `64-09. Ta Parole, Seigneur, est vérité.txt` — non-decoupe
+- [ ] `64-10. Le Seigneur est mon berger.txt` — non-decoupe
+- [ ] `64-11. Guide nos pas, Seigneur.txt` — non-decoupe
+- [ ] `64-12. O ma joie, quand je suis parti.txt` — non-decoupe
+- [ ] `64-13. 63-57. Christ, Agneau de Dieu.txt` — non-decoupe
+- [ ] `64-14. Venez, adorons le Seigneur !.txt` — non-decoupe
+- [ ] `64-15. Chantez au Seigneur un chant nouveau.txt` — non-decoupe
+- [ ] `64-16. Bénis le Seigneur, mon âme.txt` — non-decoupe
+- [ ] `64-17. Dieu avec nous.txt` — non-decoupe
+- [ ] `64-21. Psaume 8.txt` — non-decoupe
+- [ ] `64-24. Psaume 22 B.txt` — non-decoupe
+- [ ] `64-29. Psaume 46.txt` — non-decoupe
+- [ ] `64-41. Psaume 139.txt` — non-decoupe
+- [ ] `64-53. Le cantique de Siméon.txt` — non-decoupe
+- [ ] `64-54. Les Béatitudes.txt` — non-decoupe
+- [ ] `64-55. L’hymne de l’incarnation.txt` — non-decoupe
+- [ ] `64-56. L’hymne de la plénitude.txt` — non-decoupe
+- [ ] `64-61. Ouverture 1.txt` — non-decoupe
+- [ ] `64-62. Ouverture 2.txt` — non-decoupe
+- [ ] `64-63. Ouverture 3.txt` — non-decoupe
+- [ ] `64-64. Ouverture 4.txt` — non-decoupe
+- [ ] `64-65. Ouverture 5.txt` — non-decoupe
+- [ ] `64-66. Ouverture 6.txt` — non-decoupe
+- [ ] `64-67. Le Décalogue.txt` — non-decoupe
+- [ ] `64-68. Le Sommaire de la Loi.txt` — non-decoupe
+- [ ] `64-69. Confession de foi 1.txt` — non-decoupe
+- [ ] `64-70. Confession de foi 2.txt` — non-decoupe
+- [ ] `64-71. Confession de foi 3.txt` — non-decoupe
+- [ ] `64-72. Confession de foi 4.txt` — non-decoupe
+- [ ] `64-73. Confession de foi 5.txt` — non-decoupe
+- [ ] `64-74. Gloire à Dieu au plus haut des cieux.txt` — non-decoupe
+- [ ] `p1103_1. CULTE DOMINICAL.txt` — numero-incertain, non-decoupe
+- [ ] `p1103_2. CULTE DOMINICAL.txt` — numero-incertain, non-decoupe
+- [ ] `Ps 117. Vous tous les peuples, louez Dieu.txt` — non-decoupe
+
+## ok-sans-refrain (104)
+
+- [ ] `12-01. Je louerai l'Eternel.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `12-20. Rendez grâce au Seigneur, car il est bon.txt` — source-ambigue
+- [ ] `14-06. Bienheureux les pauvres en esprit.txt` — source-ambigue
+- [ ] `14-07. L’oiseau ne sème, il ne moissonne.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `14-09. Cherchez d’abord le Royaume de Dieu.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `21-07. Qu’aujourd’hui toute la terre.txt` — multilingue
+- [ ] `23-08. Je t’appartiens par le baptême.txt` — multilingue
+- [ ] `23-14. L’enfant qui nous arrive.txt` — multilingue
+- [ ] `31-01. Oh ! viens bientôt, Emmanuel.txt` — multilingue
+- [ ] `31-05. Veillez, enfants des hommes.txt` — multilingue
+- [ ] `31-07. Des cieux vers nous s’avance.txt` — multilingue
+- [ ] `32-05. Je viens à vous du haut des cieux.txt` — multilingue
+- [ ] `32-16. D’un arbre séculaire.txt` — multilingue
+- [ ] `32-22. O peuple fidèle.txt` — multilingue
+- [ ] `32-23. O nuit bienveillante.txt` — multilingue
+- [ ] `32-30. Voici Noël, ô douce nuit.txt` — multilingue
+- [ ] `32-35. Etoile ! à Bethléem.txt` — multilingue
+- [ ] `32-37. Réjouis-toi, voici ton Roi.txt` — multilingue
+- [ ] `32-37_1. 32-37. Réjouis-toi, voici ton Roi.txt` — multilingue, collision-numero
+- [ ] `33-08. Nous voici devant ta croix.txt` — multilingue
+- [ ] `33-11. Pour quel péché.txt` — multilingue
+- [ ] `33-13. O douloureux visage.txt` — multilingue
+- [ ] `33-28. Vois, là-bas, mettre le Sauveur en croix.txt` — multilingue
+- [ ] `34-04. Chrétiens, chantons le Dieu vainqueur.txt` — multilingue
+- [ ] `34-07. Christ est ressuscité.txt` — multilingue
+- [ ] `34-15. Mon Rédempteur est vivant.txt` — multilingue
+- [ ] `34-19. Mystérieux compagnon de route.txt` — source-ambigue
+- [ ] `34-28. Auprès du Père il est monté.txt` — renumerotation-sans-entete, multilingue
+- [ ] `35-02. Esprit saint, Esprit créateur.txt` — multilingue
+- [ ] `35-03. Toi, Saint-Esprit, lumière qui viens.txt` — multilingue
+- [ ] `36-08. O Jésus, tu nous appelles.txt` — multilingue
+- [ ] `36-17. L'Eglise universelle, fondée en Jésus-Christ.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `36-33. Un même Dieu et Père.txt` — source-ambigue
+- [ ] `37-01. C'est un rempart que notre Dieu.txt` — multilingue
+- [ ] `37-06. Cé qu'è lainô.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `41-01. Louange et gloire aux plus hauts cieux.txt` — multilingue
+- [ ] `41-05. Nos cœurs te chantent.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `41-10. Bénissons Dieu, notre roi.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `41-26. Grand Dieu, nous te bénissons.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `42-02. Du cœur et de la voix.txt` — renumerotation-sans-entete, renumerotation-sans-entete, langue-indeterminee, renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `42-09. Merci, pour ce matin de vie.txt` — multilingue
+- [ ] `44-15. C'est vers toi que je me tourne.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `45-16. Mon seul abri, c'est toi.txt` — multilingue
+- [ ] `45-24. La grâce est joie.txt` — multilingue
+- [ ] `46-11. Ne mets pas ta piété en vitrine.txt` — source-ambigue
+- [ ] `47-03. Dans toutes nos détresses.txt` — multilingue
+- [ ] `47-04. Confie à Dieu ta route.txt` — multilingue
+- [ ] `47-11. Viens nous précéder.txt` — multilingue
+- [ ] `47-23. Sur nous, merveille !.txt` — multilingue
+- [ ] `48-07. Mon Dieu, plus près de toi.txt` — multilingue
+- [ ] `49-05. Seigneur, quand vient l’obscurité.txt` — multilingue
+- [ ] `49-13. Reste avec nous.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `49-19. A l’horizon le jour s’éloigne.txt` — multilingue
+- [ ] `49-25. Dieu, je t’en supplie.txt` — multilingue
+- [ ] `49-51. Seigneur, tu nous donnes ce pain.txt` — multilingue
+- [ ] `49-61. Tous les biens du monde.txt` — non-decoupe, multilingue
+- [ ] `52-09. Il est une foi.txt` — multilingue
+- [ ] `55-01. Abraham, Dieu t’appelle.txt` — source-ambigue
+- [ ] `56-02. Amen, regarde la crèche.txt` — source-ambigue, multilingue
+- [ ] `56-06. Un chrétien, je voudrais être.txt` — multilingue
+- [ ] `56-09. Seigneur, souviens-toi.txt` — multilingue
+- [ ] `62-25. Notre Père.txt` — source-ambigue
+- [ ] `62-82. Bénis-nous, Seigneur.txt` — renumerotation-sans-entete, renumerotation-sans-entete, langue-indeterminee, renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `62-84. Seigneur, garde-nous.txt` — multilingue
+- [ ] `p1120_1. Pour le matin.txt` — numero-incertain
+- [ ] `p1120_2. Pour le matin.txt` — numero-incertain
+- [ ] `p1121_1. Pour le matin.txt` — numero-incertain
+- [ ] `p1121_2. Pour le soir.txt` — numero-incertain
+- [ ] `p1121_3. Pour le soir.txt` — numero-incertain
+- [ ] `p1122_1. Pour le soir.txt` — numero-incertain
+- [ ] `p1122_2. Pour le soir.txt` — numero-incertain
+- [ ] `p1122_3. Pour le soir.txt` — numero-incertain
+- [ ] `p1123_1. Pour le soir.txt` — numero-incertain
+- [ ] `p1123_2. Pour être affermi dans la foi et dans la grâce.txt` — numero-incertain
+- [ ] `p1123_3. Pour être affermi dans la foi et dans la grâce.txt` — numero-incertain
+- [ ] `p1124_1. Pour être affermi dans la foi et dans la grâce.txt` — numero-incertain
+- [ ] `p1124_2. Pour être affermi dans la foi et dans la grâce.txt` — numero-incertain
+- [ ] `p1124_3. Pour être affermi dans la foi et dans la grâce.txt` — numero-incertain
+- [ ] `p1125_1. Pour être affermi dans la foi et dans la grâce.txt` — numero-incertain
+- [ ] `p1125_2. Prier dans la foi commune.txt` — numero-incertain
+- [ ] `p1126_1. Prier dans la foi commune.txt` — numero-incertain
+- [ ] `p1127_1. Au service des frères.txt` — numero-incertain
+- [ ] `p1127_2. Au service des frères.txt` — numero-incertain
+- [ ] `p1128_3. Au service des frères.txt` — numero-incertain
+- [ ] `p1128_4. Au service des frères.txt` — numero-incertain
+- [ ] `p1129_1. Prier pour l'unité de l'Eglise.txt` — numero-incertain
+- [ ] `p1129_2. Prier pour l'unité de l'Eglise.txt` — numero-incertain
+- [ ] `p1130_1. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1130_2. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1131_1. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1131_2. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1131_3. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1132_1. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1132_2. Intercéder au cœur du monde.txt` — numero-incertain
+- [ ] `p1133_1. Prier dans l'épreuve.txt` — numero-incertain
+- [ ] `p1133_2. Prier dans l'épreuve.txt` — numero-incertain
+- [ ] `p1134_1. Prier dans l'épreuve.txt` — numero-incertain
+- [ ] `p1134_2. Prier dans l'épreuve.txt` — numero-incertain
+- [ ] `p1134_3. Prier dans l'épreuve.txt` — numero-incertain
+- [ ] `p1135_1. Prier dans l'épreuve.txt` — numero-incertain
+- [ ] `Ps 066. Ps 66. Vous, tous les peuples de la terre.txt` — multilingue
+- [ ] `Ps 098. Ps 98. Entonnons un nouveau cantique.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `Ps 100B. Vous tous qui la terre habitez.txt` — renumerotation-sans-entete, langue-indeterminee, renumerotation-sans-entete, langue-indeterminee, renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `Ps 138. Que tout mon cœur soit dans mon chant.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+
+## ok-refrain (12)
+
+- [ ] `21-20. Seigneur, rassemble-nous.txt` — multilingue
+- [ ] `31-30. Nous avons vu les pas de notre Dieu.txt` — multilingue
+- [ ] `32-34. Quand Dieu naît dans la nuit profonde.txt` — multilingue
+- [ ] `34-18. A toi la gloire.txt` — renumerotation-sans-entete, langue-indeterminee, multilingue
+- [ ] `36-01. Allez dans toutes les nations.txt` — multilingue
+- [ ] `37-08. Deux rives, une source.txt` — multilingue
+- [ ] `37-09. Avec le Christ, dépasser les frontières.txt` — multilingue
+- [ ] `47-18. A mon Dieu je me confie.txt` — multilingue
+- [ ] `48-09. L’amour du Seigneur est lumière.txt` — multilingue
+- [ ] `56-01. Dans le désert Dieu a parlé.txt` — multilingue
+- [ ] `56-03. Du haut de la montagne.txt` — multilingue
+- [ ] `56-08. Vivre libre.txt` — multilingue
+
+## refrain-seul (2)
+
+- [ ] `51-06. Dieu est bon.txt` — refrain-seul
+- [ ] `51-09. Vous bondirez de joie.txt` — refrain-seul
+

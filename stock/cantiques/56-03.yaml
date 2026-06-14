@@ -1,0 +1,44 @@
+numero: "56-03"
+titre: "Du haut de la montagne"
+source: "Go, tell it on the mountain"
+refrain: |
+  Du haut de la montagne
+  Criez à travers les déserts !
+  Du haut de la montagne
+  Proclamez : « Jésus est né ! »
+couplets:
+  - |
+    La nuit règne, profonde,
+    Sur le troupeau qui dort.
+    Soudain le ciel s’enflamme,
+    Paraît un messager.
+  - |
+    Bergers, cessez de craindre !
+    Venu d’auprès de Dieu
+    Le chœur céleste chante :
+    « Le Christ Sauveur est né ! »
+  - |
+    Couché dans une crèche,
+    Pauvre est le nouveau-né
+    Par qui nous vient la grâce
+    Que Dieu nous a donnée. Refr.
+    Henri Künzler *1931
+    © Auteur (139)
+traductions:
+  - langue: "en"
+    couplets:
+      - |
+        While shepherds kept their watching
+        O’er silent flocks by night,
+        Behold, throughout the heavens
+        There shone a holy light. Chorus
+      - |
+        The shepherds feared and trembled,
+        When lo ! above the earth,
+        Rang out the angels’ chorus
+        That hailed the Saviour’s birth. Chorus
+      - |
+        Down in a lowly manger
+        The humble Christ was born
+        And God sent us salvation
+        That blessèd Christmas morn. Chorus

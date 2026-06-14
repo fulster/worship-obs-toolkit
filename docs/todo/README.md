@@ -75,7 +75,13 @@ fichiers embarquent des traductions (EN/DE) à isoler avant promotion.
   `expand_cantique` ne lit que `couplets`/`refrain`/`source`/`credits`,
   jamais `traductions` → le FR seul est servi (vérifié sur `32-37`). Un
   sélecteur de langue reste un chantier aval hors scope.
-- [ ] **Promotion du corpus** (`D-002`, `D-001`) — une fois les
-  traductions séparées : promouvoir `build/cantiques/` → `stock/cantiques/`
-  (périmètre suspendu à D-002) ; ranger les 38 prières `p####` dans un
-  **dossier séparé** (hors `stock/cantiques/`, cf. minute Q3 de D-002).
+- [x] **Promotion du corpus** (`D-002`, `D-001`) — fait via
+  `scripts/promote_cantiques.py`. **883 cantiques** → `stock/cantiques/`,
+  **38 prières `p####`** → `stock/prieres/` (dossier séparé, minute Q3
+  D-002), 1 doublon `32-37` gardé en staging. Corpus 0 invalide au
+  schéma. Stratégie « tout en baseline, raffiner en place » : worklist
+  des 363 flaggés dans [`docs/relecture-corpus.md`](../relecture-corpus.md).
+  - [ ] **Relecture des 363 flaggés** (`D-001`, `D-002`) — raffiner en
+    place les fichiers de `docs/relecture-corpus.md` : redécouper les
+    `sans-couplets` longs, vérifier les `xx`/`renumerotation-sans-entete`
+    (langue), trancher le doublon `32-37`, les `source-ambigue`.
