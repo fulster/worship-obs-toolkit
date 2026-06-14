@@ -101,13 +101,21 @@ rotation ; réutilise le pipeline ; `.zip` + import (D-001).
   `zip`, `ajoutes`, `non_trouves`, `a_relire`), avec `resoudre_entrees`,
   `lire_chants_txt`, `telecharger_images`, `main()`. CLI inchangée
   (vérifiée end-to-end).
-- [ ] **Backend** (`D-003`) — Flask léger : endpoints recherche corpus /
-  composition / génération du `.zip` ; stockage des cultes préparés.
+- [x] **Backend** (`D-003`) — fait. Flask (`webapp/app.py`) : recherche
+  corpus (`/api/cantiques`, index en mémoire `webapp/corpus_index.py`),
+  génération (`/api/generer` → `generer_culte` → info + lien), CRUD des
+  cultes (`/api/cultes`). Lancement : `uv run python webapp/app.py`.
+  Testé via `test_client` (recherche, CRUD, génération hors-ligne +
+  téléchargement).
 - [ ] **Frontend léger** (`D-003`) — recherche + ajout de cantiques,
   sélecteur de couplets visuel, réordonnancement, gestion des spontanés,
-  bouton « Générer », téléchargement du `.zip`.
-- [ ] **Sauvegarde des cultes** (`D-003`) — sauver/rouvrir/modifier
-  (format et emplacement à définir).
+  bouton « Générer », téléchargement du `.zip`. **Stack : Vue 3 +
+  Tailwind en *vendored / no-build*** (pas de npm/Vite — décision de
+  session, dans l'esprit de l'axe 2 de D-003). Remplace le placeholder
+  `webapp/static/index.html`.
+- [x] **Sauvegarde des cultes** (`D-003`) — fait (côté backend) :
+  `/api/cultes` GET/POST/GET-id/DELETE, stockés en JSON dans
+  `webapp/cultes/` (gitignoré). Le frontend les exploitera.
 - [ ] **Doc de déploiement local** (`D-003`) — lancer le serveur, accès
   LAN, pour des non-techniciens.
 - [ ] **(Différé) Push obs-websocket** (`D-003`) — envoi direct des scènes

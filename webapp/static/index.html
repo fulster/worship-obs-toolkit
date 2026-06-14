@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>worship-obs-toolkit — préparation des cultes</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.3rem; } .note { color: #666; font-size: .9rem; }
+    input { width: 100%; padding: .5rem; font-size: 1rem; box-sizing: border-box; }
+    ul { list-style: none; padding: 0; } li { padding: .4rem .2rem; border-bottom: 1px solid #eee; }
+    .num { font-weight: 600; } .meta { color: #888; font-size: .85rem; }
+    .relire { color: #b8860b; }
+  </style>
+</head>
+<body>
+  <h1>Préparation des cultes</h1>
+  <p class="note">Page de développement temporaire (remplacée par l'interface Vue + Tailwind, chantier D-003).
+     Valide que le backend répond.</p>
+  <input id="q" placeholder="Chercher un cantique (titre ou numéro)…" autofocus>
+  <ul id="res"></ul>
+  <script>
+    const q = document.getElementById('q'), res = document.getElementById('res');
+    async function go() {
+      const r = await fetch('/api/cantiques?q=' + encodeURIComponent(q.value) + '&limit=30');
+      const data = await r.json();
+      res.innerHTML = data.map(c =>
+        `<li><span class="num">${c.numero}</span> ${c.titre}
+          <span class="meta">— ${c.n_couplets} couplet(s)${c.refrain ? ', refrain' : ''}${c.langues.length ? ', +' + c.langues.join('/') : ''}</span>
+          ${c.a_relire ? '<span class="relire">⚠ à relire</span>' : ''}</li>`).join('');
+    }
+    q.addEventListener('input', go); go();
+  </script>
+</body>
+</html>

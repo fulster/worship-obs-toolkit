@@ -8,6 +8,7 @@ license = { text = "GPL-3.0-or-later" }
 dependencies = [
     "requests>=2.31",
     "pyyaml>=6.0",
+    "flask>=3.0",
 ]
 
 [tool.uv]
