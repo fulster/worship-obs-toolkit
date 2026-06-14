@@ -8,6 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 à partir d'une liste de cantiques (`chants.txt`), pour projeter les paroles pendant un culte. Une
 scène OBS est produite par cantique, plus une scène d'accueil et une scène d'envoi.
 
+Les paroles proviennent d'un **corpus source structuré au format YAML** (`stock/cantiques/`, un
+fichier par cantique : couplets et refrain comme champs distincts), acté par les ADR
+[D-001](docs/decisions/D-001-format-source-structure-paroles.md) (format structuré) et
+[D-002](docs/decisions/D-002-support-multilingue-traductions.md) (traductions). Le code expanse le
+refrain et sélectionne les couplets ; voir [`docs/format-cantique.md`](docs/format-cantique.md).
+
 Le projet est en **français** (code, commentaires, docs, messages) — conservez cette langue.
 
 ## Commandes
@@ -17,9 +23,18 @@ uv sync                                              # crée .venv et installe l
 uv run python generate.py "Culte du 15 juin"         # génère le .zip OBS
 uv run python generate.py "Culte de Noël" --theme "winter,snow,light"   # thème d'images Unsplash
 
+# Corpus des paroles (rarement relancé : le corpus est déjà peuplé)
+uv run python scripts/convert_cantiques.py           # bruts stock/txt/à nettoyer/ → build/cantiques/ (staging)
+uv run python scripts/promote_cantiques.py           # staging → stock/cantiques/ + stock/prieres/ (ÉCRASE)
+
 python scripts/adr_check.py                          # valide les ADR (voir « ADR » ci-dessous)
 python scripts/adr_new.py cadrage "Titre"            # scaffolde un nouvel ADR
 ```
+
+Dépendances runtime : `requests` (Unsplash) et `pyyaml` (lecture du corpus). `convert_cantiques.py`
+et `promote_cantiques.py` sont **stdlib seule**. Le convertisseur écrit dans le staging gitignoré
+`build/cantiques/` + un `_rapport.md` ; `promote_cantiques.py` **écrase** les cibles — à lancer pour
+peupler, pas après des relectures en place.
 
 Il n'y a **pas de suite de tests ni de linter** configurés. La seule vérification automatisée est
 `scripts/adr_check.py` (CI GitHub Actions `.github/workflows/adr-check.yml`, déclenchée uniquement
@@ -33,14 +48,18 @@ Unsplash. **`config.json` est gitignoré** (il contient la clé API) — ne jama
 Deux modules au cœur du pipeline :
 
 - **`generate.py`** — point d'entrée procédural (s'exécute au niveau module, pas de `main()`). Il :
-  lit `config.json` ; télécharge 2 images de fond via l'API Unsplash ; parse `chants.txt` ;
-  pour chaque ligne, résout un numéro de cantique vers un fichier de `stock/txt/` ; construit la
+  lit `config.json` ; télécharge 2 images de fond via l'API Unsplash ; parse `chants.txt` (numéro +
+  sélecteur `(...)` éventuel) ; pour chaque ligne, résout `stock/cantiques/<numero>.yaml` **d'abord**
+  (repli sur une recherche par sous-chaîne dans `stock/txt/`, aujourd'hui inerte) ; construit la
   collection ; sérialise en JSON et zippe avec les images dans `paths.output`.
 - **`obs_json_resources.py`** — modèle objet OBS. Chaque classe hérite de `Obs_basic`, qui charge un
   template JSON depuis `tpl/<NomDeClasse>.json` et y injecte `name` (et `settings.text` ou
-  `settings.file` selon le type). Une `Scene` lit un `.txt` de cantique (1re ligne non vide = titre,
-  reste = paroles) et assemble sources + items ; `Scene_Collection` agrège toutes les sources et
-  scènes ; `Tmp_scene` sert aux scènes accueil/envoi (image + texte).
+  `settings.file` selon le type). Une `Scene` dispatche sur l'extension du fichier : `.yaml` →
+  `load_cantique_yaml` + `expand_cantique` (titre = `numero\ntitre`, paroles = un bloc unique pour le
+  texte défilant, **refrain expansé après chaque couplet**, traductions **non servies**) ; `.txt` →
+  comportement historique (1re ligne = titre, reste = paroles). `expand_cantique(data, selection)`
+  applique un sélecteur de couplets ; `parse_selection` parse le `(...)`. `Scene_Collection` agrège
+  sources et scènes ; `Tmp_scene` sert aux scènes accueil/envoi (image + texte).
 
 Le flux JSON OBS est entièrement piloté par les **templates de `tpl/`** : pour modifier l'apparence
 des scènes générées (police, position, taille, couleurs…), on édite ces JSON, pas le code Python.
@@ -56,16 +75,25 @@ des scènes générées (police, position, taille, couleurs…), on édite ces J
   images téléchargées (`images.accueil` / `images.envoi`).
 - **Ordre des scènes** : `chants_list` est inversé (`.reverse()`) avant traitement pour que les
   scènes apparaissent dans OBS dans le même ordre que `chants.txt`.
-- **`stock/doc/` et `stock/arc/`** ne sont pas utilisés par le pipeline (archives) ; seule
-  `stock/txt/` (configurable via `paths.stock_txt`) est la source des paroles.
+- **Arborescence `stock/`** : `stock/cantiques/` (corpus YAML, source des paroles, résolu par
+  numéro) et `stock/prieres/` (38 prières liturgiques `p####`, dossier séparé — minute Q3 de D-002)
+  sont les dossiers vivants. `stock/txt/à nettoyer/` = les **922 bruts** (entrée du convertisseur,
+  conservés) ; la racine `stock/txt/` est désormais **vide** (les 90 `.txt` nettoyés à la main ont
+  été retirés, couverts par le corpus YAML). `stock/doc/` et `stock/arc/` = archives non utilisées.
+  La relecture incrémentale du corpus se suit dans [`docs/relecture-corpus.md`](docs/relecture-corpus.md).
 
 ### Format de `chants.txt`
 
 Une entrée par ligne ; lignes vides et lignes `#` ignorées. Résolution des numéros :
 
-- **Cantiques** : préfixe `NN-NN` (ex. `21-17`) → fichier de `stock/txt/` dont le nom **contient** ce
-  numéro.
-- **Psaumes** : `Psaume X` ou `Ps X` (suffixe lettre accepté, ex. `Ps 34A`) → normalisé en `Ps 0NN`.
+- **Cantiques** : préfixe `NN-NN` (ex. `21-17`) → `stock/cantiques/NN-NN.yaml`.
+- **Psaumes** : `Psaume X` ou `Ps X` (suffixe lettre accepté, ex. `Ps 34A`) → normalisé en `Ps 0NN`
+  → `stock/cantiques/Ps 0NN.yaml`.
+- **Sélecteur de couplets** : un `(...)` en **fin de ligne** choisit/réordonne les couplets
+  (ex. `22-04 « … » (1,2,3)`). Chiffres seuls → couplets retenus, **refrain réinséré après chaque** ;
+  avec un `R` → séquence **littérale** (`(1,R,3)`, `(R,1,R,2)`). Hors-limites / `R` sans refrain /
+  sélecteur sur cantique non structuré → ignorés avec avertissement. Détail :
+  [`docs/format-cantique.md`](docs/format-cantique.md).
 - **Spontanés** : si la 1re ligne est `[SPONTANES] XXX`, le fichier `[SPONTANES] XXX.txt` (racine)
   est chargé et ses chants sont **entrelacés** avec ceux de `chants.txt` : chaque marqueur `#n` du
   fichier de spontanés est remplacé par le cantique suivant de la liste principale.
