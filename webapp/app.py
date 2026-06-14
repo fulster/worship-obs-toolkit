@@ -318,4 +318,6 @@ def delete_serie(nom):
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    # Pas de mode debug par défaut (usage utilisateur via le lanceur).
+    # Pour le développement : définir WOTK_DEBUG=1.
+    app.run(host='127.0.0.1', port=5000, debug=os.environ.get('WOTK_DEBUG') == '1')

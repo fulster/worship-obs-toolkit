@@ -253,12 +253,15 @@ body::before{
           </div>
 
           <ul v-else class="px-2 pb-2 scroll-thin max-h-[58vh] overflow-auto">
-            <li v-for="(e, i) in entrees" :key="i" class="pop rounded-xl px-3 py-3 hover:bg-parchment-deep/40 transition-colors border-b border-ink/5 last:border-0">
+            <li v-for="(e, i) in entrees" :key="i"
+                class="pop rounded-xl px-3 py-3 hover:bg-parchment-deep/40 transition-colors border-b border-ink/5 last:border-0"
+                :class="{'opacity-40': dragIndex===i, 'ring-2 ring-inset ring-pine/45 bg-pine/[.04]': dragOver===i && dragIndex!==null && dragIndex!==i}"
+                @dragover.prevent="dragOver=i" @dragleave="dragOver=null" @drop="onDrop(i)">
               <div class="flex items-start gap-3">
-                <div class="flex flex-col items-center pt-0.5 gap-0.5">
-                  <button class="iconbtn !h-6 !w-6 text-sm" :disabled="i===0" @click="move(i,-1)" title="Monter">▲</button>
-                  <span class="font-display text-sm text-ink/40 leading-none">{{ i+1 }}</span>
-                  <button class="iconbtn !h-6 !w-6 text-sm" :disabled="i===entrees.length-1" @click="move(i,1)" title="Descendre">▼</button>
+                <div class="flex flex-col items-center pt-0.5 gap-1 select-none">
+                  <span class="cursor-grab active:cursor-grabbing text-ink/30 hover:text-pine text-lg leading-none" draggable="true"
+                        @dragstart="onDragStart(i, $event)" @dragend="dragIndex=null; dragOver=null" title="Glisser pour réordonner">⠿</span>
+                  <span class="font-display text-xs text-ink/40 leading-none">{{ i+1 }}</span>
                 </div>
                 <!-- emplacement d'un chant du culte (#n) -->
                 <div v-if="e.placeholder" class="flex-1 self-center flex items-center gap-2 py-2 px-3 rounded-lg bg-gold/[.13] border border-dashed border-gold/55 text-pine-deep">
@@ -360,6 +363,7 @@ createApp({
       titre: '', theme: 'nature,landscape,forest,mountains',
       query: '', results: [], indexCount: 0,
       entrees: [],
+      dragIndex: null, dragOver: null,
       mode: 'culte', serieNom: '', spontanesListe: [], showSpontanes: false, _stash: null,
       cultes: [], showCultes: false,
       showImport: false, importText: '', importing: false, importReplace: true,
@@ -410,12 +414,21 @@ createApp({
       } catch (e) { this.notify("Échec de l'import") }
       finally { this.importing = false }
     },
-    remove(i) { this.entrees.splice(i, 1) },
-    move(i, d) {
-      const j = i + d
-      if (j < 0 || j >= this.entrees.length) return
-      const a = this.entrees
-      ;[a[i], a[j]] = [a[j], a[i]]
+    remove(i) { this.entrees.splice(i, 1); this.dragIndex = null; this.dragOver = null },
+    onDragStart(i, ev) {
+      this.dragIndex = i
+      if (ev.dataTransfer) {
+        ev.dataTransfer.effectAllowed = 'move'
+        try { ev.dataTransfer.setData('text/plain', String(i)) } catch (e) {}
+      }
+    },
+    onDrop(i) {
+      const from = this.dragIndex
+      this.dragOver = null
+      if (from === null || from === i) { this.dragIndex = null; return }
+      const [item] = this.entrees.splice(from, 1)
+      this.entrees.splice(from < i ? i - 1 : i, 0, item)
+      this.dragIndex = null
     },
     tokensOf(e) { return (e.selection || '').split(',').map(t => t.trim()).filter(Boolean) },
     isSel(e, tok) { return this.tokensOf(e).map(t => t.toUpperCase()).includes(String(tok).toUpperCase()) },

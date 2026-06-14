@@ -118,7 +118,9 @@ rotation ; réutilise le pipeline ; `.zip` + import (D-001).
 - [x] **Sauvegarde des cultes** (`D-003`) — fait (côté backend) :
   `/api/cultes` GET/POST/GET-id/DELETE, stockés en JSON dans
   `webapp/cultes/` (gitignoré). Le frontend les exploitera.
-- [ ] **Doc de déploiement local** (`D-003`) — lancer le serveur, accès
-  LAN, pour des non-techniciens.
+- [x] **Lancement / déploiement local** (`D-003`) — fait. Lanceur
+  Windows `Preparer un culte.bat` (démarre le serveur + ouvre le
+  navigateur) ; serveur sans mode debug par défaut (`WOTK_DEBUG=1` pour
+  le dev) ; section README « Interface web ».
 - [ ] **(Différé) Push obs-websocket** (`D-003`) — envoi direct des scènes
   dans OBS ; rouvre la minute Q1 de D-001.

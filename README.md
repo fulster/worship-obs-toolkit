@@ -71,6 +71,21 @@ Le `.zip` est écrit dans `paths.output` et le dossier de sortie s'ouvre automat
 (Windows). Dans OBS Studio : **Scene Collection → Import**, puis sélectionner le `.json`
 contenu dans l'archive.
 
+## Interface web (préparation des cultes)
+
+Une interface locale permet de composer un culte sans ligne de commande (recherche de
+cantiques, sélection de couplets, séries de spontanés, aperçu des images, génération du
+`.zip`). Voir [D-003](docs/decisions/D-003-interface-de-preparation-des-cultes.md).
+
+- **Lancement simple (Windows)** : double-cliquer **`Preparer un culte.bat`** — le serveur
+  démarre et le navigateur s'ouvre sur `http://127.0.0.1:5000`. Laisser la fenêtre ouverte ;
+  la fermer arrête le serveur.
+- **Manuellement** : `uv run python webapp/app.py`, puis ouvrir **`http://127.0.0.1:5000`**
+  (avec le `http://` explicite — le serveur local n'est pas en HTTPS).
+
+L'interface est **locale** (jamais exposée sur internet) ; la projection reste hors-ligne
+(génération d'un `.zip` importé dans OBS).
+
 ## Format de `chants.txt`
 
 Une entrée par ligne. Les lignes vides et celles commençant par `#` sont ignorées.
