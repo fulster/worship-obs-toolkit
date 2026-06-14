@@ -32,4 +32,5 @@ Triées par ID décroissant (le plus récent en haut).
 
 | ID | Titre | Status | Type | Date |
 |---|---|---|---|---|
+| [D-002](D-002-support-multilingue-traductions.md) | Support multilingue des traductions dans le format source | accepted | cadrage | 2026-06-14 |
 | [D-001](D-001-format-source-structure-paroles.md) | Format source structuré des paroles de cantiques | accepted | cadrage | 2026-06-13 |
