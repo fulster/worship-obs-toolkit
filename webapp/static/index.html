@@ -305,27 +305,23 @@ body::before{
               {{ generating ? 'Génération…' : 'Générer le culte' }}
             </button>
           </div>
+
+          <!-- Résultat de génération (dans le panneau du culte) -->
+          <div v-if="result && mode==='culte'" class="px-5 py-5 border-t border-ink/8 bg-pine/[.05] pop">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div class="flex-1">
+                <h3 class="font-display text-xl font-semibold flex items-center gap-2"><span class="text-gold">✓</span> Culte prêt</h3>
+                <p class="text-ink-soft text-sm mt-0.5"><b class="text-ink">{{ result.ajoutes.length }}</b> chant{{ result.ajoutes.length>1?'s':'' }} dans la collection.</p>
+                <p v-if="result.non_trouves.length" class="text-clay text-sm mt-0.5">⚠ Introuvables : {{ result.non_trouves.join(', ') }}</p>
+                <p v-if="result.a_relire.length" class="text-gold text-sm mt-0.5">⚑ À relire : {{ result.a_relire.join(', ') }}</p>
+              </div>
+              <a :href="result.download" class="btn btn-gold px-5 py-3 text-center shrink-0" download>⬇ Télécharger le .zip</a>
+            </div>
+            <p class="text-xs text-ink-soft mt-3">Dans OBS Studio : <b>Scene Collection → Import</b>, puis sélectionnez le <code>.json</code> de l'archive.</p>
+          </div>
         </div>
       </section>
     </div>
-
-    <!-- Résultat de génération -->
-    <transition>
-      <section v-if="result" class="reveal mt-7">
-        <div class="card rounded-xl2 p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-5">
-          <div class="flex-1">
-            <h3 class="font-display text-2xl font-semibold flex items-center gap-2"><span class="text-gold">✓</span> Culte prêt</h3>
-            <p class="text-ink-soft mt-1">
-              <b class="text-ink">{{ result.ajoutes.length }}</b> chant{{ result.ajoutes.length>1?'s':'' }} dans la collection.
-            </p>
-            <p v-if="result.non_trouves.length" class="text-clay text-sm mt-1">⚠ Introuvables : {{ result.non_trouves.join(', ') }}</p>
-            <p v-if="result.a_relire.length" class="text-gold text-sm mt-1">⚑ À relire : {{ result.a_relire.join(', ') }}</p>
-          </div>
-          <a :href="result.download" class="btn btn-gold px-6 py-3 text-base text-center" download>⬇ Télécharger le .zip</a>
-        </div>
-        <p class="text-xs text-ink-soft mt-3 text-center sm:text-left">Dans OBS Studio : <b>Scene Collection → Import</b>, puis sélectionnez le <code>.json</code> de l'archive.</p>
-      </section>
-    </transition>
   </main>
 
   <!-- toast -->
@@ -424,7 +420,6 @@ createApp({
         })
         if (!r.ok) throw new Error()
         this.result = await r.json()
-        this.$nextTick(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }))
       } catch (e) { this.notify('La génération a échoué') }
       finally { this.generating = false }
     },
