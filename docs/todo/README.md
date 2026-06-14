@@ -43,15 +43,17 @@ Ordre indicatif : le schéma fonde le reste ; le sélecteur de couplets
   sélecteur sur `.txt` → ignorés avec avertissement. Résolution dans
   `expand_cantique` / `parse_selection` (`obs_json_resources.py`).
   *(Résout la douleur des spontanés-extraits.)*
-  - [ ] **Défaut d'ordre par cantique** (`D-001`) — reste à faire :
-    qu'un cantique déclare son refrain **en intro** par défaut (sans
-    avoir à écrire `R` à chaque culte). À concevoir comme un trait de la
-    source (champ schéma), composé avec l'override par culte ci-dessus.
-    En attendant, sans `R` explicite, le défaut est « refrain après
-    chaque couplet, sans intro ».
-- [ ] **Sort de `stock/txt/`** (`D-001`) — décider du devenir des 90
-  fichiers nettoyés à la main vs le nouveau corpus YAML (migration,
-  coexistence, ou abandon).
+  - [x] **Défaut d'ordre par cantique** (`D-001`) — **non retenu**
+    (verdict empirique 2026-06-14) : sur les 90 fichiers nettoyés à la
+    main, 28 ont un refrain mais **2 seulement ouvrent par le refrain
+    (7 %)**. L'intro-refrain est minoritaire → on garde le défaut
+    « refrain après chaque couplet, sans intro ». Les rares cas intro se
+    font par culte via le sélecteur littéral `(R,1,R,2)`.
+- [x] **Sort de `stock/txt/`** (`D-001`) — tranché : **abandon** des 90
+  fichiers nettoyés à la main, désormais couverts par le corpus YAML
+  (`stock/cantiques/`). Les bruts `stock/txt/à nettoyer/` restent (source
+  du convertisseur). Le repli `stock/txt` de `generate.py` devient inerte
+  (ne trouve plus rien) — inoffensif.
 
 ## Chantiers D-002 — Support multilingue des traductions
 
