@@ -90,10 +90,15 @@ def detect_lang(text: str) -> str | None:
 
 
 def normalize(text: str) -> str:
-    """Collapse toute séquence de CR avant LF, puis les CR isolés, en un LF."""
+    """Normalise le texte brut : fins de ligne (CR → LF) et `(c)` → `©`.
+
+    Les apostrophes typographiques `’` du brut sont conservées telles quelles
+    (plus lisibles à la projection). Seul le copyright est homogénéisé.
+    """
     text = text.lstrip("﻿")
     text = re.sub(r"\r+\n", "\n", text)
     text = re.sub(r"\r", "\n", text)
+    text = re.sub(r"\(c\)", "©", text, flags=re.IGNORECASE)
     return text
 
 
