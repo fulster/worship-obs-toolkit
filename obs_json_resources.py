@@ -272,6 +272,19 @@ class Scene_Collection(Obs_basic) :
                 self.core["sources"].append(clone)
                 return new_name
         return None
+    def rename_scene(self, old, new):
+        """Renomme une scène (source id « scene ») et met à jour les références.
+
+        Les items d'une scène référencent leurs sources (titre/paroles/caméra)
+        par leur propre nom, inchangé — renommer la scène ne les casse pas.
+        """
+        for s in self.core["sources"]:
+            if s.get("id") == "scene" and s.get("name") == old:
+                s["name"] = new
+                break
+        for key in ("current_scene", "current_program_scene"):
+            if self.core.get(key) == old:
+                self.core[key] = new
     def set_display_order(self, names):
         """Fixe l'ordre d'affichage des scènes dans OBS.
 

@@ -440,21 +440,39 @@ Envoi.add_image('fond2', str(img_envoi))
 Envoi.add_text('aurevoir', 'Bon dimanche à tous !')
 Envoi.register()
 
-# Ordre d'affichage OBS : « Accueil » en tête, « Envoi » en queue, et une copie
-# de « Base : temple » intercalée avant chaque cantique et avant l'envoi — pour
-# enchaîner les scènes sans revenir manuellement à la vue de base.
+# Séquence d'affichage OBS : « Accueil » en tête, « Envoi » en queue, et une
+# copie de « Base : temple » intercalée avant chaque cantique et avant l'envoi —
+# pour enchaîner les scènes sans revenir manuellement à la vue de base.
 cantique_names = [s.name for s in collection.scenes]
-display_order = ['Accueil']
+sequence = ['Accueil']
 base_counter = 1
 for scene_name in cantique_names + ['Envoi']:
     base_name = 'Base : temple' if base_counter == 1 else f'Base : temple {base_counter}'
     if base_counter > 1:
         collection.duplicate_base(base_name)
-    display_order.append(base_name)
-    display_order.append(scene_name)
+    sequence.append(base_name)
+    sequence.append(scene_name)
     base_counter += 1
+
+# Préfixer chaque scène d'une lettre séquentielle (A., B., C., …) : ordre lisible
+# dans OBS et noms uniques pour les bases (toutes ré-affichées « Base : temple »).
+def seq_label(i):
+    """0 -> A, 25 -> Z, 26 -> AA, … (style colonne de tableur)."""
+    s = ''
+    i += 1
+    while i:
+        i, r = divmod(i - 1, 26)
+        s = chr(ord('A') + r) + s
+    return s
+
+display_order = []
+for i, current in enumerate(sequence):
+    label = 'Base : temple' if current.startswith('Base : temple') else current
+    final = f"{seq_label(i)}. {label}"
+    collection.rename_scene(current, final)
+    display_order.append(final)
 collection.set_display_order(display_order)
-print(f"Ordre des scènes : Accueil → … → Envoi, {base_counter - 1} vues « Base » intercalées")
+print(f"Ordre des scènes : {len(display_order)} scènes (A. → …), {base_counter - 1} vues « Base »")
 
 # Create output zip file
 output_zip = Path(config['paths']['output']) / f'{fname}.zip'
